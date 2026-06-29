@@ -57,7 +57,6 @@ export default function StudyView({
   const handleKnown = useCallback(() => {
     if (!currentWord) return;
     setFlipped(false);
-    onKnown(currentWord.en);
 
     if (isWrongMode) {
       setWrongQueue((prev) => {
@@ -65,10 +64,14 @@ export default function StudyView({
         if (!first) return prev;
         const newRemaining = first.remaining - 1;
         if (newRemaining <= 0) {
+          // All required correct reviews done: promote by one level
+          onKnown(currentWord.en);
           return rest;
         }
         return [...rest, { ...first, remaining: newRemaining }];
       });
+    } else {
+      onKnown(currentWord.en);
     }
   }, [currentWord, isWrongMode, onKnown]);
 
