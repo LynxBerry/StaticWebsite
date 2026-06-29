@@ -10,7 +10,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1a120b;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(251, 191, 36, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(249, 115, 22, 0.1) 0%, transparent 50%),
+    #1a120b;
   color: #fff7ed;
   padding: 1rem;
 }
@@ -94,16 +97,21 @@ header p {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .card-front {
-  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  background: linear-gradient(135deg, rgba(255, 247, 237, 0.92) 0%, rgba(255, 237, 213, 0.88) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: #431407;
 }
 
 .card-back {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.85) 0%, rgba(234, 88, 12, 0.8) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: #fff7ed;
   transform: rotateY(180deg);
 }
@@ -239,9 +247,13 @@ header p {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
-  background: #451a03;
+  background: rgba(69, 26, 3, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(253, 186, 116, 0.15);
   padding: 0.25rem;
   border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .tab {
@@ -253,12 +265,13 @@ header p {
   color: #fdba74;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .tab.active {
-  background: #f97316;
+  background: rgba(249, 115, 22, 0.9);
   color: #fff7ed;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
 }
 
 /* Word Bank */
@@ -310,25 +323,30 @@ header p {
   padding: 0.875rem 1rem;
   margin-bottom: 0.5rem;
   border-radius: 0.75rem;
-  background: #2a180b;
+  background: rgba(42, 24, 11, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(253, 186, 116, 0.1);
   border-left: 4px solid #fdba74;
 }
 
 .word-item.empty {
   justify-content: center;
   color: #fdba74;
-  border-left: none;
+  border: none;
   background: transparent;
+  backdrop-filter: none;
 }
 
 .word-item.due {
   border-left-color: #f97316;
-  background: #431407;
+  background: rgba(67, 20, 7, 0.65);
+  box-shadow: 0 0 16px rgba(249, 115, 22, 0.15);
 }
 
 .word-item.mastered {
   border-left-color: #22c55e;
-  background: #142814;
+  background: rgba(20, 40, 20, 0.6);
 }
 
 .word-info {
@@ -376,22 +394,25 @@ header p {
   width: 100%;
   padding: 0.625rem 1rem;
   margin-bottom: 0.75rem;
-  border: 1px solid #fdba74;
+  border: 1px solid rgba(253, 186, 116, 0.25);
   border-radius: 9999px;
-  background: #2a180b;
+  background: rgba(42, 24, 11, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: #fff7ed;
   font-size: 0.9375rem;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .search-input::placeholder {
   color: #fdba74;
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 .search-input:focus {
-  border-color: #f97316;
+  border-color: rgba(249, 115, 22, 0.6);
+  background: rgba(42, 24, 11, 0.7);
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
 }
 
@@ -399,9 +420,12 @@ header p {
 .legend {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: #2a180b;
+  background: rgba(42, 24, 11, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 1rem;
-  border: 1px solid #451a03;
+  border: 1px solid rgba(253, 186, 116, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 .legend-title {
@@ -497,25 +521,29 @@ header p {
   justify-content: center;
   gap: 0.375rem;
   padding: 0.75rem 0.375rem;
-  background: #2a180b;
+  background: rgba(42, 24, 11, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-radius: 0.75rem;
-  border: 2px solid transparent;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(253, 186, 116, 0.1);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   cursor: default;
 }
 
 .farm-tile:hover {
   transform: translateY(-3px);
+  background: rgba(42, 24, 11, 0.75);
 }
 
 .farm-tile.due {
-  border-color: #f97316;
-  box-shadow: 0 0 12px rgba(249, 115, 22, 0.25);
+  border-color: rgba(249, 115, 22, 0.6);
+  box-shadow: 0 0 16px rgba(249, 115, 22, 0.25);
+  background: rgba(67, 20, 7, 0.6);
 }
 
 .farm-tile.mastered {
-  border-color: #22c55e;
-  background: #142814;
+  border-color: rgba(34, 197, 94, 0.5);
+  background: rgba(20, 40, 20, 0.55);
 }
 
 .farm-plant {
