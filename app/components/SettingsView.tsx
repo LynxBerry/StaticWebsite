@@ -5,13 +5,14 @@ import { FlatWordEntry } from '../hooks/useVocabState';
 
 interface SettingsViewProps {
   exportState: () => FlatWordEntry[];
-  importState: (data: unknown) => boolean;
+  importState: (data: unknown, options?: { merge?: boolean }) => boolean;
   onReset: () => void;
 }
 
 export default function SettingsView({ exportState, importState, onReset }: SettingsViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importMessage, setImportMessage] = useState<string | null>(null);
+  const [mergeImport, setMergeImport] = useState(true);
 
   const handleExport = () => {
     const state = exportState();
@@ -36,8 +37,8 @@ export default function SettingsView({ exportState, importState, onReset }: Sett
     try {
       const text = await file.text();
       const data = JSON.parse(text);
-      const success = importState(data);
-      setImportMessage(success ? '恢复成功！' : '备份文件格式不正确。');
+      const success = importState(data, { merge: mergeImport });
+      setImportMessage(success ? (mergeImport ? '增量导入成功！' : '恢复成功！') : '备份文件格式不正确。');
     } catch (err) {
       setImportMessage('无法读取文件，请检查是否为有效的 JSON。');
     }
@@ -70,8 +71,17 @@ export default function SettingsView({ exportState, importState, onReset }: Sett
       <div className="settings-section">
         <h3>📂 恢复词库和进度</h3>
         <p className="settings-desc">
-          选择 flat 格式或旧版内部格式的 JSON 备份文件进行恢复。恢复会替换当前词库和学习进度。
+          选择 flat 格式或旧版内部格式的 JSON 备份文件进行恢复。
+          默认开启增量导入：只新增文件里没有的单词，已有单词的学习进度保持不变。
         </p>
+        <label className="settings-checkbox">
+          <input
+            type="checkbox"
+            checked={mergeImport}
+            onChange={(e) => setMergeImport(e.target.checked)}
+          />
+          增量导入（保留现有进度）
+        </label>
         <input
           ref={fileInputRef}
           type="file"

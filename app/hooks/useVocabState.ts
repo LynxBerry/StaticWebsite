@@ -351,14 +351,16 @@ export function useVocabState() {
     });
   }, [words, progress.wordStates]);
 
-  const importState = useCallback((data: unknown): boolean => {
+  const importState = useCallback((data: unknown, options?: { merge?: boolean }): boolean => {
+    const merge = options?.merge ?? false;
+
     try {
       if (!data || typeof data !== 'object') return false;
 
       // New flat format: array of { wordInEnglish, wordInChinese, level, next date }
       if (Array.isArray(data)) {
-        const importedWords: Word[] = [];
-        const wordStates: Record<string, WordState> = {};
+        const mergedWords: Word[] = merge ? [...words] : [];
+        const mergedWordStates: Record<string, WordState> = merge ? { ...progress.wordStates } : {};
 
         data.forEach((item) => {
           if (!item || typeof item !== 'object') return;
@@ -370,9 +372,18 @@ export function useVocabState() {
 
           if (!en || !cn) return;
 
-          importedWords.push({ en, cn });
+          const existingIndex = mergedWords.findIndex((w) => w.en === en);
+          if (existingIndex >= 0) {
+            // Update Chinese meaning; preserve existing learning progress in merge mode
+            mergedWords[existingIndex] = { en, cn };
+          } else {
+            mergedWords.push({ en, cn });
+          }
 
           if (level >= 1) {
+            // In merge mode, never overwrite existing word state
+            if (merge && mergedWordStates[en]) return;
+
             let nextReview = Date.now();
             let firstLearnedDate = getTodayString();
             if (nextDate && typeof nextDate === 'string') {
@@ -384,7 +395,7 @@ export function useVocabState() {
                 firstLearnedDate = learned.toISOString().split('T')[0];
               }
             }
-            wordStates[en] = {
+            mergedWordStates[en] = {
               level: Math.min(level, MASTERED_LEVEL),
               nextReview,
               firstLearnedDate
@@ -392,10 +403,10 @@ export function useVocabState() {
           }
         });
 
-        if (importedWords.length === 0) return false;
+        if (mergedWords.length === 0) return false;
 
-        setWords(importedWords);
-        setProgress({ wordStates, wrongQueue: [] });
+        setWords(mergedWords);
+        setProgress({ wordStates: mergedWordStates, wrongQueue: merge ? progress.wrongQueue : [] });
         return true;
       }
 
@@ -403,32 +414,56 @@ export function useVocabState() {
       const imported = data as Partial<{ words: Word[]; progress: ProgressState }>;
 
       if (imported.words && Array.isArray(imported.words) && imported.words.length > 0) {
-        setWords(imported.words);
+        if (merge) {
+          const existingEns = new Set(words.map((w) => w.en));
+          const newWords = imported.words.filter((w) => !existingEns.has(w.en));
+          setWords([...words, ...newWords]);
+        } else {
+          setWords(imported.words);
+        }
       }
 
       if (imported.progress && typeof imported.progress === 'object') {
-        const wordStates: Record<string, WordState> = {};
-        Object.entries(imported.progress.wordStates || {}).forEach(([key, value]) => {
-          if (
-            value &&
-            typeof value === 'object' &&
-            'level' in value &&
-            'nextReview' in value &&
-            typeof (value as WordState).level === 'number' &&
-            typeof (value as WordState).nextReview === 'number'
-          ) {
-            wordStates[key] = value as WordState;
-          }
-        });
+        if (merge) {
+          const mergedWordStates = { ...progress.wordStates };
+          Object.entries(imported.progress.wordStates || {}).forEach(([key, value]) => {
+            if (
+              value &&
+              typeof value === 'object' &&
+              'level' in value &&
+              'nextReview' in value &&
+              typeof (value as WordState).level === 'number' &&
+              typeof (value as WordState).nextReview === 'number' &&
+              !mergedWordStates[key]
+            ) {
+              mergedWordStates[key] = value as WordState;
+            }
+          });
+          setProgress((prev) => ({ ...prev, wordStates: mergedWordStates }));
+        } else {
+          const wordStates: Record<string, WordState> = {};
+          Object.entries(imported.progress.wordStates || {}).forEach(([key, value]) => {
+            if (
+              value &&
+              typeof value === 'object' &&
+              'level' in value &&
+              'nextReview' in value &&
+              typeof (value as WordState).level === 'number' &&
+              typeof (value as WordState).nextReview === 'number'
+            ) {
+              wordStates[key] = value as WordState;
+            }
+          });
 
-        setProgress({ wordStates, wrongQueue: [] });
+          setProgress({ wordStates, wrongQueue: [] });
+        }
       }
       return true;
     } catch (e) {
       console.error('Failed to import state', e);
       return false;
     }
-  }, []);
+  }, [words, progress.wordStates, progress.wrongQueue]);
 
   return {
     isHydrated,

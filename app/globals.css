@@ -675,6 +675,24 @@ header p {
   border-color: rgba(253, 186, 116, 0.6);
 }
 
+.settings-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: #fff7ed;
+  cursor: pointer;
+  user-select: none;
+}
+
+.settings-checkbox input[type="checkbox"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: #22c55e;
+  cursor: pointer;
+}
+
 .settings-message {
   margin-top: 0.75rem;
   padding: 0.625rem 1rem;
