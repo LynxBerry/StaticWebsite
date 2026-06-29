@@ -572,6 +572,14 @@ header p {
   background: rgba(20, 40, 20, 0.55);
 }
 
+.farm-tile.empty .farm-plant {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: rgba(120, 53, 15, 0.4);
+  border: 1px dashed rgba(253, 186, 116, 0.25);
+}
+
 .farm-plant {
   font-size: 1.75rem;
   line-height: 1;
