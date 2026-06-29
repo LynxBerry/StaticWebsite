@@ -374,15 +374,14 @@ export function useVocabState() {
 
           const existingIndex = mergedWords.findIndex((w) => w.en === en);
           if (existingIndex >= 0) {
-            // Update Chinese meaning; preserve existing learning progress in merge mode
+            // Update Chinese meaning; keep the word in place
             mergedWords[existingIndex] = { en, cn };
           } else {
             mergedWords.push({ en, cn });
           }
 
           if (level >= 1) {
-            // In merge mode, never overwrite existing word state
-            if (merge && mergedWordStates[en]) return;
+            // In merge mode, overwrite existing word state with the imported level/next date
 
             let nextReview = Date.now();
             let firstLearnedDate = getTodayString();

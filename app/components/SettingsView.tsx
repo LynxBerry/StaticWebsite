@@ -72,7 +72,7 @@ export default function SettingsView({ exportState, importState, onReset }: Sett
         <h3>📂 恢复词库和进度</h3>
         <p className="settings-desc">
           选择 flat 格式或旧版内部格式的 JSON 备份文件进行恢复。
-          默认开启增量导入：只新增文件里没有的单词，已有单词的学习进度保持不变。
+          默认开启增量导入：新增文件里没有的单词；文件里已有的单词会更新中文释义、level 和 next date，不在文件里的单词和进度保持不变。
         </p>
         <label className="settings-checkbox">
           <input
