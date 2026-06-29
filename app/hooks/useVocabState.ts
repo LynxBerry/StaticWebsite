@@ -41,8 +41,23 @@ export interface FlatWordEntry {
   'next date': string | null;
 }
 
+function formatLocalDateString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function getTodayString(): string {
-  return new Date().toISOString().split('T')[0];
+  return formatLocalDateString(new Date());
+}
+
+function getDateStringFromTimestamp(timestamp: number): string {
+  return formatLocalDateString(new Date(timestamp));
+}
+
+function parseLocalDate(dateStr: string): Date {
+  return new Date(`${dateStr}T00:00:00`);
 }
 
 function loadWords(): Word[] {
@@ -221,11 +236,11 @@ export function useVocabState() {
   }, [words, isWordLearned]);
 
   const getDueWords = useCallback(() => {
-    const now = Date.now();
+    const today = getTodayString();
     return words.filter((word) => {
       if (!isWordLearned(word.en)) return false;
       const ws = getWordState(word.en);
-      return ws.level < MASTERED_LEVEL && ws.nextReview <= now;
+      return ws.level < MASTERED_LEVEL && getDateStringFromTimestamp(ws.nextReview) <= today;
     });
   }, [words, getWordState, isWordLearned]);
 
@@ -236,9 +251,9 @@ export function useVocabState() {
   const getStatus = useCallback((en: string): 'mastered' | 'due' | 'pending' | 'unlearned' => {
     if (!isWordLearned(en)) return 'unlearned';
     const ws = getWordState(en);
-    const now = Date.now();
+    const today = getTodayString();
     if (ws.level >= MASTERED_LEVEL) return 'mastered';
-    if (ws.nextReview <= now) return 'due';
+    if (getDateStringFromTimestamp(ws.nextReview) <= today) return 'due';
     return 'pending';
   }, [getWordState, isWordLearned]);
 
@@ -346,7 +361,7 @@ export function useVocabState() {
         wordInEnglish: word.en,
         wordInChinese: word.cn,
         level: ws.level,
-        'next date': new Date(ws.nextReview).toISOString().split('T')[0]
+        'next date': getDateStringFromTimestamp(ws.nextReview)
       };
     });
   }, [words, progress.wordStates]);
@@ -386,12 +401,13 @@ export function useVocabState() {
             let nextReview = Date.now();
             let firstLearnedDate = getTodayString();
             if (nextDate && typeof nextDate === 'string') {
-              const parsed = new Date(nextDate);
+              const parsed = parseLocalDate(nextDate);
               if (!isNaN(parsed.getTime())) {
                 nextReview = parsed.getTime();
                 // Assume learned one day before next review for level 1
-                const learned = new Date(parsed.getTime() - 24 * 60 * 60 * 1000);
-                firstLearnedDate = learned.toISOString().split('T')[0];
+                const learned = new Date(parsed.getTime());
+                learned.setDate(learned.getDate() - 1);
+                firstLearnedDate = formatLocalDateString(learned);
               }
             }
             mergedWordStates[en] = {
