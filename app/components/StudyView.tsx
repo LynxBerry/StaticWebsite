@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import WordCard from './WordCard';
 import { Word } from '../data/words';
+import { getAudioContext, playSuccessSound, playWrongSound } from '../lib/sound';
 
 const REQUIRED_CORRECT = 3;
 
@@ -39,6 +40,7 @@ export default function StudyView({
   onResetWrongQueue
 }: StudyViewProps) {
   const [flipped, setFlipped] = useState(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   const currentWord = useMemo(() => {
     if (dueWords.length > 0) return dueWords[0];
@@ -58,9 +60,24 @@ export default function StudyView({
 
   const progress = total === 0 ? 0 : Math.round((masteredCount / total) * 100);
 
+  const playSound = useCallback(async (type: 'success' | 'wrong') => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = getAudioContext();
+    }
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+
+    if (type === 'success') {
+      await playSuccessSound(ctx);
+    } else {
+      await playWrongSound(ctx);
+    }
+  }, []);
+
   const handleKnown = useCallback(() => {
     if (!currentWord) return;
     setFlipped(false);
+    playSound('success');
 
     if (isWrongMode) {
       const reachedZero = onDecrementWrongRemaining(currentWord.en);
@@ -70,17 +87,18 @@ export default function StudyView({
     } else {
       onKnown(currentWord.en);
     }
-  }, [currentWord, isWrongMode, onKnown, onDecrementWrongRemaining]);
+  }, [currentWord, isWrongMode, onKnown, onDecrementWrongRemaining, playSound]);
 
   const handleAgain = useCallback(() => {
     if (!currentWord) return;
     setFlipped(false);
+    playSound('wrong');
     onAgain(currentWord.en);
 
     if (!isWrongMode) {
       onAddToWrongQueue(currentWord.en);
     }
-  }, [currentWord, isWrongMode, onAgain, onAddToWrongQueue]);
+  }, [currentWord, isWrongMode, onAgain, onAddToWrongQueue, playSound]);
 
   const handleFlip = useCallback(() => {
     if (!isDone) setFlipped((f) => !f);
@@ -102,6 +120,14 @@ export default function StudyView({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isDone, handleFlip, handleKnown, handleAgain]);
+
+  useEffect(() => {
+    return () => {
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        audioCtxRef.current.close().catch(() => {});
+      }
+    };
+  }, []);
 
   if (isDone) {
     return (
