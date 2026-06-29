@@ -314,10 +314,10 @@ export function useVocabState() {
         if (importedWords.length === 0) return false;
 
         setWords(importedWords);
-        setProgress((prev) => ({
-          ...prev,
-          wordStates
-        }));
+        setProgress({
+          wordStates,
+          dailyNewWords: { date: getTodayString(), count: 0 }
+        });
         return true;
       }
 
@@ -346,7 +346,7 @@ export function useVocabState() {
         setProgress((prev) => ({
           ...prev,
           wordStates,
-          dailyNewWords: imported.progress?.dailyNewWords || prev.dailyNewWords
+          dailyNewWords: { date: getTodayString(), count: 0 }
         }));
       }
       return true;
