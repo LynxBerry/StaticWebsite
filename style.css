@@ -10,8 +10,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0f172a;
-  color: #f8fafc;
+  background: #1a120b;
+  color: #fff7ed;
 }
 
 .container {
@@ -22,14 +22,14 @@ body {
 h1 {
   font-size: 3rem;
   margin-bottom: 1rem;
-  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  background: linear-gradient(90deg, #fbbf24, #f97316);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 p {
   font-size: 1.25rem;
-  color: #94a3b8;
+  color: #fdba74;
   margin-bottom: 2rem;
 }
 
@@ -37,8 +37,8 @@ p {
   display: inline-block;
   padding: 0.75rem 1.5rem;
   border-radius: 9999px;
-  background: #38bdf8;
-  color: #0f172a;
+  background: #f97316;
+  color: #fff7ed;
   text-decoration: none;
   font-weight: 600;
   transition: transform 0.2s ease, background 0.2s ease;
@@ -46,5 +46,5 @@ p {
 
 .btn:hover {
   transform: translateY(-2px);
-  background: #7dd3fc;
+  background: #fb923c;
 }
