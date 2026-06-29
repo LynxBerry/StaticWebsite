@@ -1,6 +1,6 @@
-# Static Website
+# Zeno的单词农场
 
-一个简单的静态网站，用于部署到 Vercel。
+一个基于艾宾浩斯 / Leitner 间隔重复系统的背单词小网站，部署在 Vercel。
 
 ## 本地预览
 
