@@ -14,37 +14,58 @@
       <p>好好过暑假 🏖️</p>
     </header>
 
-    <section class="progress">
-      <span id="progress-text">0 / 0</span>
-      <div class="progress-bar"><div id="progress-fill"></div></div>
+    <nav class="tabs">
+      <button class="tab active" data-view="study">学习</button>
+      <button class="tab" data-view="bank">词库</button>
+    </nav>
+
+    <!-- 学习模式 -->
+    <section class="view" id="study-view">
+      <section class="progress">
+        <span id="progress-text">0 / 0</span>
+        <div class="progress-bar"><div id="progress-fill"></div></div>
+      </section>
+
+      <section class="card" id="card">
+        <div class="card-inner">
+          <div class="card-front">
+            <span class="label">英文 · <span id="word-level"></span></span>
+            <h2 id="word-en">Loading...</h2>
+          </div>
+          <div class="card-back">
+            <span class="label">中文</span>
+            <p id="word-cn">-</p>
+          </div>
+        </div>
+      </section>
+
+      <p class="hint">点击卡片查看释义</p>
+
+      <div class="actions">
+        <button class="btn btn-again" id="btn-again">😅 不认识</button>
+        <button class="btn btn-know" id="btn-know">😎 认识</button>
+      </div>
+
+      <section class="stats">
+        <div>已掌握：<strong id="mastered-count">0</strong></div>
+        <div>今日到期：<strong id="due-count">0</strong></div>
+      </section>
+
+      <button class="btn btn-reset" id="btn-reset">重置进度</button>
     </section>
 
-    <section class="card" id="card">
-      <div class="card-inner">
-        <div class="card-front">
-          <span class="label">英文 · <span id="word-level"></span></span>
-          <h2 id="word-en">Loading...</h2>
-        </div>
-        <div class="card-back">
-          <span class="label">中文</span>
-          <p id="word-cn">-</p>
+    <!-- 词库模式 -->
+    <section class="view hidden" id="bank-view">
+      <div class="bank-header">
+        <h2>词库</h2>
+        <div class="bank-filters">
+          <button class="filter active" data-filter="all">全部</button>
+          <button class="filter" data-filter="due">今日到期</button>
+          <button class="filter" data-filter="mastered">已掌握</button>
         </div>
       </div>
+      <ul class="word-list" id="word-list"></ul>
     </section>
-
-    <p class="hint">点击卡片查看释义</p>
-
-    <div class="actions">
-      <button class="btn btn-again" id="btn-again">😅 不认识</button>
-      <button class="btn btn-know" id="btn-know">😎 认识</button>
-    </div>
-
-    <section class="stats">
-      <div>已掌握：<strong id="mastered-count">0</strong></div>
-      <div>今日到期：<strong id="due-count">0</strong></div>
-    </section>
-
-    <button class="btn btn-reset" id="btn-reset">重置进度</button>
   </main>
 
   <script src="words.js"></script>

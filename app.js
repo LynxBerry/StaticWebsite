@@ -13,13 +13,19 @@ const dueCountEl = document.getElementById('due-count');
 const masteredCountEl = document.getElementById('mastered-count');
 const hintEl = document.querySelector('.hint');
 
+const tabs = document.querySelectorAll('.tab');
+const studyView = document.getElementById('study-view');
+const bankView = document.getElementById('bank-view');
+const wordList = document.getElementById('word-list');
+const filters = document.querySelectorAll('.filter');
+
 // 艾宾浩斯 / Leitner 复习间隔（单位：天）
 const INTERVALS = {
-  1: 1,   // 第 1 盒：1 天后复习
-  2: 2,   // 第 2 盒：2 天后
-  3: 4,   // 第 3 盒：4 天后
-  4: 7,   // 第 4 盒：7 天后
-  5: 14   // 第 5 盒：14 天后（即将掌握）
+  1: 1,
+  2: 2,
+  3: 4,
+  4: 7,
+  5: 14
 };
 
 const MASTERED_LEVEL = 6;
@@ -27,13 +33,14 @@ const MASTERED_LEVEL = 6;
 let state = loadState();
 let dueWords = [];
 let currentIndex = 0;
+let currentFilter = 'all';
+let currentView = 'study';
 
 function loadState() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
-      // 兼容旧版数据：mastered 数组
       if (Array.isArray(parsed.mastered)) {
         return migrateFromV1(parsed);
       }
@@ -89,8 +96,21 @@ function formatDate(timestamp) {
   return `${date.getMonth() + 1}/${date.getDate()}`;
 }
 
-function render() {
+function getStatus(index) {
+  const ws = getWordState(index);
   const now = Date.now();
+  if (ws.level >= MASTERED_LEVEL) return 'mastered';
+  if (ws.nextReview <= now) return 'due';
+  return 'pending';
+}
+
+function getStatusText(status) {
+  if (status === 'mastered') return '已掌握';
+  if (status === 'due') return '今日到期';
+  return `下次复习 ${formatDate(getWordState(arguments[0]).nextReview)}`;
+}
+
+function renderStudy() {
   dueWords = getDueWords();
   const mastered = getMasteredCount();
   const total = WORDS.length;
@@ -126,6 +146,54 @@ function render() {
   card.classList.remove('flipped');
 }
 
+function renderBank() {
+  wordList.innerHTML = '';
+
+  const items = WORDS.map((word, index) => {
+    const status = getStatus(index);
+    const ws = getWordState(index);
+    return { word, index, status, ws };
+  }).filter(({ status }) => {
+    if (currentFilter === 'all') return true;
+    return status === currentFilter;
+  });
+
+  if (items.length === 0) {
+    wordList.innerHTML = '<li class="word-item empty">没有符合条件的单词</li>';
+    return;
+  }
+
+  items.forEach(({ word, index, status, ws }) => {
+    const li = document.createElement('li');
+    li.className = `word-item ${status}`;
+
+    const statusText = status === 'mastered'
+      ? '已掌握'
+      : status === 'due'
+        ? '今日到期'
+        : `下次复习 ${formatDate(ws.nextReview)}`;
+
+    li.innerHTML = `
+      <div class="word-info">
+        <span class="word-en">${word.en}</span>
+        <span class="word-cn">${word.cn}</span>
+      </div>
+      <div class="word-meta">
+        <span class="word-box">Box ${ws.level}</span>
+        <span class="word-status">${statusText}</span>
+      </div>
+    `;
+    wordList.appendChild(li);
+  });
+}
+
+function render() {
+  renderStudy();
+  if (currentView === 'bank') {
+    renderBank();
+  }
+}
+
 function handleKnown() {
   if (dueWords.length === 0) return;
 
@@ -135,7 +203,7 @@ function handleKnown() {
   ws.level = Math.min(ws.level + 1, MASTERED_LEVEL);
 
   if (ws.level >= MASTERED_LEVEL) {
-    ws.nextReview = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 天后仍可复习
+    ws.nextReview = Date.now() + 30 * 24 * 60 * 60 * 1000;
   } else {
     ws.nextReview = Date.now() + INTERVALS[ws.level] * 24 * 60 * 60 * 1000;
   }
@@ -150,7 +218,6 @@ function handleAgain() {
   const { index } = dueWords[currentIndex];
   const ws = getWordState(index);
 
-  // 不认识：退回 Box 1，明天复习
   ws.level = 1;
   ws.nextReview = Date.now() + INTERVALS[1] * 24 * 60 * 60 * 1000;
 
@@ -166,6 +233,29 @@ function handleReset() {
   }
 }
 
+function switchView(view) {
+  currentView = view;
+  tabs.forEach((tab) => tab.classList.toggle('active', tab.dataset.view === view));
+  studyView.classList.toggle('hidden', view !== 'study');
+  bankView.classList.toggle('hidden', view !== 'bank');
+
+  if (view === 'bank') {
+    renderBank();
+  }
+}
+
+tabs.forEach((tab) => {
+  tab.addEventListener('click', () => switchView(tab.dataset.view));
+});
+
+filters.forEach((filter) => {
+  filter.addEventListener('click', () => {
+    currentFilter = filter.dataset.filter;
+    filters.forEach((f) => f.classList.toggle('active', f === filter));
+    renderBank();
+  });
+});
+
 card.addEventListener('click', () => {
   if (dueWords.length === 0) return;
   card.classList.toggle('flipped');
@@ -176,7 +266,7 @@ btnAgain.addEventListener('click', handleAgain);
 btnReset.addEventListener('click', handleReset);
 
 document.addEventListener('keydown', (e) => {
-  if (dueWords.length === 0) return;
+  if (currentView !== 'study' || dueWords.length === 0) return;
   if (e.key === ' ' || e.key === 'Enter') {
     e.preventDefault();
     card.classList.toggle('flipped');
