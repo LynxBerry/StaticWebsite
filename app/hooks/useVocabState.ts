@@ -255,47 +255,6 @@ export function useVocabState() {
     }
   }, []);
 
-  // Word management
-  const addWord = useCallback((word: Word) => {
-    setWords((prev) => {
-      if (prev.some((w) => w.en === word.en)) return prev;
-      return [...prev, word];
-    });
-  }, []);
-
-  const updateWord = useCallback((oldEn: string, newWord: Word) => {
-    setWords((prev) => {
-      const index = prev.findIndex((w) => w.en === oldEn);
-      if (index === -1) return prev;
-      const updated = [...prev];
-      updated[index] = newWord;
-      return updated;
-    });
-
-    // Update progress key if English word changed
-    if (oldEn !== newWord.en && progress.wordStates[oldEn]) {
-      setProgress((prev) => {
-        const { [oldEn]: state, ...rest } = prev.wordStates;
-        return {
-          ...prev,
-          wordStates: {
-            ...rest,
-            [newWord.en]: state
-          }
-        };
-      });
-    }
-  }, [progress.wordStates]);
-
-  const deleteWord = useCallback((en: string) => {
-    if (!confirm(`确定要删除单词 "${en}" 吗？相关学习进度也会一起删除。`)) return;
-    setWords((prev) => prev.filter((w) => w.en !== en));
-    setProgress((prev) => {
-      const { [en]: _, ...rest } = prev.wordStates;
-      return { ...prev, wordStates: rest };
-    });
-  }, []);
-
   const exportState = useCallback((): FlatWordEntry[] => {
     return words.map((word) => {
       const ws = progress.wordStates[word.en];
@@ -411,9 +370,6 @@ export function useVocabState() {
     getDueWords,
     getMasteredCount,
     getStatus,
-    addWord,
-    updateWord,
-    deleteWord,
     exportState,
     importState
   };

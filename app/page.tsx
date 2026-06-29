@@ -25,9 +25,6 @@ export default function Home() {
     getDueWords,
     getMasteredCount,
     getStatus,
-    addWord,
-    updateWord,
-    deleteWord,
     exportState,
     importState
   } = useVocabState();
@@ -62,7 +59,7 @@ export default function Home() {
           { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
           { key: 'farm', label: '农场', tooltip: '查看单词农场' },
           { key: 'bank', label: '词库', tooltip: '查看全部单词' },
-          { key: 'settings', label: '设置', tooltip: '备份与词库管理' }
+          { key: 'settings', label: '设置', tooltip: '备份与恢复' }
         ].map((tab) => (
           <button
             key={tab.key}
@@ -113,13 +110,9 @@ export default function Home() {
 
       {currentView === 'settings' && (
         <SettingsView
-          words={words}
           exportState={exportState}
           importState={importState}
           onReset={reset}
-          onAddWord={addWord}
-          onUpdateWord={updateWord}
-          onDeleteWord={deleteWord}
         />
       )}
     </main>
