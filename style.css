@@ -333,3 +333,26 @@ header p {
 .word-item.due .word-status {
   color: #fdba74;
 }
+
+.search-input {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid #fdba74;
+  border-radius: 9999px;
+  background: #2a180b;
+  color: #fff7ed;
+  font-size: 0.9375rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input::placeholder {
+  color: #fdba74;
+  opacity: 0.7;
+}
+
+.search-input:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}

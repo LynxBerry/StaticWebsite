@@ -18,6 +18,7 @@ const studyView = document.getElementById('study-view');
 const bankView = document.getElementById('bank-view');
 const wordList = document.getElementById('word-list');
 const filters = document.querySelectorAll('.filter');
+const searchInput = document.getElementById('search-input');
 
 // 艾宾浩斯 / Leitner 复习间隔（单位：天）
 const INTERVALS = {
@@ -35,6 +36,7 @@ let dueWords = [];
 let currentIndex = 0;
 let currentFilter = 'all';
 let currentView = 'study';
+let searchTerm = '';
 
 function loadState() {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -149,13 +151,18 @@ function renderStudy() {
 function renderBank() {
   wordList.innerHTML = '';
 
+  const term = searchTerm.trim().toLowerCase();
+
   const items = WORDS.map((word, index) => {
     const status = getStatus(index);
     const ws = getWordState(index);
     return { word, index, status, ws };
-  }).filter(({ status }) => {
+  }).filter(({ status, word }) => {
     if (currentFilter === 'all') return true;
     return status === currentFilter;
+  }).filter(({ word }) => {
+    if (!term) return true;
+    return word.en.toLowerCase().includes(term) || word.cn.includes(term);
   });
 
   if (items.length === 0) {
@@ -254,6 +261,11 @@ filters.forEach((filter) => {
     filters.forEach((f) => f.classList.toggle('active', f === filter));
     renderBank();
   });
+});
+
+searchInput.addEventListener('input', (e) => {
+  searchTerm = e.target.value;
+  renderBank();
 });
 
 card.addEventListener('click', () => {
