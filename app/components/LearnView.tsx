@@ -16,8 +16,10 @@ export default function LearnView({ unlearnedWords, todayCount, remaining, onLea
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
-  const availableWords = useMemo(() => unlearnedWords.slice(0, remaining), [unlearnedWords, remaining]);
-  const isDone = availableWords.length === 0 || remaining === 0;
+  const actualRemaining = Math.min(remaining, unlearnedWords.length);
+  const displayTotal = Math.min(MAX_NEW_WORDS_PER_DAY, unlearnedWords.length + todayCount);
+  const availableWords = useMemo(() => unlearnedWords.slice(0, actualRemaining), [unlearnedWords, actualRemaining]);
+  const isDone = availableWords.length === 0 || actualRemaining === 0;
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -58,9 +60,9 @@ export default function LearnView({ unlearnedWords, todayCount, remaining, onLea
   return (
     <section className="view" id="learn-view">
       <section className="progress">
-        <span id="progress-text">今日新学 {todayCount} / {MAX_NEW_WORDS_PER_DAY}</span>
+        <span id="progress-text">今日新学 {todayCount} / {displayTotal}</span>
         <div className="progress-bar">
-          <div id="progress-fill" style={{ width: `${(todayCount / MAX_NEW_WORDS_PER_DAY) * 100}%` }}></div>
+          <div id="progress-fill" style={{ width: `${displayTotal > 0 ? (todayCount / displayTotal) * 100 : 0}%` }}></div>
         </div>
       </section>
 
@@ -71,8 +73,8 @@ export default function LearnView({ unlearnedWords, todayCount, remaining, onLea
               <div className="card-front">
                 <h2>🌱 今日播种完成</h2>
                 <p>
-                  {remaining === 0
-                    ? '今天已经学了 15 个新单词，明天再来吧！'
+                  {actualRemaining === 0 && unlearnedWords.length > 0
+                    ? `今天已经学了 ${todayCount} 个新单词，明天再来吧！`
                     : '所有单词都已经开始学习了，去施肥复习吧！'}
                 </p>
               </div>
