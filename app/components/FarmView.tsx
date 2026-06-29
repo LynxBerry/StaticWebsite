@@ -33,7 +33,7 @@ export default function FarmView({ words, getStatus, getWordState }: FarmViewPro
               <span className="farm-plant">
                 {status === 'unlearned' ? '' : getPlantIcon(ws.level)}
               </span>
-              <span className="farm-word">{word.en}</span>
+              {status !== 'unlearned' && <span className="farm-word">{word.en}</span>}
             </div>
           );
         })}
