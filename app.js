@@ -98,6 +98,18 @@ function formatDate(timestamp) {
   return `${date.getMonth() + 1}/${date.getDate()}`;
 }
 
+function getPlantIcon(level) {
+  if (level >= MASTERED_LEVEL) return '✨🌳✨';
+  const icons = {
+    1: '🌰',
+    2: '🌱',
+    3: '🌿',
+    4: '🪴',
+    5: '🌳'
+  };
+  return icons[level] || icons[1];
+}
+
 function getStatus(index) {
   const ws = getWordState(index);
   const now = Date.now();
@@ -140,7 +152,7 @@ function renderStudy() {
 
   wordEn.textContent = word.en;
   wordCn.textContent = word.cn;
-  wordLevel.textContent = `Box ${ws.level} · 下次复习 ${formatDate(ws.nextReview)}`;
+  wordLevel.textContent = `${getPlantIcon(ws.level)} Box ${ws.level} · 下次复习 ${formatDate(ws.nextReview)}`;
   btnKnow.disabled = false;
   btnAgain.disabled = false;
   hintEl.textContent = '点击卡片查看释义';
@@ -186,7 +198,7 @@ function renderBank() {
         <span class="word-cn">${word.cn}</span>
       </div>
       <div class="word-meta">
-        <span class="word-box">Box ${ws.level}</span>
+        <span class="word-box">${getPlantIcon(ws.level)} Box ${ws.level}</span>
         <span class="word-status">${statusText}</span>
       </div>
     `;
