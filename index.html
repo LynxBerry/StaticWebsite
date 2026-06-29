@@ -16,6 +16,7 @@
 
     <nav class="tabs">
       <button class="tab active" data-view="study">学习</button>
+      <button class="tab" data-view="farm">农场</button>
       <button class="tab" data-view="bank">词库</button>
     </nav>
 
@@ -113,6 +114,15 @@
         </div>
       </div>
       <ul class="word-list" id="word-list"></ul>
+    </section>
+
+    <!-- 农场模式 -->
+    <section class="view hidden" id="farm-view">
+      <div class="farm-header">
+        <h2>🌾 单词农场</h2>
+        <p>每棵植物代表一个单词，成长阶段反映熟悉度</p>
+      </div>
+      <div class="farm-grid" id="farm-grid"></div>
     </section>
   </main>
 

@@ -19,6 +19,8 @@ const bankView = document.getElementById('bank-view');
 const wordList = document.getElementById('word-list');
 const filters = document.querySelectorAll('.filter');
 const searchInput = document.getElementById('search-input');
+const farmView = document.getElementById('farm-view');
+const farmGrid = document.getElementById('farm-grid');
 
 // 艾宾浩斯 / Leitner 复习间隔（单位：天）
 const INTERVALS = {
@@ -206,10 +208,31 @@ function renderBank() {
   });
 }
 
+function renderFarm() {
+  farmGrid.innerHTML = '';
+
+  WORDS.forEach((word, index) => {
+    const ws = getWordState(index);
+    const status = getStatus(index);
+
+    const tile = document.createElement('div');
+    tile.className = `farm-tile ${status}`;
+    tile.title = `${word.en} · ${word.cn} · Box ${ws.level}`;
+    tile.innerHTML = `
+      <span class="farm-plant">${getPlantIcon(ws.level)}</span>
+      <span class="farm-word">${word.en}</span>
+    `;
+    farmGrid.appendChild(tile);
+  });
+}
+
 function render() {
   renderStudy();
   if (currentView === 'bank') {
     renderBank();
+  }
+  if (currentView === 'farm') {
+    renderFarm();
   }
 }
 
@@ -257,9 +280,13 @@ function switchView(view) {
   tabs.forEach((tab) => tab.classList.toggle('active', tab.dataset.view === view));
   studyView.classList.toggle('hidden', view !== 'study');
   bankView.classList.toggle('hidden', view !== 'bank');
+  farmView.classList.toggle('hidden', view !== 'farm');
 
   if (view === 'bank') {
     renderBank();
+  }
+  if (view === 'farm') {
+    renderFarm();
   }
 }
 
