@@ -55,7 +55,7 @@ export default function WordCard({
           : isWrongMode
             ? `错题必须连续答对 ${remaining} 次才能通过`
             : flipped
-              ? '点击认识表示现在记住了'
+              ? '翻卡片后只能点不认识'
               : '认识直接点按钮，想不起来就点卡片'}
       </p>
 
@@ -63,7 +63,11 @@ export default function WordCard({
         <button className="btn btn-again" onClick={onAgain} disabled={disabled}>
           😅 不认识
         </button>
-        <button className="btn btn-know" onClick={onKnown} disabled={disabled}>
+        <button
+          className="btn btn-know"
+          onClick={onKnown}
+          disabled={disabled || (!isWrongMode && flipped)}
+        >
           😎 认识
         </button>
       </div>

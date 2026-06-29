@@ -94,23 +94,8 @@ export default function StudyView({
   }, [currentWord, isWrongMode, onAgain]);
 
   const handleFlip = useCallback(() => {
-    if (isDone || !currentWord) return;
-
-    setFlipped((prev) => {
-      const next = !prev;
-
-      // Flipping from front to back in normal study mode = didn't know it
-      if (!prev && !isWrongMode) {
-        onAgain(currentWord.en);
-        setWrongQueue((queue) => {
-          if (queue.some((item) => item.en === currentWord.en)) return queue;
-          return [...queue, { en: currentWord.en, remaining: REQUIRED_CORRECT }];
-        });
-      }
-
-      return next;
-    });
-  }, [isDone, currentWord, isWrongMode, onAgain]);
+    if (!isDone) setFlipped((f) => !f);
+  }, [isDone]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
