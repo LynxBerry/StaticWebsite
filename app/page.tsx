@@ -46,14 +46,15 @@ export default function Home() {
 
       <nav className="tabs">
         {[
-          { key: 'study', label: '学习' },
-          { key: 'farm', label: '农场' },
-          { key: 'bank', label: '词库' }
+          { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
+          { key: 'farm', label: '农场', tooltip: '查看单词农场' },
+          { key: 'bank', label: '词库', tooltip: '查看全部单词' }
         ].map((tab) => (
           <button
             key={tab.key}
             className={`tab ${currentView === tab.key ? 'active' : ''}`}
             onClick={() => setCurrentView(tab.key as ViewType)}
+            title={tab.tooltip}
           >
             {tab.label}
           </button>
