@@ -2,10 +2,11 @@
 
 import { useRef, useState } from 'react';
 import { Word } from '../data/words';
+import { FlatWordEntry } from '../hooks/useVocabState';
 
 interface SettingsViewProps {
   words: Word[];
-  exportState: () => { words: Word[]; progress: unknown };
+  exportState: () => FlatWordEntry[];
   importState: (data: unknown) => boolean;
   onReset: () => void;
   onAddWord: (word: Word) => void;
@@ -171,16 +172,19 @@ export default function SettingsView({
       </div>
 
       <div className="settings-section">
-        <h3>💾 备份进度</h3>
-        <p className="settings-desc">将当前词库和学习进度导出为 JSON 文件，文件名会自动带上今天的日期。</p>
+        <h3>💾 备份词库和进度</h3>
+        <p className="settings-desc">
+          导出为 flat 格式，每个单词一行：wordInEnglish / wordInChinese / level / next date。
+          level 0 表示未学习，文件名自动带日期。
+        </p>
         <button className="btn btn-know" onClick={handleExport}>
           导出备份
         </button>
       </div>
 
       <div className="settings-section">
-        <h3>📂 恢复进度</h3>
-        <p className="settings-desc">选择之前导出的 JSON 备份文件，恢复词库和学习进度。</p>
+        <h3>📂 恢复词库和进度</h3>
+        <p className="settings-desc">选择 flat 格式或旧版内部格式的 JSON 备份文件进行恢复。</p>
         <input
           ref={fileInputRef}
           type="file"

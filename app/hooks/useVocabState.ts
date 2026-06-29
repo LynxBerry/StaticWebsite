@@ -33,6 +33,13 @@ export interface ProgressState {
   dailyNewWords: DailyNewWords;
 }
 
+export interface FlatWordEntry {
+  wordInEnglish: string;
+  wordInChinese: string;
+  level: number;
+  'next date': string | null;
+}
+
 function getTodayString(): string {
   return new Date().toISOString().split('T')[0];
 }
@@ -289,13 +296,73 @@ export function useVocabState() {
     });
   }, []);
 
-  const exportState = useCallback(() => {
-    return { words, progress };
-  }, [words, progress]);
+  const exportState = useCallback((): FlatWordEntry[] => {
+    return words.map((word) => {
+      const ws = progress.wordStates[word.en];
+      if (!ws) {
+        return {
+          wordInEnglish: word.en,
+          wordInChinese: word.cn,
+          level: 0,
+          'next date': null
+        };
+      }
+      return {
+        wordInEnglish: word.en,
+        wordInChinese: word.cn,
+        level: ws.level,
+        'next date': new Date(ws.nextReview).toISOString().split('T')[0]
+      };
+    });
+  }, [words, progress.wordStates]);
 
   const importState = useCallback((data: unknown): boolean => {
     try {
       if (!data || typeof data !== 'object') return false;
+
+      // New flat format: array of { wordInEnglish, wordInChinese, level, next date }
+      if (Array.isArray(data)) {
+        const importedWords: Word[] = [];
+        const wordStates: Record<string, WordState> = {};
+
+        data.forEach((item) => {
+          if (!item || typeof item !== 'object') return;
+          const entry = item as Partial<FlatWordEntry>;
+          const en = entry.wordInEnglish?.trim();
+          const cn = entry.wordInChinese?.trim();
+          const level = typeof entry.level === 'number' ? entry.level : 0;
+          const nextDate = entry['next date'];
+
+          if (!en || !cn) return;
+
+          importedWords.push({ en, cn });
+
+          if (level >= 1) {
+            let nextReview = Date.now();
+            if (nextDate && typeof nextDate === 'string') {
+              const parsed = new Date(nextDate);
+              if (!isNaN(parsed.getTime())) {
+                nextReview = parsed.getTime();
+              }
+            }
+            wordStates[en] = {
+              level: Math.min(level, MASTERED_LEVEL),
+              nextReview
+            };
+          }
+        });
+
+        if (importedWords.length === 0) return false;
+
+        setWords(importedWords);
+        setProgress((prev) => ({
+          ...prev,
+          wordStates
+        }));
+        return true;
+      }
+
+      // Legacy internal format: { words, progress }
       const imported = data as Partial<{ words: Word[]; progress: ProgressState }>;
 
       if (imported.words && Array.isArray(imported.words) && imported.words.length > 0) {
@@ -317,10 +384,11 @@ export function useVocabState() {
           }
         });
 
-        setProgress({
+        setProgress((prev) => ({
+          ...prev,
           wordStates,
-          dailyNewWords: imported.progress.dailyNewWords || { date: getTodayString(), count: 0 }
-        });
+          dailyNewWords: imported.progress?.dailyNewWords || prev.dailyNewWords
+        }));
       }
       return true;
     } catch (e) {
