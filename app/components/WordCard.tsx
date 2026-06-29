@@ -54,7 +54,9 @@ export default function WordCard({
           ? '全部复习完成'
           : isWrongMode
             ? `错题必须连续答对 ${remaining} 次才能通过`
-            : '点击卡片查看释义'}
+            : flipped
+              ? '点击认识表示现在记住了'
+              : '认识直接点按钮，想不起来就点卡片'}
       </p>
 
       <div className="actions">
