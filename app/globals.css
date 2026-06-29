@@ -10,12 +10,20 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(ellipse at 20% 20%, rgba(251, 191, 36, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(249, 115, 22, 0.1) 0%, transparent 50%),
-    #1a120b;
+  background: #1a120b;
   color: #fff7ed;
   padding: 1rem;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url('/greenfarm.jpg') center/cover no-repeat fixed;
+  filter: blur(5px) brightness(0.45);
+  transform: scale(1.05);
+  z-index: -1;
 }
 
 .app {
