@@ -3,19 +3,23 @@
 import { useState } from 'react';
 import { useVocabState } from './hooks/useVocabState';
 import StudyView from './components/StudyView';
+import LearnView from './components/LearnView';
 import FarmView from './components/FarmView';
 import BankView from './components/BankView';
 
-type ViewType = 'study' | 'farm' | 'bank';
+type ViewType = 'learn' | 'study' | 'farm' | 'bank';
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<ViewType>('study');
   const {
     isHydrated,
     getWordState,
+    learnNewWord,
     markKnown,
     markAgain,
     reset,
+    getUnlearnedWords,
+    getNewWordsStats,
     getDueWords,
     getMasteredCount,
     getStatus,
@@ -36,6 +40,8 @@ export default function Home() {
 
   const dueWords = getDueWords();
   const masteredCount = getMasteredCount();
+  const unlearnedWords = getUnlearnedWords();
+  const { todayCount, remaining } = getNewWordsStats();
 
   return (
     <main className="app">
@@ -46,6 +52,7 @@ export default function Home() {
 
       <nav className="tabs">
         {[
+          { key: 'learn', label: '播种', tooltip: '学习新单词（每日最多15个）' },
           { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
           { key: 'farm', label: '农场', tooltip: '查看单词农场' },
           { key: 'bank', label: '词库', tooltip: '查看全部单词' }
@@ -60,6 +67,15 @@ export default function Home() {
           </button>
         ))}
       </nav>
+
+      {currentView === 'learn' && (
+        <LearnView
+          unlearnedWords={unlearnedWords}
+          todayCount={todayCount}
+          remaining={remaining}
+          onLearn={learnNewWord}
+        />
+      )}
 
       {currentView === 'study' && (
         <StudyView

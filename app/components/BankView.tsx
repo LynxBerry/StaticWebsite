@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { Word } from '../data/words';
 import { formatDate, getPlantIcon } from '../lib/utils';
 
-type FilterType = 'all' | 'due' | 'mastered';
-type StatusType = 'mastered' | 'due' | 'pending';
+type FilterType = 'all' | 'unlearned' | 'due' | 'mastered';
+type StatusType = 'mastered' | 'due' | 'pending' | 'unlearned';
 
 interface BankViewProps {
   words: Word[];
@@ -33,9 +33,15 @@ export default function BankView({ words, getStatus, getWordState }: BankViewPro
     });
 
   const getStatusText = (status: StatusType, ws: { nextReview: number }) => {
+    if (status === 'unlearned') return '待播种';
     if (status === 'mastered') return '已掌握';
     if (status === 'due') return '今日到期';
     return `下次复习 ${formatDate(ws.nextReview)}`;
+  };
+
+  const getLevelText = (status: StatusType, ws: { level: number }) => {
+    if (status === 'unlearned') return `${getPlantIcon(1)} 待播种`;
+    return `${getPlantIcon(ws.level)} 阶段 ${ws.level}`;
   };
 
   return (
@@ -50,13 +56,13 @@ export default function BankView({ words, getStatus, getWordState }: BankViewPro
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <div className="bank-filters">
-          {(['all', 'due', 'mastered'] as FilterType[]).map((f) => (
+          {(['all', 'unlearned', 'due', 'mastered'] as FilterType[]).map((f) => (
             <button
               key={f}
               className={`filter ${filter === f ? 'active' : ''}`}
               onClick={() => setFilter(f)}
             >
-              {f === 'all' ? '全部' : f === 'due' ? '今日到期' : '已掌握'}
+              {f === 'all' ? '全部' : f === 'unlearned' ? '待播种' : f === 'due' ? '今日到期' : '已掌握'}
             </button>
           ))}
         </div>
@@ -72,7 +78,7 @@ export default function BankView({ words, getStatus, getWordState }: BankViewPro
                 <span className="word-cn">{word.cn}</span>
               </div>
               <div className="word-meta">
-                <span className="word-box">{getPlantIcon(ws.level)} 阶段 {ws.level}</span>
+                <span className="word-box">{getLevelText(status, ws)}</span>
                 <span className="word-status">{getStatusText(status, ws)}</span>
               </div>
             </li>

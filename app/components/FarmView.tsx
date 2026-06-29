@@ -6,7 +6,7 @@ import Legend from './Legend';
 
 interface FarmViewProps {
   words: Word[];
-  getStatus: (index: number) => 'mastered' | 'due' | 'pending';
+  getStatus: (index: number) => 'mastered' | 'due' | 'pending' | 'unlearned';
   getWordState: (index: number) => { level: number; nextReview: number };
 }
 
@@ -28,7 +28,7 @@ export default function FarmView({ words, getStatus, getWordState }: FarmViewPro
             <div
               key={index}
               className={`farm-tile ${status}`}
-              title={`${word.en} · ${word.cn} · Box ${ws.level}`}
+              title={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : `阶段 ${ws.level}`}`}
             >
               <span className="farm-plant">{getPlantIcon(ws.level)}</span>
               <span className="farm-word">{word.en}</span>

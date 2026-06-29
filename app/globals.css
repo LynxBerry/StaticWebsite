@@ -349,6 +349,15 @@ header p {
   background: rgba(20, 40, 20, 0.6);
 }
 
+.word-item.unlearned {
+  border-left-color: #a8a29e;
+  background: rgba(40, 35, 30, 0.5);
+}
+
+.word-item.unlearned .word-status {
+  color: #d6d3d1;
+}
+
 .word-info {
   display: flex;
   flex-direction: column;
