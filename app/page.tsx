@@ -27,7 +27,7 @@ export default function Home() {
       <main className="app">
         <header>
           <h1>Zeno的单词农场</h1>
-          <p>好好过暑假 🏖️</p>
+          <p>一份耕耘一份收获</p>
         </header>
         <p style={{ textAlign: 'center', color: '#fdba74' }}>加载中...</p>
       </main>
@@ -41,7 +41,7 @@ export default function Home() {
     <main className="app">
       <header>
         <h1>Zeno的单词农场</h1>
-        <p>好好过暑假 🏖️</p>
+        <p>一份耕耘一份收获</p>
       </header>
 
       <nav className="tabs">
