@@ -24,7 +24,7 @@ export default function WordCard({ word, wordState, flipped, onFlip, onKnown, on
         <div className="card-inner">
           <div className="card-front">
             <span className="label">
-              英文 · {getPlantIcon(wordState.level)} Box {wordState.level} · 下次复习 {formatDate(wordState.nextReview)}
+              英文 · {getPlantIcon(wordState.level)} 阶段 {wordState.level} · 下次复习 {formatDate(wordState.nextReview)}
             </span>
             <h2>{word.en}</h2>
           </div>

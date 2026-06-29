@@ -2,11 +2,11 @@
 
 export default function Legend() {
   const steps = [
-    { icon: '🌰', box: 'Box 1', desc: '刚认识' },
-    { icon: '🌱', box: 'Box 2', desc: '有点印象' },
-    { icon: '🌿', box: 'Box 3', desc: '正在熟悉' },
-    { icon: '🪴', box: 'Box 4', desc: '比较熟悉' },
-    { icon: '🌳', box: 'Box 5', desc: '即将掌握' },
+    { icon: '🌰', box: '阶段 1', desc: '刚认识' },
+    { icon: '🌱', box: '阶段 2', desc: '有点印象' },
+    { icon: '🌿', box: '阶段 3', desc: '正在熟悉' },
+    { icon: '🪴', box: '阶段 4', desc: '比较熟悉' },
+    { icon: '🌳', box: '阶段 5', desc: '即将掌握' },
     { icon: '✨🌳✨', box: '掌握', desc: '参天大树', mastered: true }
   ];
 

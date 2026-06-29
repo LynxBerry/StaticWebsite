@@ -72,7 +72,7 @@ export default function BankView({ words, getStatus, getWordState }: BankViewPro
                 <span className="word-cn">{word.cn}</span>
               </div>
               <div className="word-meta">
-                <span className="word-box">{getPlantIcon(ws.level)} Box {ws.level}</span>
+                <span className="word-box">{getPlantIcon(ws.level)} 阶段 {ws.level}</span>
                 <span className="word-status">{getStatusText(status, ws)}</span>
               </div>
             </li>
