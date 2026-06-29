@@ -24,8 +24,14 @@ export interface WordState {
   firstLearnedDate?: string;
 }
 
+export interface WrongItem {
+  en: string;
+  remaining: number;
+}
+
 export interface ProgressState {
   wordStates: Record<string, WordState>;
+  wrongQueue: WrongItem[];
 }
 
 export interface FlatWordEntry {
@@ -91,7 +97,7 @@ function migrateV2Progress(): ProgressState | null {
       });
     }
 
-    return { wordStates };
+    return { wordStates, wrongQueue: [] };
   } catch (e) {
     console.error('Failed to migrate v2 progress', e);
     return null;
@@ -100,7 +106,7 @@ function migrateV2Progress(): ProgressState | null {
 
 function loadProgress(): ProgressState {
   if (typeof window === 'undefined') {
-    return { wordStates: {} };
+    return { wordStates: {}, wrongQueue: [] };
   }
 
   const migrated = migrateV2Progress();
@@ -121,12 +127,26 @@ function loadProgress(): ProgressState {
           wordStates[key] = value as WordState;
         }
       });
-      return { wordStates };
+
+      const wrongQueue: WrongItem[] = Array.isArray(parsed.wrongQueue)
+        ? parsed.wrongQueue.filter((item: unknown) => {
+            return (
+              item &&
+              typeof item === 'object' &&
+              'en' in (item as WrongItem) &&
+              'remaining' in (item as WrongItem) &&
+              typeof (item as WrongItem).en === 'string' &&
+              typeof (item as WrongItem).remaining === 'number'
+            );
+          })
+        : [];
+
+      return { wordStates, wrongQueue };
     } catch (e) {
       console.error('Failed to parse progress', e);
     }
   }
-  return { wordStates: {} };
+  return { wordStates: {}, wrongQueue: [] };
 }
 
 function saveProgress(progress: ProgressState) {
@@ -136,7 +156,7 @@ function saveProgress(progress: ProgressState) {
 
 export function useVocabState() {
   const [words, setWords] = useState<Word[]>(DEFAULT_WORDS);
-  const [progress, setProgress] = useState<ProgressState>({ wordStates: {} });
+  const [progress, setProgress] = useState<ProgressState>({ wordStates: {}, wrongQueue: [] });
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -154,6 +174,17 @@ export function useVocabState() {
   useEffect(() => {
     if (isHydrated) saveProgress(progress);
   }, [progress, isHydrated]);
+
+  // Prune wrong queue entries that no longer exist in the word list
+  useEffect(() => {
+    if (!isHydrated) return;
+    const validEns = new Set(words.map((w) => w.en));
+    setProgress((prev) => {
+      const filtered = prev.wrongQueue.filter((item) => validEns.has(item.en));
+      if (filtered.length === prev.wrongQueue.length) return prev;
+      return { ...prev, wrongQueue: filtered };
+    });
+  }, [words, isHydrated]);
 
   const isWordLearned = useCallback((en: string): boolean => {
     return en in progress.wordStates;
@@ -220,6 +251,7 @@ export function useVocabState() {
       if (currentCount >= MAX_NEW_WORDS_PER_DAY) return prev;
 
       return {
+        ...prev,
         wordStates: {
           ...prev.wordStates,
           [en]: {
@@ -253,9 +285,49 @@ export function useVocabState() {
     }));
   }, [setWordState]);
 
+  const wrongQueue = progress.wrongQueue;
+
+  const getWrongRemaining = useCallback((en: string): number => {
+    const item = progress.wrongQueue.find((i) => i.en === en);
+    return item ? item.remaining : 0;
+  }, [progress.wrongQueue]);
+
+  const addToWrongQueue = useCallback((en: string) => {
+    setProgress((prev) => {
+      if (prev.wrongQueue.some((i) => i.en === en)) return prev;
+      return {
+        ...prev,
+        wrongQueue: [...prev.wrongQueue, { en, remaining: 3 }]
+      };
+    });
+  }, []);
+
+  const decrementWrongRemaining = useCallback((en: string): boolean => {
+    let reachedZero = false;
+    setProgress((prev) => {
+      const index = prev.wrongQueue.findIndex((i) => i.en === en);
+      if (index === -1) return prev;
+      const item = prev.wrongQueue[index];
+      const newRemaining = item.remaining - 1;
+      reachedZero = newRemaining <= 0;
+      const newQueue = [...prev.wrongQueue];
+      if (reachedZero) {
+        newQueue.splice(index, 1);
+      } else {
+        newQueue[index] = { ...item, remaining: newRemaining };
+      }
+      return { ...prev, wrongQueue: newQueue };
+    });
+    return reachedZero;
+  }, []);
+
+  const resetWrongQueue = useCallback(() => {
+    setProgress((prev) => ({ ...prev, wrongQueue: [] }));
+  }, []);
+
   const reset = useCallback(() => {
     if (confirm('确定要重置所有学习进度吗？')) {
-      setProgress({ wordStates: {} });
+      setProgress({ wordStates: {}, wrongQueue: [] });
     }
   }, []);
 
@@ -323,7 +395,7 @@ export function useVocabState() {
         if (importedWords.length === 0) return false;
 
         setWords(importedWords);
-        setProgress({ wordStates });
+        setProgress({ wordStates, wrongQueue: [] });
         return true;
       }
 
@@ -349,7 +421,7 @@ export function useVocabState() {
           }
         });
 
-        setProgress({ wordStates });
+        setProgress({ wordStates, wrongQueue: [] });
       }
       return true;
     } catch (e) {
@@ -373,6 +445,11 @@ export function useVocabState() {
     getMasteredCount,
     getStatus,
     exportState,
-    importState
+    importState,
+    wrongQueue,
+    getWrongRemaining,
+    addToWrongQueue,
+    decrementWrongRemaining,
+    resetWrongQueue
   };
 }

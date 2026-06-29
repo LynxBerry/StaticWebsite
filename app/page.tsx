@@ -26,7 +26,11 @@ export default function Home() {
     getMasteredCount,
     getStatus,
     exportState,
-    importState
+    importState,
+    wrongQueue,
+    addToWrongQueue,
+    decrementWrongRemaining,
+    resetWrongQueue
   } = useVocabState();
 
   if (!isHydrated) {
@@ -83,12 +87,17 @@ export default function Home() {
 
       {currentView === 'study' && (
         <StudyView
+          words={words}
           dueWords={dueWords}
           masteredCount={masteredCount}
           total={words.length}
+          wrongQueue={wrongQueue}
           getWordState={getWordState}
           onKnown={markKnown}
           onAgain={markAgain}
+          onAddToWrongQueue={addToWrongQueue}
+          onDecrementWrongRemaining={decrementWrongRemaining}
+          onResetWrongQueue={resetWrongQueue}
         />
       )}
 

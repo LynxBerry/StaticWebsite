@@ -12,37 +12,41 @@ interface WrongItem {
 }
 
 interface StudyViewProps {
+  words: Word[];
   dueWords: Word[];
   masteredCount: number;
   total: number;
+  wrongQueue: WrongItem[];
   getWordState: (en: string) => { level: number; nextReview: number };
   onKnown: (en: string) => void;
   onAgain: (en: string) => void;
+  onAddToWrongQueue: (en: string) => void;
+  onDecrementWrongRemaining: (en: string) => boolean;
+  onResetWrongQueue: () => void;
 }
 
 export default function StudyView({
+  words,
   dueWords,
   masteredCount,
   total,
+  wrongQueue,
   getWordState,
   onKnown,
-  onAgain
+  onAgain,
+  onAddToWrongQueue,
+  onDecrementWrongRemaining,
+  onResetWrongQueue
 }: StudyViewProps) {
   const [flipped, setFlipped] = useState(false);
-  const [wrongQueue, setWrongQueue] = useState<WrongItem[]>([]);
-
-  // Reset wrong queue on mount
-  useEffect(() => {
-    setWrongQueue([]);
-  }, []);
 
   const currentWord = useMemo(() => {
     if (dueWords.length > 0) return dueWords[0];
     if (wrongQueue.length > 0) {
-      return { en: wrongQueue[0].en, cn: '' } as Word;
+      return words.find((w) => w.en === wrongQueue[0].en) || null;
     }
     return null;
-  }, [dueWords, wrongQueue]);
+  }, [dueWords, wrongQueue, words]);
 
   const currentRemaining = useMemo(() => {
     if (dueWords.length > 0) return null;
@@ -59,21 +63,14 @@ export default function StudyView({
     setFlipped(false);
 
     if (isWrongMode) {
-      setWrongQueue((prev) => {
-        const [first, ...rest] = prev;
-        if (!first) return prev;
-        const newRemaining = first.remaining - 1;
-        if (newRemaining <= 0) {
-          // All required correct reviews done: promote by one level
-          onKnown(currentWord.en);
-          return rest;
-        }
-        return [...rest, { ...first, remaining: newRemaining }];
-      });
+      const reachedZero = onDecrementWrongRemaining(currentWord.en);
+      if (reachedZero) {
+        onKnown(currentWord.en);
+      }
     } else {
       onKnown(currentWord.en);
     }
-  }, [currentWord, isWrongMode, onKnown]);
+  }, [currentWord, isWrongMode, onKnown, onDecrementWrongRemaining]);
 
   const handleAgain = useCallback(() => {
     if (!currentWord) return;
@@ -81,20 +78,9 @@ export default function StudyView({
     onAgain(currentWord.en);
 
     if (!isWrongMode) {
-      // First time wrong today: add to wrong queue with required correct count
-      setWrongQueue((prev) => {
-        if (prev.some((item) => item.en === currentWord.en)) return prev;
-        return [...prev, { en: currentWord.en, remaining: REQUIRED_CORRECT }];
-      });
-    } else {
-      // Wrong again during wrong-mode review: reset required count
-      setWrongQueue((prev) => {
-        const [first, ...rest] = prev;
-        if (!first) return prev;
-        return [...rest, { ...first, remaining: REQUIRED_CORRECT }];
-      });
+      onAddToWrongQueue(currentWord.en);
     }
-  }, [currentWord, isWrongMode, onAgain]);
+  }, [currentWord, isWrongMode, onAgain, onAddToWrongQueue]);
 
   const handleFlip = useCallback(() => {
     if (!isDone) setFlipped((f) => !f);
@@ -144,13 +130,15 @@ export default function StudyView({
         <section className="stats">
           <div>已掌握：<strong>{masteredCount}</strong></div>
           <div>今日到期：<strong>{dueWords.length}</strong></div>
+          {wrongQueue.length > 0 && (
+            <div>待通过错题：<strong>{wrongQueue.length}</strong></div>
+          )}
         </section>
       </section>
     );
   }
 
-  // For wrong mode, we need the actual word object to show Chinese meaning
-  const displayWord = dueWords.find((w) => w.en === currentWord?.en) || currentWord;
+  const displayWord = currentWord;
 
   return (
     <section className="view" id="study-view">
