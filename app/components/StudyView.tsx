@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import WordCard from './WordCard';
 import { Word } from '../data/words';
 
@@ -21,28 +21,50 @@ export default function StudyView({
   onKnown,
   onAgain
 }: StudyViewProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [wrongQueue, setWrongQueue] = useState<number[]>([]);
 
+  // Reset wrong queue when starting a fresh day (dueWords changes and was empty before)
   useEffect(() => {
-    setCurrentIndex(0);
-    setFlipped(false);
-  }, [dueWords.length]);
+    setWrongQueue([]);
+  }, []);
+
+  const currentIndex = useMemo(() => {
+    if (dueWords.length > 0) return dueWords[0].index;
+    if (wrongQueue.length > 0) return wrongQueue[0];
+    return null;
+  }, [dueWords, wrongQueue]);
+
+  const isWrongMode = dueWords.length === 0 && wrongQueue.length > 0;
+  const isDone = currentIndex === null;
 
   const progress = total === 0 ? 0 : Math.round((masteredCount / total) * 100);
-  const isDone = dueWords.length === 0;
+
+  const currentWord = useMemo(() => {
+    if (currentIndex === null) return null;
+    return dueWords.find((d) => d.index === currentIndex)?.word || { en: '', cn: '' };
+  }, [currentIndex, dueWords]);
 
   const handleKnown = useCallback(() => {
-    if (isDone) return;
+    if (currentIndex === null) return;
     setFlipped(false);
-    onKnown(dueWords[currentIndex].index);
-  }, [isDone, currentIndex, dueWords, onKnown]);
+    onKnown(currentIndex);
+    if (isWrongMode) {
+      setWrongQueue((prev) => prev.slice(1));
+    }
+  }, [currentIndex, isWrongMode, onKnown]);
 
   const handleAgain = useCallback(() => {
-    if (isDone) return;
+    if (currentIndex === null) return;
     setFlipped(false);
-    onAgain(dueWords[currentIndex].index);
-  }, [isDone, currentIndex, dueWords, onAgain]);
+    onAgain(currentIndex);
+
+    if (!isWrongMode) {
+      // First time wrong today: add to wrong queue for forced review
+      setWrongQueue((prev) => (prev.includes(currentIndex) ? prev : [...prev, currentIndex]));
+    }
+    // In wrong mode: word stays at front of queue until answered correctly
+  }, [currentIndex, isWrongMode, onAgain]);
 
   const handleFlip = useCallback(() => {
     if (!isDone) setFlipped((f) => !f);
@@ -80,31 +102,35 @@ export default function StudyView({
             <div className="card-inner">
               <div className="card-front">
                 <h2>🎉 今日任务完成</h2>
-                <p>明天再来复习吧，好好过暑假！</p>
+                <p>所有错题都已通过，明天再来！</p>
               </div>
             </div>
           </section>
-          <p className="hint">所有到期单词都已复习完</p>
+          <p className="hint">全部复习完成</p>
           <div className="actions">
             <button className="btn btn-again" disabled>😅 不认识</button>
             <button className="btn btn-know" disabled>😎 认识</button>
           </div>
         </>
-      ) : (
+      ) : currentWord ? (
         <WordCard
-          word={dueWords[currentIndex].word}
-          wordState={getWordState(dueWords[currentIndex].index)}
+          word={currentWord}
+          wordState={getWordState(currentIndex)}
           flipped={flipped}
           onFlip={handleFlip}
           onKnown={handleKnown}
           onAgain={handleAgain}
+          isWrongMode={isWrongMode}
           disabled={false}
         />
-      )}
+      ) : null}
 
       <section className="stats">
         <div>已掌握：<strong>{masteredCount}</strong></div>
         <div>今日到期：<strong>{dueWords.length}</strong></div>
+        {wrongQueue.length > 0 && (
+          <div>待通过错题：<strong>{wrongQueue.length}</strong></div>
+        )}
       </section>
     </section>
   );

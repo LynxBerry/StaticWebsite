@@ -671,3 +671,12 @@ header p {
 .settings-section.danger h3 {
   color: #fca5a5;
 }
+
+/* Wrong mode card */
+.card.wrong .card-inner {
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.35), 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.card.wrong .card-front {
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
