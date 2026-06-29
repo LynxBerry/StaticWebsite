@@ -1,22 +1,22 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Word } from '../data/words';
 import { formatDate, getPlantIcon } from '../lib/utils';
 import { MAX_NEW_WORDS_PER_DAY } from '../hooks/useVocabState';
 
 interface LearnViewProps {
-  unlearnedWords: { word: Word; index: number }[];
+  unlearnedWords: Word[];
   todayCount: number;
   remaining: number;
-  onLearn: (index: number) => void;
+  onLearn: (en: string) => void;
 }
 
 export default function LearnView({ unlearnedWords, todayCount, remaining, onLearn }: LearnViewProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
-  const availableWords = unlearnedWords.slice(0, remaining);
+  const availableWords = useMemo(() => unlearnedWords.slice(0, remaining), [unlearnedWords, remaining]);
   const isDone = availableWords.length === 0 || remaining === 0;
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function LearnView({ unlearnedWords, todayCount, remaining, onLea
   const handleLearn = useCallback(() => {
     if (isDone || !currentWord) return;
     setFlipped(false);
-    onLearn(currentWord.index);
+    onLearn(currentWord.en);
   }, [isDone, currentWord, onLearn]);
 
   const handleSkip = useCallback(() => {
@@ -93,11 +93,11 @@ export default function LearnView({ unlearnedWords, todayCount, remaining, onLea
             <div className="card-inner">
               <div className="card-front">
                 <span className="label">新单词 · 点击学习</span>
-                <h2>{currentWord.word.en}</h2>
+                <h2>{currentWord.en}</h2>
               </div>
               <div className="card-back">
                 <span className="label">中文 · 明天开始复习</span>
-                <p>{currentWord.word.cn}</p>
+                <p>{currentWord.cn}</p>
                 <span className="label">{getPlantIcon(1)} 阶段 1 · 下次复习 {formatDate(Date.now() + 24 * 60 * 60 * 1000)}</span>
               </div>
             </div>

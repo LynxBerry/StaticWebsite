@@ -7,17 +7,17 @@ import { Word } from '../data/words';
 const REQUIRED_CORRECT = 3;
 
 interface WrongItem {
-  index: number;
+  en: string;
   remaining: number;
 }
 
 interface StudyViewProps {
-  dueWords: { word: Word; index: number }[];
+  dueWords: Word[];
   masteredCount: number;
   total: number;
-  getWordState: (index: number) => { level: number; nextReview: number };
-  onKnown: (index: number) => void;
-  onAgain: (index: number) => void;
+  getWordState: (en: string) => { level: number; nextReview: number };
+  onKnown: (en: string) => void;
+  onAgain: (en: string) => void;
 }
 
 export default function StudyView({
@@ -36,9 +36,11 @@ export default function StudyView({
     setWrongQueue([]);
   }, []);
 
-  const currentIndex = useMemo(() => {
-    if (dueWords.length > 0) return dueWords[0].index;
-    if (wrongQueue.length > 0) return wrongQueue[0].index;
+  const currentWord = useMemo(() => {
+    if (dueWords.length > 0) return dueWords[0];
+    if (wrongQueue.length > 0) {
+      return { en: wrongQueue[0].en, cn: '' } as Word;
+    }
     return null;
   }, [dueWords, wrongQueue]);
 
@@ -48,19 +50,14 @@ export default function StudyView({
   }, [dueWords, wrongQueue]);
 
   const isWrongMode = dueWords.length === 0 && wrongQueue.length > 0;
-  const isDone = currentIndex === null;
+  const isDone = currentWord === null;
 
   const progress = total === 0 ? 0 : Math.round((masteredCount / total) * 100);
 
-  const currentWord = useMemo(() => {
-    if (currentIndex === null) return null;
-    return dueWords.find((d) => d.index === currentIndex)?.word || { en: '', cn: '' };
-  }, [currentIndex, dueWords]);
-
   const handleKnown = useCallback(() => {
-    if (currentIndex === null) return;
+    if (!currentWord) return;
     setFlipped(false);
-    onKnown(currentIndex);
+    onKnown(currentWord.en);
 
     if (isWrongMode) {
       setWrongQueue((prev) => {
@@ -73,18 +70,18 @@ export default function StudyView({
         return [...rest, { ...first, remaining: newRemaining }];
       });
     }
-  }, [currentIndex, isWrongMode, onKnown]);
+  }, [currentWord, isWrongMode, onKnown]);
 
   const handleAgain = useCallback(() => {
-    if (currentIndex === null) return;
+    if (!currentWord) return;
     setFlipped(false);
-    onAgain(currentIndex);
+    onAgain(currentWord.en);
 
     if (!isWrongMode) {
       // First time wrong today: add to wrong queue with required correct count
       setWrongQueue((prev) => {
-        if (prev.some((item) => item.index === currentIndex)) return prev;
-        return [...prev, { index: currentIndex, remaining: REQUIRED_CORRECT }];
+        if (prev.some((item) => item.en === currentWord.en)) return prev;
+        return [...prev, { en: currentWord.en, remaining: REQUIRED_CORRECT }];
       });
     } else {
       // Wrong again during wrong-mode review: reset required count
@@ -94,7 +91,7 @@ export default function StudyView({
         return [...rest, { ...first, remaining: REQUIRED_CORRECT }];
       });
     }
-  }, [currentIndex, isWrongMode, onAgain]);
+  }, [currentWord, isWrongMode, onAgain]);
 
   const handleFlip = useCallback(() => {
     if (!isDone) setFlipped((f) => !f);
@@ -117,6 +114,41 @@ export default function StudyView({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isDone, handleFlip, handleKnown, handleAgain]);
 
+  if (isDone) {
+    return (
+      <section className="view" id="study-view">
+        <section className="progress">
+          <span id="progress-text">{masteredCount} / {total} 已掌握</span>
+          <div className="progress-bar">
+            <div id="progress-fill" style={{ width: `${progress}%` }}></div>
+          </div>
+        </section>
+
+        <section className="card done">
+          <div className="card-inner">
+            <div className="card-front">
+              <h2>🎉 今日任务完成</h2>
+              <p>所有错题都已通过，明天再来！</p>
+            </div>
+          </div>
+        </section>
+        <p className="hint">全部复习完成</p>
+        <div className="actions">
+          <button className="btn btn-again" disabled>😅 不认识</button>
+          <button className="btn btn-know" disabled>😎 认识</button>
+        </div>
+
+        <section className="stats">
+          <div>已掌握：<strong>{masteredCount}</strong></div>
+          <div>今日到期：<strong>{dueWords.length}</strong></div>
+        </section>
+      </section>
+    );
+  }
+
+  // For wrong mode, we need the actual word object to show Chinese meaning
+  const displayWord = dueWords.find((w) => w.en === currentWord?.en) || currentWord;
+
   return (
     <section className="view" id="study-view">
       <section className="progress">
@@ -126,26 +158,10 @@ export default function StudyView({
         </div>
       </section>
 
-      {isDone ? (
-        <>
-          <section className="card done">
-            <div className="card-inner">
-              <div className="card-front">
-                <h2>🎉 今日任务完成</h2>
-                <p>所有错题都已通过，明天再来！</p>
-              </div>
-            </div>
-          </section>
-          <p className="hint">全部复习完成</p>
-          <div className="actions">
-            <button className="btn btn-again" disabled>😅 不认识</button>
-            <button className="btn btn-know" disabled>😎 认识</button>
-          </div>
-        </>
-      ) : currentWord ? (
+      {displayWord && (
         <WordCard
-          word={currentWord}
-          wordState={getWordState(currentIndex)}
+          word={displayWord}
+          wordState={getWordState(displayWord.en)}
           flipped={flipped}
           onFlip={handleFlip}
           onKnown={handleKnown}
@@ -154,7 +170,7 @@ export default function StudyView({
           remaining={currentRemaining ?? undefined}
           disabled={false}
         />
-      ) : null}
+      )}
 
       <section className="stats">
         <div>已掌握：<strong>{masteredCount}</strong></div>

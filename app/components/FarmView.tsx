@@ -6,8 +6,8 @@ import Legend from './Legend';
 
 interface FarmViewProps {
   words: Word[];
-  getStatus: (index: number) => 'mastered' | 'due' | 'pending' | 'unlearned';
-  getWordState: (index: number) => { level: number; nextReview: number };
+  getStatus: (en: string) => 'mastered' | 'due' | 'pending' | 'unlearned';
+  getWordState: (en: string) => { level: number; nextReview: number };
 }
 
 export default function FarmView({ words, getStatus, getWordState }: FarmViewProps) {
@@ -21,12 +21,12 @@ export default function FarmView({ words, getStatus, getWordState }: FarmViewPro
       <Legend />
 
       <div className="farm-grid">
-        {words.map((word, index) => {
-          const status = getStatus(index);
-          const ws = getWordState(index);
+        {words.map((word) => {
+          const status = getStatus(word.en);
+          const ws = getWordState(word.en);
           return (
             <div
-              key={index}
+              key={word.en}
               className={`farm-tile ${status}`}
               title={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : `阶段 ${ws.level}`}`}
             >

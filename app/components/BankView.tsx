@@ -9,8 +9,8 @@ type StatusType = 'mastered' | 'due' | 'pending' | 'unlearned';
 
 interface BankViewProps {
   words: Word[];
-  getStatus: (index: number) => StatusType;
-  getWordState: (index: number) => { level: number; nextReview: number };
+  getStatus: (en: string) => StatusType;
+  getWordState: (en: string) => { level: number; nextReview: number };
 }
 
 export default function BankView({ words, getStatus, getWordState }: BankViewProps) {
@@ -20,11 +20,10 @@ export default function BankView({ words, getStatus, getWordState }: BankViewPro
   const term = searchTerm.trim().toLowerCase();
 
   const items = words
-    .map((word, index) => ({
+    .map((word) => ({
       word,
-      index,
-      status: getStatus(index),
-      ws: getWordState(index)
+      status: getStatus(word.en),
+      ws: getWordState(word.en)
     }))
     .filter(({ status }) => (filter === 'all' ? true : status === filter))
     .filter(({ word }) => {

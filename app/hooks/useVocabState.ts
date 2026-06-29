@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { WORDS } from '../data/words';
+import { DEFAULT_WORDS, Word } from '../data/words';
 
-const STORAGE_KEY = 'zeno-vocab-progress-v2';
+const PROGRESS_KEY = 'zeno-vocab-progress-v3';
+const WORDS_KEY = 'zeno-vocab-words-v1';
+
 export const MAX_NEW_WORDS_PER_DAY = 15;
 
 export const INTERVALS: Record<number, number> = {
@@ -26,8 +28,8 @@ export interface DailyNewWords {
   count: number;
 }
 
-export interface AppState {
-  wordStates: Record<number, WordState>;
+export interface ProgressState {
+  wordStates: Record<string, WordState>;
   dailyNewWords: DailyNewWords;
 }
 
@@ -35,32 +37,76 @@ function getTodayString(): string {
   return new Date().toISOString().split('T')[0];
 }
 
-function migrateFromV1(old: { mastered: number[] }): AppState {
-  const wordStates: Record<number, WordState> = {};
-  WORDS.forEach((_, index) => {
-    const isMastered = old.mastered.includes(index);
-    wordStates[index] = {
-      level: isMastered ? MASTERED_LEVEL : 1,
-      nextReview: isMastered ? Date.now() + 365 * 24 * 60 * 60 * 1000 : Date.now()
-    };
-  });
-  return {
-    wordStates,
-    dailyNewWords: { date: getTodayString(), count: 0 }
-  };
-}
-
-function loadState(): AppState {
-  if (typeof window === 'undefined') {
-    return { wordStates: {}, dailyNewWords: { date: getTodayString(), count: 0 } };
-  }
-  const raw = localStorage.getItem(STORAGE_KEY);
+function loadWords(): Word[] {
+  if (typeof window === 'undefined') return DEFAULT_WORDS;
+  const raw = localStorage.getItem(WORDS_KEY);
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed.mastered)) {
-        return migrateFromV1(parsed);
-      }
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch (e) {
+      console.error('Failed to parse words', e);
+    }
+  }
+  return DEFAULT_WORDS;
+}
+
+function saveWords(words: Word[]) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(WORDS_KEY, JSON.stringify(words));
+}
+
+function migrateV2Progress(): ProgressState | null {
+  if (typeof window === 'undefined') return null;
+  const raw = localStorage.getItem('zeno-vocab-progress-v2');
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    const words = loadWords();
+    const wordStates: Record<string, WordState> = {};
+
+    if (Array.isArray(parsed.mastered)) {
+      // v1 format: { mastered: number[] }
+      words.forEach((word, index) => {
+        const isMastered = parsed.mastered.includes(index);
+        wordStates[word.en] = {
+          level: isMastered ? MASTERED_LEVEL : 1,
+          nextReview: isMastered ? Date.now() + 365 * 24 * 60 * 60 * 1000 : Date.now()
+        };
+      });
+    } else if (parsed.wordStates) {
+      // v2 format: { wordStates: Record<number, WordState> }
+      Object.entries(parsed.wordStates as Record<number, WordState>).forEach(([key, value]) => {
+        const index = parseInt(key, 10);
+        if (!isNaN(index) && words[index]) {
+          wordStates[words[index].en] = value;
+        }
+      });
+    }
+
+    return {
+      wordStates,
+      dailyNewWords: parsed.dailyNewWords || { date: getTodayString(), count: 0 }
+    };
+  } catch (e) {
+    console.error('Failed to migrate v2 progress', e);
+    return null;
+  }
+}
+
+function loadProgress(): ProgressState {
+  if (typeof window === 'undefined') {
+    return { wordStates: {}, dailyNewWords: { date: getTodayString(), count: 0 } };
+  }
+
+  const migrated = migrateV2Progress();
+  if (migrated) return migrated;
+
+  const raw = localStorage.getItem(PROGRESS_KEY);
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
       return {
         wordStates: parsed.wordStates || {},
         dailyNewWords: parsed.dailyNewWords || { date: getTodayString(), count: 0 }
@@ -72,70 +118,99 @@ function loadState(): AppState {
   return { wordStates: {}, dailyNewWords: { date: getTodayString(), count: 0 } };
 }
 
-function saveState(state: AppState) {
+function saveProgress(progress: ProgressState) {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
 }
 
 export function useVocabState() {
-  const [state, setState] = useState<AppState>({
+  const [words, setWords] = useState<Word[]>(DEFAULT_WORDS);
+  const [progress, setProgress] = useState<ProgressState>({
     wordStates: {},
     dailyNewWords: { date: getTodayString(), count: 0 }
   });
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    setState(loadState());
+    const loadedWords = loadWords();
+    const loadedProgress = loadProgress();
+    setWords(loadedWords);
+    setProgress(loadedProgress);
     setIsHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (isHydrated) saveState(state);
-  }, [state, isHydrated]);
+    if (isHydrated) saveWords(words);
+  }, [words, isHydrated]);
 
-  const isWordLearned = useCallback((index: number): boolean => {
-    return index in state.wordStates;
-  }, [state.wordStates]);
+  useEffect(() => {
+    if (isHydrated) saveProgress(progress);
+  }, [progress, isHydrated]);
 
-  const getWordState = useCallback((index: number): WordState => {
-    if (!state.wordStates[index]) {
+  const isWordLearned = useCallback((en: string): boolean => {
+    return en in progress.wordStates;
+  }, [progress.wordStates]);
+
+  const getWordState = useCallback((en: string): WordState => {
+    if (!progress.wordStates[en]) {
       return { level: 1, nextReview: Date.now() };
     }
-    return state.wordStates[index];
-  }, [state.wordStates]);
+    return progress.wordStates[en];
+  }, [progress.wordStates]);
 
-  const setWordState = useCallback((index: number, updater: (ws: WordState) => WordState) => {
-    setState((prev) => ({
+  const setWordState = useCallback((en: string, updater: (ws: WordState) => WordState) => {
+    setProgress((prev) => ({
       ...prev,
       wordStates: {
         ...prev.wordStates,
-        [index]: updater(getWordState(index))
+        [en]: updater(getWordState(en))
       }
     }));
   }, [getWordState]);
 
   const getNewWordsStats = useCallback(() => {
     const today = getTodayString();
-    const todayCount = state.dailyNewWords.date === today ? state.dailyNewWords.count : 0;
+    const todayCount = progress.dailyNewWords.date === today ? progress.dailyNewWords.count : 0;
     const remaining = Math.max(0, MAX_NEW_WORDS_PER_DAY - todayCount);
     return { todayCount, remaining };
-  }, [state.dailyNewWords]);
+  }, [progress.dailyNewWords]);
 
   const getUnlearnedWords = useCallback(() => {
-    return WORDS.map((word, index) => ({ word, index }))
-      .filter(({ index }) => !isWordLearned(index));
-  }, [isWordLearned]);
+    return words.filter((word) => !isWordLearned(word.en));
+  }, [words, isWordLearned]);
 
-  const learnNewWord = useCallback((index: number) => {
+  const getDueWords = useCallback(() => {
+    const now = Date.now();
+    return words.filter((word) => {
+      if (!isWordLearned(word.en)) return false;
+      const ws = getWordState(word.en);
+      return ws.level < MASTERED_LEVEL && ws.nextReview <= now;
+    });
+  }, [words, getWordState, isWordLearned]);
+
+  const getMasteredCount = useCallback(() => {
+    return Object.values(progress.wordStates).filter((ws) => ws.level >= MASTERED_LEVEL).length;
+  }, [progress.wordStates]);
+
+  const getStatus = useCallback((en: string): 'mastered' | 'due' | 'pending' | 'unlearned' => {
+    if (!isWordLearned(en)) return 'unlearned';
+    const ws = getWordState(en);
+    const now = Date.now();
+    if (ws.level >= MASTERED_LEVEL) return 'mastered';
+    if (ws.nextReview <= now) return 'due';
+    return 'pending';
+  }, [getWordState, isWordLearned]);
+
+  const learnNewWord = useCallback((en: string) => {
     const today = getTodayString();
-    setState((prev) => {
+    setProgress((prev) => {
       const currentCount = prev.dailyNewWords.date === today ? prev.dailyNewWords.count : 0;
       if (currentCount >= MAX_NEW_WORDS_PER_DAY) return prev;
 
       return {
         wordStates: {
           ...prev.wordStates,
-          [index]: {
+          [en]: {
             level: 1,
             nextReview: Date.now() + INTERVALS[1] * 24 * 60 * 60 * 1000
           }
@@ -148,8 +223,8 @@ export function useVocabState() {
     });
   }, []);
 
-  const markKnown = useCallback((index: number) => {
-    setWordState(index, (ws) => {
+  const markKnown = useCallback((en: string) => {
+    setWordState(en, (ws) => {
       const newLevel = Math.min(ws.level + 1, MASTERED_LEVEL);
       return {
         level: newLevel,
@@ -160,8 +235,8 @@ export function useVocabState() {
     });
   }, [setWordState]);
 
-  const markAgain = useCallback((index: number) => {
-    setWordState(index, () => ({
+  const markAgain = useCallback((en: string) => {
+    setWordState(en, () => ({
       level: 1,
       nextReview: Date.now() + INTERVALS[1] * 24 * 60 * 60 * 1000
     }));
@@ -169,70 +244,84 @@ export function useVocabState() {
 
   const reset = useCallback(() => {
     if (confirm('确定要重置所有学习进度吗？')) {
-      setState({ wordStates: {}, dailyNewWords: { date: getTodayString(), count: 0 } });
+      setProgress({ wordStates: {}, dailyNewWords: { date: getTodayString(), count: 0 } });
     }
   }, []);
 
-  const getDueWords = useCallback(() => {
-    const now = Date.now();
-    return WORDS.map((word, index) => ({ word, index }))
-      .filter(({ index }) => {
-        if (!isWordLearned(index)) return false;
-        const ws = getWordState(index);
-        return ws.level < MASTERED_LEVEL && ws.nextReview <= now;
+  // Word management
+  const addWord = useCallback((word: Word) => {
+    setWords((prev) => {
+      if (prev.some((w) => w.en === word.en)) return prev;
+      return [...prev, word];
+    });
+  }, []);
+
+  const updateWord = useCallback((oldEn: string, newWord: Word) => {
+    setWords((prev) => {
+      const index = prev.findIndex((w) => w.en === oldEn);
+      if (index === -1) return prev;
+      const updated = [...prev];
+      updated[index] = newWord;
+      return updated;
+    });
+
+    // Update progress key if English word changed
+    if (oldEn !== newWord.en && progress.wordStates[oldEn]) {
+      setProgress((prev) => {
+        const { [oldEn]: state, ...rest } = prev.wordStates;
+        return {
+          ...prev,
+          wordStates: {
+            ...rest,
+            [newWord.en]: state
+          }
+        };
       });
-  }, [getWordState, isWordLearned]);
+    }
+  }, [progress.wordStates]);
 
-  const getMasteredCount = useCallback(() => {
-    return Object.values(state.wordStates).filter((ws) => ws.level >= MASTERED_LEVEL).length;
-  }, [state.wordStates]);
+  const deleteWord = useCallback((en: string) => {
+    if (!confirm(`确定要删除单词 "${en}" 吗？相关学习进度也会一起删除。`)) return;
+    setWords((prev) => prev.filter((w) => w.en !== en));
+    setProgress((prev) => {
+      const { [en]: _, ...rest } = prev.wordStates;
+      return { ...prev, wordStates: rest };
+    });
+  }, []);
 
-  const getStatus = useCallback((index: number): 'mastered' | 'due' | 'pending' | 'unlearned' => {
-    if (!isWordLearned(index)) return 'unlearned';
-    const ws = getWordState(index);
-    const now = Date.now();
-    if (ws.level >= MASTERED_LEVEL) return 'mastered';
-    if (ws.nextReview <= now) return 'due';
-    return 'pending';
-  }, [getWordState, isWordLearned]);
-
-  const exportState = useCallback((): AppState => {
-    return state;
-  }, [state]);
+  const exportState = useCallback(() => {
+    return { words, progress };
+  }, [words, progress]);
 
   const importState = useCallback((data: unknown): boolean => {
     try {
       if (!data || typeof data !== 'object') return false;
-      const imported = data as Partial<AppState>;
-      if (!imported.wordStates || typeof imported.wordStates !== 'object') return false;
+      const imported = data as Partial<{ words: Word[]; progress: ProgressState }>;
 
-      const validatedWordStates: Record<number, WordState> = {};
-      Object.entries(imported.wordStates).forEach(([key, value]) => {
-        const index = parseInt(key, 10);
-        if (
-          !isNaN(index) &&
-          value &&
-          typeof value === 'object' &&
-          'level' in value &&
-          'nextReview' in value &&
-          typeof (value as WordState).level === 'number' &&
-          typeof (value as WordState).nextReview === 'number'
-        ) {
-          validatedWordStates[index] = value as WordState;
-        }
-      });
+      if (imported.words && Array.isArray(imported.words) && imported.words.length > 0) {
+        setWords(imported.words);
+      }
 
-      const validatedDailyNewWords: DailyNewWords = imported.dailyNewWords &&
-        typeof imported.dailyNewWords === 'object' &&
-        'date' in imported.dailyNewWords &&
-        'count' in imported.dailyNewWords
-        ? (imported.dailyNewWords as DailyNewWords)
-        : { date: getTodayString(), count: 0 };
+      if (imported.progress && typeof imported.progress === 'object') {
+        const wordStates: Record<string, WordState> = {};
+        Object.entries(imported.progress.wordStates || {}).forEach(([key, value]) => {
+          if (
+            value &&
+            typeof value === 'object' &&
+            'level' in value &&
+            'nextReview' in value &&
+            typeof (value as WordState).level === 'number' &&
+            typeof (value as WordState).nextReview === 'number'
+          ) {
+            wordStates[key] = value as WordState;
+          }
+        });
 
-      setState({
-        wordStates: validatedWordStates,
-        dailyNewWords: validatedDailyNewWords
-      });
+        setProgress({
+          wordStates,
+          dailyNewWords: imported.progress.dailyNewWords || { date: getTodayString(), count: 0 }
+        });
+      }
       return true;
     } catch (e) {
       console.error('Failed to import state', e);
@@ -242,6 +331,7 @@ export function useVocabState() {
 
   return {
     isHydrated,
+    words,
     isWordLearned,
     getWordState,
     learnNewWord,
@@ -253,8 +343,10 @@ export function useVocabState() {
     getDueWords,
     getMasteredCount,
     getStatus,
+    addWord,
+    updateWord,
+    deleteWord,
     exportState,
-    importState,
-    WORDS
+    importState
   };
 }

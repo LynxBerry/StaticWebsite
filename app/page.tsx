@@ -14,6 +14,7 @@ export default function Home() {
   const [currentView, setCurrentView] = useState<ViewType>('study');
   const {
     isHydrated,
+    words,
     getWordState,
     learnNewWord,
     markKnown,
@@ -24,9 +25,11 @@ export default function Home() {
     getDueWords,
     getMasteredCount,
     getStatus,
+    addWord,
+    updateWord,
+    deleteWord,
     exportState,
-    importState,
-    WORDS
+    importState
   } = useVocabState();
 
   if (!isHydrated) {
@@ -59,7 +62,7 @@ export default function Home() {
           { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
           { key: 'farm', label: '农场', tooltip: '查看单词农场' },
           { key: 'bank', label: '词库', tooltip: '查看全部单词' },
-          { key: 'settings', label: '设置', tooltip: '备份与恢复' }
+          { key: 'settings', label: '设置', tooltip: '备份与词库管理' }
         ].map((tab) => (
           <button
             key={tab.key}
@@ -85,7 +88,7 @@ export default function Home() {
         <StudyView
           dueWords={dueWords}
           masteredCount={masteredCount}
-          total={WORDS.length}
+          total={words.length}
           getWordState={getWordState}
           onKnown={markKnown}
           onAgain={markAgain}
@@ -94,7 +97,7 @@ export default function Home() {
 
       {currentView === 'farm' && (
         <FarmView
-          words={WORDS}
+          words={words}
           getStatus={getStatus}
           getWordState={getWordState}
         />
@@ -102,7 +105,7 @@ export default function Home() {
 
       {currentView === 'bank' && (
         <BankView
-          words={WORDS}
+          words={words}
           getStatus={getStatus}
           getWordState={getWordState}
         />
@@ -110,9 +113,13 @@ export default function Home() {
 
       {currentView === 'settings' && (
         <SettingsView
+          words={words}
           exportState={exportState}
           importState={importState}
           onReset={reset}
+          onAddWord={addWord}
+          onUpdateWord={updateWord}
+          onDeleteWord={deleteWord}
         />
       )}
     </main>

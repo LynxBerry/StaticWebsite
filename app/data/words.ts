@@ -3,7 +3,7 @@ export interface Word {
   cn: string;
 }
 
-export const WORDS: Word[] = [
+export const DEFAULT_WORDS: Word[] = [
   { en: "summer", cn: "夏天" },
   { en: "vacation", cn: "假期" },
   { en: "beach", cn: "海滩" },
