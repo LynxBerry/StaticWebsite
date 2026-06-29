@@ -7,7 +7,7 @@ export default function Legend() {
     { icon: '🌿', box: '阶段 3', desc: '正在熟悉' },
     { icon: '🪴', box: '阶段 4', desc: '比较熟悉' },
     { icon: '🌳', box: '阶段 5', desc: '即将掌握' },
-    { icon: '✨🌳✨', box: '掌握', desc: '参天大树', mastered: true }
+    { icon: '✨🌳✨', box: '阶段 6', desc: '完全掌握', mastered: true }
   ];
 
   return (
