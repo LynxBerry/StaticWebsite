@@ -11,7 +11,6 @@ interface StudyViewProps {
   getWordState: (index: number) => { level: number; nextReview: number };
   onKnown: (index: number) => void;
   onAgain: (index: number) => void;
-  onReset: () => void;
 }
 
 export default function StudyView({
@@ -20,8 +19,7 @@ export default function StudyView({
   total,
   getWordState,
   onKnown,
-  onAgain,
-  onReset
+  onAgain
 }: StudyViewProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -108,8 +106,6 @@ export default function StudyView({
         <div>已掌握：<strong>{masteredCount}</strong></div>
         <div>今日到期：<strong>{dueWords.length}</strong></div>
       </section>
-
-      <button className="btn btn-reset" onClick={onReset}>重置进度</button>
     </section>
   );
 }

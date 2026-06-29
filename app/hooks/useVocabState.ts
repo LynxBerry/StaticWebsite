@@ -196,6 +196,50 @@ export function useVocabState() {
     return 'pending';
   }, [getWordState, isWordLearned]);
 
+  const exportState = useCallback((): AppState => {
+    return state;
+  }, [state]);
+
+  const importState = useCallback((data: unknown): boolean => {
+    try {
+      if (!data || typeof data !== 'object') return false;
+      const imported = data as Partial<AppState>;
+      if (!imported.wordStates || typeof imported.wordStates !== 'object') return false;
+
+      const validatedWordStates: Record<number, WordState> = {};
+      Object.entries(imported.wordStates).forEach(([key, value]) => {
+        const index = parseInt(key, 10);
+        if (
+          !isNaN(index) &&
+          value &&
+          typeof value === 'object' &&
+          'level' in value &&
+          'nextReview' in value &&
+          typeof (value as WordState).level === 'number' &&
+          typeof (value as WordState).nextReview === 'number'
+        ) {
+          validatedWordStates[index] = value as WordState;
+        }
+      });
+
+      const validatedDailyNewWords: DailyNewWords = imported.dailyNewWords &&
+        typeof imported.dailyNewWords === 'object' &&
+        'date' in imported.dailyNewWords &&
+        'count' in imported.dailyNewWords
+        ? (imported.dailyNewWords as DailyNewWords)
+        : { date: getTodayString(), count: 0 };
+
+      setState({
+        wordStates: validatedWordStates,
+        dailyNewWords: validatedDailyNewWords
+      });
+      return true;
+    } catch (e) {
+      console.error('Failed to import state', e);
+      return false;
+    }
+  }, []);
+
   return {
     isHydrated,
     isWordLearned,
@@ -209,6 +253,8 @@ export function useVocabState() {
     getDueWords,
     getMasteredCount,
     getStatus,
+    exportState,
+    importState,
     WORDS
   };
 }

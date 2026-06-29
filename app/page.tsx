@@ -6,8 +6,9 @@ import StudyView from './components/StudyView';
 import LearnView from './components/LearnView';
 import FarmView from './components/FarmView';
 import BankView from './components/BankView';
+import SettingsView from './components/SettingsView';
 
-type ViewType = 'learn' | 'study' | 'farm' | 'bank';
+type ViewType = 'learn' | 'study' | 'farm' | 'bank' | 'settings';
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<ViewType>('study');
@@ -23,6 +24,8 @@ export default function Home() {
     getDueWords,
     getMasteredCount,
     getStatus,
+    exportState,
+    importState,
     WORDS
   } = useVocabState();
 
@@ -55,7 +58,8 @@ export default function Home() {
           { key: 'learn', label: '播种', tooltip: '学习新单词（每日最多15个）' },
           { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
           { key: 'farm', label: '农场', tooltip: '查看单词农场' },
-          { key: 'bank', label: '词库', tooltip: '查看全部单词' }
+          { key: 'bank', label: '词库', tooltip: '查看全部单词' },
+          { key: 'settings', label: '设置', tooltip: '备份与恢复' }
         ].map((tab) => (
           <button
             key={tab.key}
@@ -85,7 +89,6 @@ export default function Home() {
           getWordState={getWordState}
           onKnown={markKnown}
           onAgain={markAgain}
-          onReset={reset}
         />
       )}
 
@@ -102,6 +105,14 @@ export default function Home() {
           words={WORDS}
           getStatus={getStatus}
           getWordState={getWordState}
+        />
+      )}
+
+      {currentView === 'settings' && (
+        <SettingsView
+          exportState={exportState}
+          importState={importState}
+          onReset={reset}
         />
       )}
     </main>
