@@ -28,3 +28,6 @@ out/
 
 # Vercel
 .vercel/
+
+# Local data files
+local/
