@@ -4,6 +4,13 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import WordCard from './WordCard';
 import { Word } from '../data/words';
 
+const REQUIRED_CORRECT = 3;
+
+interface WrongItem {
+  index: number;
+  remaining: number;
+}
+
 interface StudyViewProps {
   dueWords: { word: Word; index: number }[];
   masteredCount: number;
@@ -22,17 +29,22 @@ export default function StudyView({
   onAgain
 }: StudyViewProps) {
   const [flipped, setFlipped] = useState(false);
-  const [wrongQueue, setWrongQueue] = useState<number[]>([]);
+  const [wrongQueue, setWrongQueue] = useState<WrongItem[]>([]);
 
-  // Reset wrong queue when starting a fresh day (dueWords changes and was empty before)
+  // Reset wrong queue on mount
   useEffect(() => {
     setWrongQueue([]);
   }, []);
 
   const currentIndex = useMemo(() => {
     if (dueWords.length > 0) return dueWords[0].index;
-    if (wrongQueue.length > 0) return wrongQueue[0];
+    if (wrongQueue.length > 0) return wrongQueue[0].index;
     return null;
+  }, [dueWords, wrongQueue]);
+
+  const currentRemaining = useMemo(() => {
+    if (dueWords.length > 0) return null;
+    return wrongQueue[0]?.remaining ?? null;
   }, [dueWords, wrongQueue]);
 
   const isWrongMode = dueWords.length === 0 && wrongQueue.length > 0;
@@ -49,8 +61,17 @@ export default function StudyView({
     if (currentIndex === null) return;
     setFlipped(false);
     onKnown(currentIndex);
+
     if (isWrongMode) {
-      setWrongQueue((prev) => prev.slice(1));
+      setWrongQueue((prev) => {
+        const [first, ...rest] = prev;
+        if (!first) return prev;
+        const newRemaining = first.remaining - 1;
+        if (newRemaining <= 0) {
+          return rest;
+        }
+        return [...rest, { ...first, remaining: newRemaining }];
+      });
     }
   }, [currentIndex, isWrongMode, onKnown]);
 
@@ -60,10 +81,19 @@ export default function StudyView({
     onAgain(currentIndex);
 
     if (!isWrongMode) {
-      // First time wrong today: add to wrong queue for forced review
-      setWrongQueue((prev) => (prev.includes(currentIndex) ? prev : [...prev, currentIndex]));
+      // First time wrong today: add to wrong queue with required correct count
+      setWrongQueue((prev) => {
+        if (prev.some((item) => item.index === currentIndex)) return prev;
+        return [...prev, { index: currentIndex, remaining: REQUIRED_CORRECT }];
+      });
+    } else {
+      // Wrong again during wrong-mode review: reset required count
+      setWrongQueue((prev) => {
+        const [first, ...rest] = prev;
+        if (!first) return prev;
+        return [...rest, { ...first, remaining: REQUIRED_CORRECT }];
+      });
     }
-    // In wrong mode: word stays at front of queue until answered correctly
   }, [currentIndex, isWrongMode, onAgain]);
 
   const handleFlip = useCallback(() => {
@@ -121,6 +151,7 @@ export default function StudyView({
           onKnown={handleKnown}
           onAgain={handleAgain}
           isWrongMode={isWrongMode}
+          remaining={currentRemaining ?? undefined}
           disabled={false}
         />
       ) : null}

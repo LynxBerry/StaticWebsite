@@ -12,6 +12,7 @@ interface WordCardProps {
   onKnown: () => void;
   onAgain: () => void;
   isWrongMode?: boolean;
+  remaining?: number;
   disabled: boolean;
 }
 
@@ -23,6 +24,7 @@ export default function WordCard({
   onKnown,
   onAgain,
   isWrongMode = false,
+  remaining,
   disabled
 }: WordCardProps) {
   return (
@@ -35,7 +37,7 @@ export default function WordCard({
           <div className="card-front">
             <span className="label">
               {isWrongMode
-                ? `错题复习 · ${getPlantIcon(wordState.level)} 阶段 ${wordState.level}`
+                ? `错题复习 · ${getPlantIcon(wordState.level)} 阶段 ${wordState.level} · 还需答对 ${remaining} 次`
                 : `英文 · ${getPlantIcon(wordState.level)} 阶段 ${wordState.level} · 下次复习 ${formatDate(wordState.nextReview)}`}
             </span>
             <h2>{word.en}</h2>
@@ -51,7 +53,7 @@ export default function WordCard({
         {disabled
           ? '全部复习完成'
           : isWrongMode
-            ? '这道题刚才没通过，必须认识才能继续'
+            ? `错题必须连续答对 ${remaining} 次才能通过`
             : '点击卡片查看释义'}
       </p>
 
