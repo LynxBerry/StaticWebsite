@@ -14,7 +14,7 @@ export default function FarmView({ words, getStatus, getWordState }: FarmViewPro
   return (
     <section className="view" id="farm-view">
       <div className="farm-header">
-        <h2>🌾 单词农场</h2>
+        <h2>🌾 收成</h2>
         <p>每棵植物代表一个单词，成长阶段反映熟悉度</p>
       </div>
 

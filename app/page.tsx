@@ -57,7 +57,7 @@ export default function Home() {
         {[
           { key: 'learn', label: '播种', tooltip: '学习新单词（每日最多15个）' },
           { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
-          { key: 'farm', label: '农场', tooltip: '查看单词农场' },
+          { key: 'farm', label: '收成', tooltip: '查看单词农场' },
           { key: 'bank', label: '词库', tooltip: '查看全部单词' },
           { key: 'settings', label: '设置', tooltip: '备份与恢复' }
         ].map((tab) => (
