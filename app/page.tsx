@@ -35,12 +35,14 @@ export default function Home() {
 
   if (!isHydrated) {
     return (
-      <main className="app">
+      <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
         <header>
-          <h1>Zeno的单词农场</h1>
-          <p>一份耕耘一份收获</p>
+          <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+            Zeno的单词农场
+          </h1>
+          <p className="text-farm-muted mb-6">一份耕耘一份收获</p>
         </header>
-        <p style={{ textAlign: 'center', color: '#fdba74' }}>加载中...</p>
+        <p className="text-center text-farm-muted">加载中...</p>
       </main>
     );
   }
@@ -51,13 +53,15 @@ export default function Home() {
   const { todayCount, remaining } = getNewWordsStats();
 
   return (
-    <main className="app">
+    <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
       <header>
-        <h1>Zeno的单词农场</h1>
-        <p>一份耕耘一份收获</p>
+        <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+          Zeno的单词农场
+        </h1>
+        <p className="text-farm-muted mb-6">一份耕耘一份收获</p>
       </header>
 
-      <nav className="tabs">
+      <nav className="flex gap-2 mb-6 p-1 rounded-xl bg-[rgba(69,26,3,0.5)] backdrop-blur-glass border border-farm-muted/15 shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
         {[
           { key: 'learn', label: '播种', tooltip: '学习新单词（每日最多15个）' },
           { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
@@ -67,7 +71,11 @@ export default function Home() {
         ].map((tab) => (
           <button
             key={tab.key}
-            className={`tab ${currentView === tab.key ? 'active' : ''}`}
+            className={`flex-1 py-2 rounded-[0.625rem] font-semibold transition-all duration-200 ${
+              currentView === tab.key
+                ? 'bg-orange-500/90 text-farm-text shadow-[0_4px_12px_rgba(249,115,22,0.35)]'
+                : 'bg-transparent text-farm-muted hover:text-farm-text hover:bg-white/5'
+            }`}
             onClick={() => setCurrentView(tab.key as ViewType)}
             title={tab.tooltip}
           >

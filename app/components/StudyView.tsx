@@ -131,33 +131,38 @@ export default function StudyView({
 
   if (isDone) {
     return (
-      <section className="view" id="study-view">
-        <section className="progress">
-          <span id="progress-text">{masteredCount} / {total} 已掌握</span>
-          <div className="progress-bar">
-            <div id="progress-fill" style={{ width: `${progress}%` }}></div>
+      <section className="flex-1 flex flex-col min-h-[60vh]" id="study-view">
+        <section className="mb-6">
+          <span className="block text-sm text-farm-muted mb-2">{masteredCount} / {total} 已掌握</span>
+          <div className="h-2 bg-[#451a03] rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-300" style={{ width: `${progress}%` }}></div>
           </div>
         </section>
 
-        <section className="card done">
-          <div className="card-inner">
-            <div className="card-front">
-              <h2>🎉 今日任务完成</h2>
-              <p>所有错题都已通过，明天再来！</p>
+        <section className="card aspect-[3/2] cursor-default mb-3" aria-label="今日任务完成">
+          <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
+            <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[rgba(255,247,237,0.92)] to-[rgba(255,237,213,0.88)] backdrop-blur-glass text-[#431407] shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.15)] border border-white/15">
+              <h2 className="text-4xl font-bold mb-2">🎉 今日任务完成</h2>
+              <p className="text-base">所有错题都已通过，明天再来！</p>
             </div>
           </div>
         </section>
-        <p className="hint">全部复习完成</p>
-        <div className="actions">
-          <button className="btn btn-again" disabled>😅 不认识</button>
-          <button className="btn btn-know" disabled>😎 认识</button>
-        </div>
+        <p className="text-sm text-farm-muted mb-6">全部复习完成</p>
 
-        <section className="stats">
-          <div>已掌握：<strong>{masteredCount}</strong></div>
-          <div>今日到期：<strong>{dueWords.length}</strong></div>
+        <section className="flex gap-3 mb-6">
+          <button className="relative flex-1 overflow-hidden rounded-xl border border-farm-muted/25 bg-[rgba(69,26,3,0.6)] px-4 py-3.5 text-base font-semibold text-farm-muted backdrop-blur-lg shadow-[0_4px_14px_rgba(0,0,0,0.2)] transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-60 before:transition-opacity before:duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:grayscale-[0.5]" disabled>
+            😅 不认识
+          </button>
+          <button className="relative flex-1 overflow-hidden rounded-xl px-4 py-3.5 text-base font-semibold text-farm-text transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 shadow-[0_4px_16px_rgba(249,115,22,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] [text-shadow:0_1px_2px_rgba(0,0,0,0.2)] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-60 before:transition-opacity before:duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:grayscale-[0.5]" disabled>
+            😎 认识
+          </button>
+        </section>
+
+        <section className="flex justify-center gap-8 mb-4 text-sm text-farm-muted">
+          <div>已掌握：<strong className="block text-xl text-farm-text">{masteredCount}</strong></div>
+          <div>今日到期：<strong className="block text-xl text-farm-text">{dueWords.length}</strong></div>
           {wrongQueue.length > 0 && (
-            <div>待通过错题：<strong>{wrongQueue.length}</strong></div>
+            <div>待通过错题：<strong className="block text-xl text-farm-text">{wrongQueue.length}</strong></div>
           )}
         </section>
       </section>
@@ -167,11 +172,11 @@ export default function StudyView({
   const displayWord = currentWord;
 
   return (
-    <section className="view" id="study-view">
-      <section className="progress">
-        <span id="progress-text">{masteredCount} / {total} 已掌握</span>
-        <div className="progress-bar">
-          <div id="progress-fill" style={{ width: `${progress}%` }}></div>
+    <section className="flex-1 flex flex-col min-h-[60vh]" id="study-view">
+      <section className="mb-6">
+        <span className="block text-sm text-farm-muted mb-2">{masteredCount} / {total} 已掌握</span>
+        <div className="h-2 bg-[#451a03] rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-300" style={{ width: `${progress}%` }}></div>
         </div>
       </section>
 
@@ -189,11 +194,11 @@ export default function StudyView({
         />
       )}
 
-      <section className="stats">
-        <div>已掌握：<strong>{masteredCount}</strong></div>
-        <div>今日到期：<strong>{dueWords.length}</strong></div>
+      <section className="flex justify-center gap-8 mb-4 text-sm text-farm-muted">
+        <div>已掌握：<strong className="block text-xl text-farm-text">{masteredCount}</strong></div>
+        <div>今日到期：<strong className="block text-xl text-farm-text">{dueWords.length}</strong></div>
         {wrongQueue.length > 0 && (
-          <div>待通过错题：<strong>{wrongQueue.length}</strong></div>
+          <div>待通过错题：<strong className="block text-xl text-farm-text">{wrongQueue.length}</strong></div>
         )}
       </section>
     </section>

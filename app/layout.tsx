@@ -13,7 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body className="min-h-screen flex items-center justify-center relative p-4 text-farm-text bg-[#1a120b] font-sans antialiased">
+        {children}
+      </body>
     </html>
   );
 }
