@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import WordCard from './WordCard';
 import EmptyState from './EmptyState';
+import { Button } from './ui/Button';
 import { Word } from '../data/words';
 import { getAudioContext, playSuccessSound, playWrongSound } from '../lib/sound';
 
@@ -168,12 +169,12 @@ export default function StudyView({
         <p className="text-sm text-farm-muted mb-6">全部复习完成</p>
 
         <section className="flex gap-3 mb-6">
-          <button className="relative flex-1 overflow-hidden rounded-xl border border-farm-muted/25 bg-[rgba(69,26,3,0.6)] px-4 py-3.5 text-base font-semibold text-farm-muted backdrop-blur-lg shadow-[0_4px_14px_rgba(0,0,0,0.2)] transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-60 before:transition-opacity before:duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:grayscale-[0.5]" disabled>
+          <Button variant="secondary" className="flex-1" disabled>
             😅 不认识
-          </button>
-          <button className="relative flex-1 overflow-hidden rounded-xl px-4 py-3.5 text-base font-semibold text-farm-text transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 shadow-[0_4px_16px_rgba(249,115,22,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] [text-shadow:0_1px_2px_rgba(0,0,0,0.2)] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-60 before:transition-opacity before:duration-250 disabled:opacity-40 disabled:cursor-not-allowed disabled:grayscale-[0.5]" disabled>
+          </Button>
+          <Button className="flex-1" disabled>
             😎 认识
-          </button>
+          </Button>
         </section>
 
         <section className="flex justify-center gap-8 mb-4 text-sm text-farm-muted">

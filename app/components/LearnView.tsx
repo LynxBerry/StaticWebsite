@@ -5,6 +5,7 @@ import { Word } from '../data/words';
 import { formatDate, getPlantIcon } from '../lib/utils';
 import { MAX_NEW_WORDS_PER_DAY } from '../hooks/useVocabState';
 import EmptyState from './EmptyState';
+import { Button } from './ui/Button';
 
 interface LearnViewProps {
   unlearnedWords: Word[];
@@ -14,12 +15,6 @@ interface LearnViewProps {
   onLearn: (en: string) => void;
   onGoToSettings: () => void;
 }
-
-const primaryBtn =
-  `relative flex-1 overflow-hidden rounded-xl px-4 py-3.5 text-base font-semibold text-farm-text transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 shadow-[0_4px_16px_rgba(249,115,22,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] [text-shadow:0_1px_2px_rgba(0,0,0,0.2)] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-60 before:transition-opacity before:duration-250 enabled:hover:-translate-y-0.5 enabled:hover:scale-[1.02] enabled:hover:shadow-[0_8px_24px_rgba(249,115,22,0.55),inset_0_1px_0_rgba(255,255,255,0.25)] enabled:hover:before:opacity-100 enabled:active:-translate-y-px enabled:active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:grayscale-[0.5]`;
-
-const secondaryBtn =
-  `relative flex-1 overflow-hidden rounded-xl border border-farm-muted/25 bg-[rgba(69,26,3,0.6)] px-4 py-3.5 text-base font-semibold text-farm-muted backdrop-blur-lg shadow-[0_4px_14px_rgba(0,0,0,0.2)] transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-60 before:transition-opacity before:duration-250 enabled:hover:bg-[rgba(69,26,3,0.8)] enabled:hover:border-farm-muted/45 enabled:hover:shadow-[0_6px_20px_rgba(0,0,0,0.3)] enabled:hover:before:opacity-100 enabled:active:-translate-y-px enabled:active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:grayscale-[0.5]`;
 
 export default function LearnView({ unlearnedWords, totalWords, todayCount, remaining, onLearn, onGoToSettings }: LearnViewProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -111,8 +106,8 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
           </section>
           <p className="text-sm text-farm-muted mb-6">没有可学的新单词了</p>
           <div className="flex gap-3 mb-6">
-            <button className={secondaryBtn} disabled>⏭️ 跳过</button>
-            <button className={primaryBtn} disabled>🌱 播种</button>
+            <Button variant="secondary" className="flex-1" disabled>⏭️ 跳过</Button>
+            <Button className="flex-1" disabled>🌱 播种</Button>
           </div>
         </>
       ) : (
@@ -139,12 +134,12 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
           <p className="text-sm text-farm-muted mb-6">点击卡片查看释义</p>
 
           <div className="flex gap-3 mb-6">
-            <button className={secondaryBtn} onClick={handleSkip}>
+            <Button variant="secondary" className="flex-1" onClick={handleSkip}>
               ⏭️ 跳过
-            </button>
-            <button className={primaryBtn} onClick={handleLearn}>
+            </Button>
+            <Button className="flex-1" onClick={handleLearn}>
               🌱 播种
-            </button>
+            </Button>
           </div>
         </>
       )}

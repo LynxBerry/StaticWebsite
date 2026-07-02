@@ -7,6 +7,16 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', 'system-ui', '-apple-system', 'sans-serif'],
+        display: [
+          'var(--font-jakarta)',
+          'var(--font-inter)',
+          'system-ui',
+          '-apple-system',
+          'sans-serif'
+        ]
+      },
       colors: {
         farm: {
           bg: '#1a0f08',

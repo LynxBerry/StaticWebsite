@@ -3,9 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-
-const primaryBtn =
-  `relative w-full overflow-hidden rounded-xl px-4 py-3.5 text-base font-semibold text-farm-text transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 shadow-[0_4px_16px_rgba(249,115,22,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] [text-shadow:0_1px_2px_rgba(0,0,0,0.2)] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-60 before:transition-opacity before:duration-250 enabled:hover:-translate-y-0.5 enabled:hover:scale-[1.02] enabled:hover:shadow-[0_8px_24px_rgba(249,115,22,0.55),inset_0_1px_0_rgba(255,255,255,0.25)] enabled:hover:before:opacity-100 enabled:active:-translate-y-px enabled:active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:grayscale-[0.5]`;
+import { Button } from '../components/ui/Button';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -69,9 +67,9 @@ export default function LoginForm() {
           {error || '密码错误，请重试。'}
         </p>
       )}
-      <button type="submit" className={primaryBtn} disabled={submitting}>
+      <Button type="submit" fullWidth disabled={submitting}>
         {submitting ? '进入中...' : '进入'}
-      </button>
+      </Button>
     </form>
   );
 }

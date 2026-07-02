@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { FlatWordEntry } from '../hooks/useVocabState';
+import { Button } from './ui/Button';
 
 interface SettingsViewProps {
   exportState: () => FlatWordEntry[];
@@ -14,12 +15,6 @@ interface SettingsViewProps {
 }
 
 const sectionClass = 'text-left p-5 mb-4 bg-farm-card backdrop-blur-glass border border-farm-border rounded-2xl';
-
-const primaryBtn =
-  `relative flex-1 overflow-hidden rounded-xl px-4 py-3.5 text-base font-semibold text-farm-text transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 shadow-[0_4px_16px_rgba(249,115,22,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] [text-shadow:0_1px_2px_rgba(0,0,0,0.2)] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-60 before:transition-opacity before:duration-250 enabled:hover:-translate-y-0.5 enabled:hover:scale-[1.02] enabled:hover:shadow-[0_8px_24px_rgba(249,115,22,0.55),inset_0_1px_0_rgba(255,255,255,0.25)] enabled:hover:before:opacity-100 enabled:active:-translate-y-px enabled:active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:grayscale-[0.5]`;
-
-const secondaryBtn =
-  `relative flex-1 overflow-hidden rounded-xl border border-farm-muted/25 bg-[rgba(69,26,3,0.6)] px-4 py-3.5 text-base font-semibold text-farm-muted backdrop-blur-lg shadow-[0_4px_14px_rgba(0,0,0,0.2)] transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-60 before:transition-opacity before:duration-250 enabled:hover:bg-[rgba(69,26,3,0.8)] enabled:hover:border-farm-muted/45 enabled:hover:shadow-[0_6px_20px_rgba(0,0,0,0.3)] enabled:hover:before:opacity-100 enabled:active:-translate-y-px enabled:active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:grayscale-[0.5]`;
 
 export default function SettingsView({ exportState, importState, onReset, siteTitle, onUpdateSiteTitle }: SettingsViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -125,9 +120,9 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
           导出为 flat 格式，每个单词一行：wordInEnglish / wordInChinese / level / next date。
           level 0 表示未学习，文件名自动带日期。
         </p>
-        <button className={`${primaryBtn} flex-none min-w-[140px]`} onClick={handleExport}>
+        <Button className="flex-none min-w-[140px]" onClick={handleExport}>
           导出备份
-        </button>
+        </Button>
       </div>
 
       <div className={sectionClass}>
@@ -158,17 +153,17 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       <div className={sectionClass}>
         <h3 className="text-base text-red-300 mb-2">🗑️ 重置进度</h3>
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">清空所有学习进度（不会删除词库）。此操作不可恢复，建议先导出备份。</p>
-        <button className={`${secondaryBtn} flex-none min-w-[140px]`} onClick={onReset}>
+        <Button variant="secondary" className="flex-none min-w-[140px]" onClick={onReset}>
           重置所有进度
-        </button>
+        </Button>
       </div>
 
       <div className={sectionClass}>
         <h3 className="text-base text-farm-text mb-2">🚪 退出登录</h3>
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">退出当前账号，返回登录页。你的学习进度会保留在这个设备的本账号下。</p>
-        <button className={`${secondaryBtn} flex-none min-w-[140px]`} onClick={handleSignOut}>
+        <Button variant="secondary" className="flex-none min-w-[140px]" onClick={handleSignOut}>
           退出登录
-        </button>
+        </Button>
       </div>
     </section>
   );

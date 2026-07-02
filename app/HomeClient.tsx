@@ -49,7 +49,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
     return (
       <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
         <header>
-          <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold mb-1 font-display bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
             {siteTitle}
           </h1>
           <p className="text-farm-muted mb-6">一份耕耘一份收获</p>
@@ -67,7 +67,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
   return (
     <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
       <header>
-        <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold mb-1 font-display bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
           {siteTitle}
         </h1>
         <p className="text-farm-muted mb-6">一份耕耘一份收获</p>
