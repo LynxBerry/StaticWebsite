@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Word } from '../data/words';
 import { formatDate, getPlantIcon } from '../lib/utils';
+import EmptyState from './EmptyState';
 
 type FilterType = 'all' | 'unlearned' | 'due' | 'mastered';
 type StatusType = 'mastered' | 'due' | 'pending' | 'unlearned';
@@ -11,6 +12,7 @@ interface BankViewProps {
   words: Word[];
   getStatus: (en: string) => StatusType;
   getWordState: (en: string) => { level: number; nextReview: number };
+  onGoToSettings: () => void;
 }
 
 function wordItemClass(status: StatusType) {
@@ -40,9 +42,24 @@ function statusTextClass(status: StatusType) {
   }
 }
 
-export default function BankView({ words, getStatus, getWordState }: BankViewProps) {
+export default function BankView({ words, getStatus, getWordState, onGoToSettings }: BankViewProps) {
   const [filter, setFilter] = useState<FilterType>('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Empty library: show import guidance instead of empty list
+  if (words.length === 0) {
+    return (
+      <section className="flex-1 flex flex-col min-h-[60vh]" id="bank-view">
+        <EmptyState
+          icon="📚"
+          title="词库还是空的"
+          message="去设置里导入单词，词库就会出现在这里。"
+          actionLabel="去导入单词"
+          onAction={onGoToSettings}
+        />
+      </section>
+    );
+  }
 
   const term = searchTerm.trim().toLowerCase();
 

@@ -1,7 +1,22 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { DEFAULT_WORDS, Word } from '../data/words';
+import { DEFAULT_WORDS } from '../data/words';
+import type { Word, WordState, WrongItem, ProgressState } from '../lib/types';
+import { createClient } from '@/lib/supabase/client';
+import {
+  fetchUserData,
+  syncWords,
+  upsertProgress,
+  deleteProgress,
+  upsertWrongItem,
+  deleteWrongItem,
+  clearWrongQueue,
+  resetProgress as dbResetProgress
+} from '../lib/supabase-db';
+
+// Re-export types so existing imports from this module keep working.
+export type { Word, WordState, WrongItem, ProgressState };
 
 // Keys are scoped per-user so multiple accounts on the same browser don't
 // share progress. Legacy single-user keys are migrated on first login.
@@ -26,22 +41,6 @@ export const INTERVALS: Record<number, number> = {
 };
 
 export const MASTERED_LEVEL = 6;
-
-export interface WordState {
-  level: number;
-  nextReview: number;
-  firstLearnedDate?: string;
-}
-
-export interface WrongItem {
-  en: string;
-  remaining: number;
-}
-
-export interface ProgressState {
-  wordStates: Record<string, WordState>;
-  wrongQueue: WrongItem[];
-}
 
 export interface FlatWordEntry {
   wordInEnglish: string;
@@ -217,13 +216,51 @@ export function useVocabState(userId: string) {
   const [words, setWords] = useState<Word[]>(DEFAULT_WORDS);
   const [progress, setProgress] = useState<ProgressState>({ wordStates: {}, wrongQueue: [] });
   const [isHydrated, setIsHydrated] = useState(false);
+  const [dbSynced, setDbSynced] = useState(false);
 
   useEffect(() => {
-    const loadedWords = loadWords(userId);
-    const loadedProgress = loadProgress(userId);
-    setWords(loadedWords);
-    setProgress(loadedProgress);
+    let cancelled = false;
+
+    // 1. Immediately show cached localStorage data (fast first paint)
+    const localWords = loadWords(userId);
+    const localProgress = loadProgress(userId);
+    setWords(localWords);
+    setProgress(localProgress);
     setIsHydrated(true);
+
+    // 2. Async: pull authoritative data from DB
+    (async () => {
+      const supabase = createClient();
+      const { data, error } = await fetchUserData(supabase, userId);
+      if (cancelled || error || !data) {
+        if (error) console.error('DB fetch failed, using local cache:', error);
+        setDbSynced(true);
+        return;
+      }
+
+      if (!data.isEmpty) {
+        // DB has data: it's the source of truth — overwrite local + cache
+        setWords(data.words);
+        setProgress(data.progress);
+        saveWords(userId, data.words);
+        saveProgress(userId, data.progress);
+      } else if (localWords.length > 0 || Object.keys(localProgress.wordStates).length > 0) {
+        // DB empty but localStorage has data: one-time migration to cloud
+        await syncWords(supabase, userId, localWords);
+        const entries = Object.entries(localProgress.wordStates);
+        await Promise.all(
+          entries.map(([en, ws]) => upsertProgress(supabase, userId, en, ws))
+        );
+        await Promise.all(
+          localProgress.wrongQueue.map((item) => upsertWrongItem(supabase, userId, item))
+        );
+      }
+      setDbSynced(true);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [userId]);
 
   useEffect(() => {
@@ -255,16 +292,6 @@ export function useVocabState(userId: string) {
     }
     return progress.wordStates[en];
   }, [progress.wordStates]);
-
-  const setWordState = useCallback((en: string, updater: (ws: WordState) => WordState) => {
-    setProgress((prev) => ({
-      ...prev,
-      wordStates: {
-        ...prev.wordStates,
-        [en]: updater(getWordState(en))
-      }
-    }));
-  }, [getWordState]);
 
   const getNewWordsStats = useCallback(() => {
     const today = getTodayString();
@@ -309,40 +336,67 @@ export function useVocabState(userId: string) {
       ).length;
       if (currentCount >= MAX_NEW_WORDS_PER_DAY) return prev;
 
+      const newState: WordState = {
+        level: 1,
+        nextReview: Date.now() + INTERVALS[1] * 24 * 60 * 60 * 1000,
+        firstLearnedDate: today
+      };
+      upsertProgress(createClient(), userId, en, newState).catch((e) =>
+        console.error('DB sync failed (learnNewWord):', en, e)
+      );
       return {
         ...prev,
-        wordStates: {
-          ...prev.wordStates,
-          [en]: {
-            level: 1,
-            nextReview: Date.now() + INTERVALS[1] * 24 * 60 * 60 * 1000,
-            firstLearnedDate: today
-          }
-        }
+        wordStates: { ...prev.wordStates, [en]: newState }
       };
     });
-  }, []);
+  }, [userId]);
 
   const markKnown = useCallback((en: string) => {
-    setWordState(en, (ws) => {
+    const newStates: WordState[] = [];
+    setProgress((prev) => {
+      const ws = prev.wordStates[en] ?? { level: 1, nextReview: Date.now() };
       const newLevel = Math.min(ws.level + 1, MASTERED_LEVEL);
-      return {
-        ...ws,
+      const newState: WordState = {
         level: newLevel,
         nextReview: newLevel >= MASTERED_LEVEL
           ? Date.now() + 30 * 24 * 60 * 60 * 1000
-          : Date.now() + INTERVALS[newLevel] * 24 * 60 * 60 * 1000
+          : Date.now() + INTERVALS[newLevel] * 24 * 60 * 60 * 1000,
+        firstLearnedDate: ws.firstLearnedDate
+      };
+      newStates.push(newState);
+      return {
+        ...prev,
+        wordStates: { ...prev.wordStates, [en]: newState }
       };
     });
-  }, [setWordState]);
+    if (newStates[0]) {
+      upsertProgress(createClient(), userId, en, newStates[0]).catch((e) =>
+        console.error('DB sync failed (markKnown):', en, e)
+      );
+    }
+  }, [userId]);
 
   const markAgain = useCallback((en: string) => {
-    setWordState(en, (ws) => ({
-      ...ws,
-      level: 1,
-      nextReview: Date.now() + INTERVALS[1] * 24 * 60 * 60 * 1000
-    }));
-  }, [setWordState]);
+    const newStates: WordState[] = [];
+    setProgress((prev) => {
+      const ws = prev.wordStates[en] ?? { level: 1, nextReview: Date.now() };
+      const newState: WordState = {
+        level: 1,
+        nextReview: Date.now() + INTERVALS[1] * 24 * 60 * 60 * 1000,
+        firstLearnedDate: ws.firstLearnedDate
+      };
+      newStates.push(newState);
+      return {
+        ...prev,
+        wordStates: { ...prev.wordStates, [en]: newState }
+      };
+    });
+    if (newStates[0]) {
+      upsertProgress(createClient(), userId, en, newStates[0]).catch((e) =>
+        console.error('DB sync failed (markAgain):', en, e)
+      );
+    }
+  }, [userId]);
 
   const wrongQueue = progress.wrongQueue;
 
@@ -354,12 +408,13 @@ export function useVocabState(userId: string) {
   const addToWrongQueue = useCallback((en: string) => {
     setProgress((prev) => {
       if (prev.wrongQueue.some((i) => i.en === en)) return prev;
-      return {
-        ...prev,
-        wrongQueue: [...prev.wrongQueue, { en, remaining: 3 }]
-      };
+      const newItem: WrongItem = { en, remaining: 3 };
+      upsertWrongItem(createClient(), userId, newItem).catch((e) =>
+        console.error('DB sync failed (addToWrongQueue):', en, e)
+      );
+      return { ...prev, wrongQueue: [...prev.wrongQueue, newItem] };
     });
-  }, []);
+  }, [userId]);
 
   const decrementWrongRemaining = useCallback((en: string): boolean => {
     let reachedZero = false;
@@ -372,23 +427,35 @@ export function useVocabState(userId: string) {
       const newQueue = [...prev.wrongQueue];
       if (reachedZero) {
         newQueue.splice(index, 1);
+        deleteWrongItem(createClient(), userId, en).catch((e) =>
+          console.error('DB sync failed (decrementWrongRemaining delete):', en, e)
+        );
       } else {
         newQueue[index] = { ...item, remaining: newRemaining };
+        upsertWrongItem(createClient(), userId, { en, remaining: newRemaining }).catch((e) =>
+          console.error('DB sync failed (decrementWrongRemaining):', en, e)
+        );
       }
       return { ...prev, wrongQueue: newQueue };
     });
     return reachedZero;
-  }, []);
+  }, [userId]);
 
   const resetWrongQueue = useCallback(() => {
     setProgress((prev) => ({ ...prev, wrongQueue: [] }));
-  }, []);
+    clearWrongQueue(createClient(), userId).catch((e) =>
+      console.error('DB sync failed (resetWrongQueue):', e)
+    );
+  }, [userId]);
 
   const reset = useCallback(() => {
     if (confirm('确定要重置所有学习进度吗？')) {
       setProgress({ wordStates: {}, wrongQueue: [] });
+      dbResetProgress(createClient(), userId).catch((e) =>
+        console.error('DB sync failed (reset):', e)
+      );
     }
-  }, []);
+  }, [userId]);
 
   const exportState = useCallback((): FlatWordEntry[] => {
     return words.map((word) => {
@@ -466,25 +533,45 @@ export function useVocabState(userId: string) {
 
         setWords(mergedWords);
         setProgress({ wordStates: mergedWordStates, wrongQueue: merge ? progress.wrongQueue : [] });
+
+        // Sync the merged dataset to DB
+        const supabase = createClient();
+        syncWords(supabase, userId, mergedWords).catch((e) =>
+          console.error('DB sync failed (importState words):', e)
+        );
+        Object.entries(mergedWordStates).forEach(([en, ws]) => {
+          upsertProgress(supabase, userId, en, ws).catch((e) =>
+            console.error('DB sync failed (importState progress):', en, e)
+          );
+        });
+        if (!merge) {
+          clearWrongQueue(supabase, userId).catch((e) =>
+            console.error('DB sync failed (importState clear wrong queue):', e)
+          );
+        }
         return true;
       }
 
       // Legacy internal format: { words, progress }
       const imported = data as Partial<{ words: Word[]; progress: ProgressState }>;
 
+      const finalWords: Word[] = merge ? words : [];
+      const finalStates: Record<string, WordState> = merge ? { ...progress.wordStates } : {};
+
       if (imported.words && Array.isArray(imported.words) && imported.words.length > 0) {
         if (merge) {
           const existingEns = new Set(words.map((w) => w.en));
           const newWords = imported.words.filter((w) => !existingEns.has(w.en));
+          finalWords.push(...newWords);
           setWords([...words, ...newWords]);
         } else {
+          finalWords.push(...imported.words);
           setWords(imported.words);
         }
       }
 
       if (imported.progress && typeof imported.progress === 'object') {
         if (merge) {
-          const mergedWordStates = { ...progress.wordStates };
           Object.entries(imported.progress.wordStates || {}).forEach(([key, value]) => {
             if (
               value &&
@@ -493,14 +580,13 @@ export function useVocabState(userId: string) {
               'nextReview' in value &&
               typeof (value as WordState).level === 'number' &&
               typeof (value as WordState).nextReview === 'number' &&
-              !mergedWordStates[key]
+              !finalStates[key]
             ) {
-              mergedWordStates[key] = value as WordState;
+              finalStates[key] = value as WordState;
             }
           });
-          setProgress((prev) => ({ ...prev, wordStates: mergedWordStates }));
+          setProgress((prev) => ({ ...prev, wordStates: finalStates }));
         } else {
-          const wordStates: Record<string, WordState> = {};
           Object.entries(imported.progress.wordStates || {}).forEach(([key, value]) => {
             if (
               value &&
@@ -510,19 +596,36 @@ export function useVocabState(userId: string) {
               typeof (value as WordState).level === 'number' &&
               typeof (value as WordState).nextReview === 'number'
             ) {
-              wordStates[key] = value as WordState;
+              finalStates[key] = value as WordState;
             }
           });
-
-          setProgress({ wordStates, wrongQueue: [] });
+          setProgress({ wordStates: finalStates, wrongQueue: [] });
         }
+      }
+
+      // Sync legacy import to DB
+      const supabase = createClient();
+      if (finalWords.length > 0) {
+        syncWords(supabase, userId, finalWords).catch((e) =>
+          console.error('DB sync failed (legacy import words):', e)
+        );
+      }
+      Object.entries(finalStates).forEach(([en, ws]) => {
+        upsertProgress(supabase, userId, en, ws).catch((e) =>
+          console.error('DB sync failed (legacy import progress):', en, e)
+        );
+      });
+      if (!merge) {
+        clearWrongQueue(supabase, userId).catch((e) =>
+          console.error('DB sync failed (legacy import clear queue):', e)
+        );
       }
       return true;
     } catch (e) {
       console.error('Failed to import state', e);
       return false;
     }
-  }, [words, progress.wordStates, progress.wrongQueue]);
+  }, [words, progress.wordStates, progress.wrongQueue, userId]);
 
   return {
     isHydrated,

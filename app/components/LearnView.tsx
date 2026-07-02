@@ -4,12 +4,15 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Word } from '../data/words';
 import { formatDate, getPlantIcon } from '../lib/utils';
 import { MAX_NEW_WORDS_PER_DAY } from '../hooks/useVocabState';
+import EmptyState from './EmptyState';
 
 interface LearnViewProps {
   unlearnedWords: Word[];
+  totalWords: number;
   todayCount: number;
   remaining: number;
   onLearn: (en: string) => void;
+  onGoToSettings: () => void;
 }
 
 const primaryBtn =
@@ -18,7 +21,7 @@ const primaryBtn =
 const secondaryBtn =
   `relative flex-1 overflow-hidden rounded-xl border border-farm-muted/25 bg-[rgba(69,26,3,0.6)] px-4 py-3.5 text-base font-semibold text-farm-muted backdrop-blur-lg shadow-[0_4px_14px_rgba(0,0,0,0.2)] transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-60 before:transition-opacity before:duration-250 enabled:hover:bg-[rgba(69,26,3,0.8)] enabled:hover:border-farm-muted/45 enabled:hover:shadow-[0_6px_20px_rgba(0,0,0,0.3)] enabled:hover:before:opacity-100 enabled:active:-translate-y-px enabled:active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:grayscale-[0.5]`;
 
-export default function LearnView({ unlearnedWords, todayCount, remaining, onLearn }: LearnViewProps) {
+export default function LearnView({ unlearnedWords, totalWords, todayCount, remaining, onLearn, onGoToSettings }: LearnViewProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
@@ -62,6 +65,21 @@ export default function LearnView({ unlearnedWords, todayCount, remaining, onLea
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isDone, handleLearn, handleSkip]);
+
+  // Empty library: no words at all
+  if (totalWords === 0) {
+    return (
+      <section className="flex-1 flex flex-col min-h-[60vh]" id="learn-view">
+        <EmptyState
+          icon="📭"
+          title="词库还是空的"
+          message="先去设置里导入单词，播种才能开始哦。"
+          actionLabel="去导入单词"
+          onAction={onGoToSettings}
+        />
+      </section>
+    );
+  }
 
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="learn-view">

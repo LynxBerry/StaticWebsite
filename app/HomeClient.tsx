@@ -11,7 +11,7 @@ import SettingsView from './components/SettingsView';
 type ViewType = 'learn' | 'study' | 'farm' | 'bank' | 'settings';
 
 export default function HomeClient({ userId }: { userId: string }) {
-  const [currentView, setCurrentView] = useState<ViewType>('study');
+  const [currentView, setCurrentView] = useState<ViewType>('settings');
   const {
     isHydrated,
     words,
@@ -87,9 +87,11 @@ export default function HomeClient({ userId }: { userId: string }) {
       {currentView === 'learn' && (
         <LearnView
           unlearnedWords={unlearnedWords}
+          totalWords={words.length}
           todayCount={todayCount}
           remaining={remaining}
           onLearn={learnNewWord}
+          onGoToSettings={() => setCurrentView('settings')}
         />
       )}
 
@@ -106,6 +108,7 @@ export default function HomeClient({ userId }: { userId: string }) {
           onAddToWrongQueue={addToWrongQueue}
           onDecrementWrongRemaining={decrementWrongRemaining}
           onResetWrongQueue={resetWrongQueue}
+          onGoToSettings={() => setCurrentView('settings')}
         />
       )}
 
@@ -114,6 +117,7 @@ export default function HomeClient({ userId }: { userId: string }) {
           words={words}
           getStatus={getStatus}
           getWordState={getWordState}
+          onGoToSettings={() => setCurrentView('settings')}
         />
       )}
 
@@ -122,6 +126,7 @@ export default function HomeClient({ userId }: { userId: string }) {
           words={words}
           getStatus={getStatus}
           getWordState={getWordState}
+          onGoToSettings={() => setCurrentView('settings')}
         />
       )}
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import WordCard from './WordCard';
+import EmptyState from './EmptyState';
 import { Word } from '../data/words';
 import { getAudioContext, playSuccessSound, playWrongSound } from '../lib/sound';
 
@@ -24,6 +25,7 @@ interface StudyViewProps {
   onAddToWrongQueue: (en: string) => void;
   onDecrementWrongRemaining: (en: string) => boolean;
   onResetWrongQueue: () => void;
+  onGoToSettings: () => void;
 }
 
 export default function StudyView({
@@ -37,7 +39,8 @@ export default function StudyView({
   onAgain,
   onAddToWrongQueue,
   onDecrementWrongRemaining,
-  onResetWrongQueue
+  onResetWrongQueue,
+  onGoToSettings
 }: StudyViewProps) {
   const [flipped, setFlipped] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -128,6 +131,21 @@ export default function StudyView({
       }
     };
   }, []);
+
+  // Empty library: no words to review
+  if (total === 0) {
+    return (
+      <section className="flex-1 flex flex-col min-h-[60vh]" id="study-view">
+        <EmptyState
+          icon="📭"
+          title="词库还是空的"
+          message="先去设置里导入单词，复习才能开始哦。"
+          actionLabel="去导入单词"
+          onAction={onGoToSettings}
+        />
+      </section>
+    );
+  }
 
   if (isDone) {
     return (

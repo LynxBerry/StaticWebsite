@@ -3,11 +3,13 @@
 import { Word } from '../data/words';
 import { getPlantIcon } from '../lib/utils';
 import Legend from './Legend';
+import EmptyState from './EmptyState';
 
 interface FarmViewProps {
   words: Word[];
   getStatus: (en: string) => 'mastered' | 'due' | 'pending' | 'unlearned';
   getWordState: (en: string) => { level: number; nextReview: number };
+  onGoToSettings: () => void;
 }
 
 function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned') {
@@ -23,7 +25,21 @@ function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned') {
   }
 }
 
-export default function FarmView({ words, getStatus, getWordState }: FarmViewProps) {
+export default function FarmView({ words, getStatus, getWordState, onGoToSettings }: FarmViewProps) {
+  if (words.length === 0) {
+    return (
+      <section className="flex-1 flex flex-col min-h-[60vh]" id="farm-view">
+        <EmptyState
+          icon="🌾"
+          title="农场还是荒地"
+          message="去设置里导入单词，种下第一颗种子吧。"
+          actionLabel="去导入单词"
+          onAction={onGoToSettings}
+        />
+      </section>
+    );
+  }
+
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="farm-view">
       <div className="mb-4">
