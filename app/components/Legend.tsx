@@ -12,7 +12,7 @@ export default function Legend() {
 
   return (
     <section className="mb-6 p-4 bg-farm-card backdrop-blur-glass rounded-2xl border border-farm-border shadow-[0_8px_24px_rgba(0,0,0,0.15)]">
-      <div className="text-sm text-farm-muted mb-3 font-semibold">熟悉度成长图</div>
+      <div className="text-sm text-farm-muted mb-4 font-semibold">熟悉度成长图</div>
       <div className="flex items-center justify-start gap-0.5 overflow-x-auto pb-2 -mb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {steps.map((step, index) => (
           <div key={step.box} className="flex items-center gap-0.5 shrink-0">

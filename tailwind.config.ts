@@ -24,7 +24,8 @@ const config: Config = {
           border: 'rgba(253, 186, 116, 0.12)',
           borderLight: 'rgba(253, 186, 116, 0.35)',
           text: '#fff7ed',
-          muted: '#fdba74',
+          muted: '#fed7aa',      // brightened for better contrast on dark bg
+          accent: '#fb923c',     // saturated action color
           green: '#22c55e',
           red: '#ef4444'
         }

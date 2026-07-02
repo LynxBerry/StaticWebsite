@@ -63,7 +63,7 @@ export default function LoginForm() {
         className={inputClass}
       />
       {(hasError || error) && (
-        <p className="text-red-300 text-sm mb-3">
+        <p className="text-red-300 text-sm mb-4">
           {error || '密码错误，请重试。'}
         </p>
       )}

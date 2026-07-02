@@ -31,12 +31,12 @@ export default function WordCard({
   return (
     <>
       <section
-        className={`card aspect-[3/2] mb-3 ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''}`}
+        className={`card aspect-[3/2] mb-4 ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''}`}
         onClick={() => !disabled && onFlip()}
       >
         <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
           <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[rgba(255,247,237,0.92)] to-[rgba(255,237,213,0.88)] backdrop-blur-glass text-[#431407] shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.15)] border border-white/15">
-            <span className="text-xs uppercase tracking-widest opacity-70 mb-3">
+            <span className="text-xs uppercase tracking-widest opacity-70 mb-4">
               {isWrongMode
                 ? `错题复习 · ${getPlantIcon(wordState.level)} 阶段 ${wordState.level} · 还需答对 ${remaining} 次`
                 : `英文 · ${getPlantIcon(wordState.level)} 阶段 ${wordState.level} · 下次复习 ${formatDate(wordState.nextReview)}`}
@@ -44,7 +44,7 @@ export default function WordCard({
             <h2 className="text-4xl font-bold">{word.en}</h2>
           </div>
           <div className="card-back absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-orange-500/85 to-orange-600/80 backdrop-blur-glass text-farm-text [transform:rotateY(180deg)] shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.15)] border border-white/15">
-            <span className="text-xs uppercase tracking-widest opacity-70 mb-3">
+            <span className="text-xs uppercase tracking-widest opacity-70 mb-4">
               {isWrongMode ? '中文 · 再想想？' : '中文'}
             </span>
             <p className="text-2xl font-semibold">{word.cn}</p>

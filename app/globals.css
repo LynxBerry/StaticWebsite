@@ -40,3 +40,32 @@ body::before {
 .card.wrong .card-front {
   border-color: rgba(239, 68, 68, 0.4);
 }
+
+/* Progress bar shimmer — a subtle light sweep across the fill */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+.progress-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.progress-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+
+/* Reduced motion: disable non-essential animations */
+@media (prefers-reduced-motion: reduce) {
+  .progress-shimmer::after {
+    animation: none;
+  }
+}

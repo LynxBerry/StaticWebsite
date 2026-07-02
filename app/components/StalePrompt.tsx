@@ -16,7 +16,7 @@ export default function StalePrompt({ onRefresh, onDismiss }: StalePromptProps) 
       aria-label="页面已闲置"
     >
       <div className="w-full max-w-[340px] text-center p-6 bg-farm-card backdrop-blur-glass border border-farm-border rounded-2xl shadow-glass">
-        <div className="text-5xl mb-3">⏰</div>
+        <div className="text-5xl mb-4">⏰</div>
         <h2 className="text-lg font-bold text-farm-text mb-2 font-display">页面闲置了一阵子</h2>
         <p className="text-sm text-farm-muted mb-6 leading-relaxed">
           为了看到其他设备的最新进度，建议刷新一下页面。

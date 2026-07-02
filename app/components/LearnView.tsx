@@ -84,7 +84,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
         </span>
         <div className="h-2 bg-[#451a03] rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-300"
+            className="progress-shimmer h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-300"
             style={{ width: `${displayTotal > 0 ? (todayCount / displayTotal) * 100 : 0}%` }}
           ></div>
         </div>
@@ -92,7 +92,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
 
       {isDone ? (
         <>
-          <section className="card aspect-[3/2] cursor-default mb-3" aria-label="今日播种完成">
+          <section className="card aspect-[3/2] cursor-default mb-4" aria-label="今日播种完成">
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
               <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[rgba(255,247,237,0.92)] to-[rgba(255,237,213,0.88)] backdrop-blur-glass text-[#431407] shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.15)] border border-white/15">
                 <h2 className="text-4xl font-bold mb-2">🌱 今日播种完成</h2>
@@ -113,17 +113,17 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
       ) : (
         <>
           <section
-            className={`card aspect-[3/2] cursor-pointer mb-3 ${flipped ? 'flipped' : ''}`}
+            className={`card aspect-[3/2] cursor-pointer mb-4 ${flipped ? 'flipped' : ''}`}
             onClick={() => setFlipped(!flipped)}
           >
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
               <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[rgba(255,247,237,0.92)] to-[rgba(255,237,213,0.88)] backdrop-blur-glass text-[#431407] shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.15)] border border-white/15">
-                <span className="text-xs uppercase tracking-widest opacity-70 mb-3">新单词 · 点击学习</span>
+                <span className="text-xs uppercase tracking-widest opacity-70 mb-4">新单词 · 点击学习</span>
                 <h2 className="text-4xl font-bold">{currentWord.en}</h2>
               </div>
               <div className="card-back absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-orange-500/85 to-orange-600/80 backdrop-blur-glass text-farm-text [transform:rotateY(180deg)] shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.15)] border border-white/15">
-                <span className="text-xs uppercase tracking-widest opacity-70 mb-3">中文 · 明天开始复习</span>
-                <p className="text-2xl font-semibold mb-3">{currentWord.cn}</p>
+                <span className="text-xs uppercase tracking-widest opacity-70 mb-4">中文 · 明天开始复习</span>
+                <p className="text-2xl font-semibold mb-4">{currentWord.cn}</p>
                 <span className="text-xs uppercase tracking-widest opacity-70">
                   {getPlantIcon(1)} 阶段 1 · 下次复习 {formatDate(Date.now() + 24 * 60 * 60 * 1000)}
                 </span>

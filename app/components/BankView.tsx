@@ -90,10 +90,10 @@ export default function BankView({ words, getStatus, getWordState, onGoToSetting
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="bank-view">
       <div className="mb-4">
-        <h2 className="text-xl text-farm-muted mb-3">词库</h2>
+        <h2 className="text-xl text-farm-muted mb-4">词库</h2>
         <input
           type="text"
-          className="w-full mb-3 px-4 py-2.5 rounded-xl border border-farm-muted/25 bg-[rgba(42,24,11,0.5)] backdrop-blur-glass text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-orange-500/60 focus:bg-[rgba(42,24,11,0.7)] focus:shadow-[0_0_0_3px_rgba(249,115,22,0.2)]"
+          className="w-full mb-4 px-4 py-2.5 rounded-xl border border-farm-muted/25 bg-[rgba(42,24,11,0.5)] backdrop-blur-glass text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-orange-500/60 focus:bg-[rgba(42,24,11,0.7)] focus:shadow-[0_0_0_3px_rgba(249,115,22,0.2)]"
           placeholder="搜索英文或中文..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
