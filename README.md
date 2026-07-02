@@ -11,12 +11,27 @@
 
 ## 本地开发
 
+### 1. 配置 Supabase
+
+本项目使用 Supabase 做用户认证。先在 [supabase.com](https://supabase.com) 创建一个项目，然后在 **Project Settings → API** 页面拿到 URL 和 publishable (anon) key。
+
+复制环境变量模板并填入：
+
+```bash
+cp .env.local.example .env.local
+# 编辑 .env.local，填入你的 Supabase URL 和 key
+```
+
+接着在 Supabase Dashboard 的 **Authentication → Users** 里手动创建用户（本项目未开放注册，仅管理员建号）。
+
+### 2. 安装与启动
+
 ```bash
 npm install
 npm run dev
 ```
 
-访问 `http://localhost:3000`。
+访问 `http://localhost:3000`，会自动跳转到登录页。
 
 ## 部署到 Vercel
 
@@ -30,4 +45,6 @@ git push
 
 2. 在 [Vercel Dashboard](https://vercel.com/dashboard) 导入该仓库。
 
-3. Vercel 会自动识别为 Next.js 项目，保持默认配置，点击 **Deploy**。
+3. 在 Vercel 项目的 **Settings → Environment Variables** 里添加 `NEXT_PUBLIC_SUPABASE_URL` 和 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`（值同 `.env.local`）。
+
+4. Vercel 会自动识别为 Next.js 项目，保持默认配置，点击 **Deploy**。

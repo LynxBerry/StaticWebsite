@@ -1,6 +1,8 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import { FlatWordEntry } from '../hooks/useVocabState';
 
 interface SettingsViewProps {
@@ -21,6 +23,14 @@ export default function SettingsView({ exportState, importState, onReset }: Sett
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const [mergeImport, setMergeImport] = useState(true);
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  };
 
   const handleExport = () => {
     const state = exportState();
@@ -106,6 +116,14 @@ export default function SettingsView({ exportState, importState, onReset }: Sett
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">清空所有学习进度（不会删除词库）。此操作不可恢复，建议先导出备份。</p>
         <button className={`${secondaryBtn} flex-none min-w-[140px]`} onClick={onReset}>
           重置所有进度
+        </button>
+      </div>
+
+      <div className={sectionClass}>
+        <h3 className="text-base text-farm-text mb-2">🚪 退出登录</h3>
+        <p className="text-sm text-farm-muted mb-4 leading-relaxed">退出当前账号，返回登录页。你的学习进度会保留在这个设备的本账号下。</p>
+        <button className={`${secondaryBtn} flex-none min-w-[140px]`} onClick={handleSignOut}>
+          退出登录
         </button>
       </div>
     </section>

@@ -3,8 +3,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_WORDS, Word } from '../data/words';
 
-const PROGRESS_KEY = 'zeno-vocab-progress-v3';
-const WORDS_KEY = 'zeno-vocab-words-v1';
+// Keys are scoped per-user so multiple accounts on the same browser don't
+// share progress. Legacy single-user keys are migrated on first login.
+const PROGRESS_KEY_BASE = 'zeno-vocab-progress-v3';
+const WORDS_KEY_BASE = 'zeno-vocab-words-v1';
+
+function progressKey(userId: string) {
+  return `${PROGRESS_KEY_BASE}-${userId}`;
+}
+function wordsKey(userId: string) {
+  return `${WORDS_KEY_BASE}-${userId}`;
+}
 
 export const MAX_NEW_WORDS_PER_DAY = 15;
 
@@ -60,9 +69,10 @@ function parseLocalDate(dateStr: string): Date {
   return new Date(`${dateStr}T00:00:00`);
 }
 
-function loadWords(): Word[] {
+function loadWords(userId: string): Word[] {
   if (typeof window === 'undefined') return DEFAULT_WORDS;
-  const raw = localStorage.getItem(WORDS_KEY);
+  const key = wordsKey(userId);
+  const raw = localStorage.getItem(key);
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
@@ -71,22 +81,38 @@ function loadWords(): Word[] {
       console.error('Failed to parse words', e);
     }
   }
+  // One-time migration from the legacy single-user key
+  if (key !== WORDS_KEY_BASE) {
+    const legacy = localStorage.getItem(WORDS_KEY_BASE);
+    if (legacy) {
+      try {
+        const parsed = JSON.parse(legacy);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          localStorage.setItem(key, legacy);
+          return parsed;
+        }
+      } catch {
+        // ignore malformed legacy data
+      }
+    }
+  }
   return DEFAULT_WORDS;
 }
 
-function saveWords(words: Word[]) {
+function saveWords(userId: string, words: Word[]) {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(WORDS_KEY, JSON.stringify(words));
+  localStorage.setItem(wordsKey(userId), JSON.stringify(words));
 }
 
-function migrateV2Progress(): ProgressState | null {
+function migrateV2Progress(userId: string): ProgressState | null {
   if (typeof window === 'undefined') return null;
+  // The v2 key is a legacy single-user store; migrate it to this user.
   const raw = localStorage.getItem('zeno-vocab-progress-v2');
   if (!raw) return null;
 
   try {
     const parsed = JSON.parse(raw);
-    const words = loadWords();
+    const words = loadWords(userId);
     const wordStates: Record<string, WordState> = {};
 
     if (Array.isArray(parsed.mastered)) {
@@ -119,76 +145,94 @@ function migrateV2Progress(): ProgressState | null {
   }
 }
 
-function loadProgress(): ProgressState {
+function parseProgress(raw: string): ProgressState {
+  try {
+    const parsed = JSON.parse(raw);
+    const wordStates: Record<string, WordState> = {};
+    Object.entries(parsed.wordStates || {}).forEach(([key, value]) => {
+      if (
+        value &&
+        typeof value === 'object' &&
+        'level' in value &&
+        'nextReview' in value
+      ) {
+        wordStates[key] = value as WordState;
+      }
+    });
+
+    const wrongQueue: WrongItem[] = Array.isArray(parsed.wrongQueue)
+      ? parsed.wrongQueue.filter((item: unknown) => {
+          return (
+            item &&
+            typeof item === 'object' &&
+            'en' in (item as WrongItem) &&
+            'remaining' in (item as WrongItem) &&
+            typeof (item as WrongItem).en === 'string' &&
+            typeof (item as WrongItem).remaining === 'number'
+          );
+        })
+      : [];
+
+    return { wordStates, wrongQueue };
+  } catch (e) {
+    console.error('Failed to parse progress', e);
+    return { wordStates: {}, wrongQueue: [] };
+  }
+}
+
+function loadProgress(userId: string): ProgressState {
   if (typeof window === 'undefined') {
     return { wordStates: {}, wrongQueue: [] };
   }
 
-  const migrated = migrateV2Progress();
-  if (migrated) return migrated;
+  const key = progressKey(userId);
+  const migrated = migrateV2Progress(userId);
+  if (migrated) {
+    localStorage.setItem(key, JSON.stringify(migrated));
+    return migrated;
+  }
 
-  const raw = localStorage.getItem(PROGRESS_KEY);
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw);
-      const wordStates: Record<string, WordState> = {};
-      Object.entries(parsed.wordStates || {}).forEach(([key, value]) => {
-        if (
-          value &&
-          typeof value === 'object' &&
-          'level' in value &&
-          'nextReview' in value
-        ) {
-          wordStates[key] = value as WordState;
-        }
-      });
+  const raw = localStorage.getItem(key);
 
-      const wrongQueue: WrongItem[] = Array.isArray(parsed.wrongQueue)
-        ? parsed.wrongQueue.filter((item: unknown) => {
-            return (
-              item &&
-              typeof item === 'object' &&
-              'en' in (item as WrongItem) &&
-              'remaining' in (item as WrongItem) &&
-              typeof (item as WrongItem).en === 'string' &&
-              typeof (item as WrongItem).remaining === 'number'
-            );
-          })
-        : [];
-
-      return { wordStates, wrongQueue };
-    } catch (e) {
-      console.error('Failed to parse progress', e);
+  // One-time migration from the legacy single-user key
+  if (!raw && key !== PROGRESS_KEY_BASE) {
+    const legacy = localStorage.getItem(PROGRESS_KEY_BASE);
+    if (legacy) {
+      localStorage.setItem(key, legacy);
+      return parseProgress(legacy);
     }
   }
+
+  if (raw) return parseProgress(raw);
+
   return { wordStates: {}, wrongQueue: [] };
 }
 
-function saveProgress(progress: ProgressState) {
+function saveProgress(userId: string, progress: ProgressState) {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+  localStorage.setItem(progressKey(userId), JSON.stringify(progress));
 }
 
-export function useVocabState() {
+export function useVocabState(userId: string) {
   const [words, setWords] = useState<Word[]>(DEFAULT_WORDS);
   const [progress, setProgress] = useState<ProgressState>({ wordStates: {}, wrongQueue: [] });
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    const loadedWords = loadWords();
-    const loadedProgress = loadProgress();
+    const loadedWords = loadWords(userId);
+    const loadedProgress = loadProgress(userId);
     setWords(loadedWords);
     setProgress(loadedProgress);
     setIsHydrated(true);
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
-    if (isHydrated) saveWords(words);
-  }, [words, isHydrated]);
+    if (isHydrated) saveWords(userId, words);
+  }, [words, isHydrated, userId]);
 
   useEffect(() => {
-    if (isHydrated) saveProgress(progress);
-  }, [progress, isHydrated]);
+    if (isHydrated) saveProgress(userId, progress);
+  }, [progress, isHydrated, userId]);
 
   // Prune wrong queue entries that no longer exist in the word list
   useEffect(() => {
