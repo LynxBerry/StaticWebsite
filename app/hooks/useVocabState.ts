@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { DEFAULT_WORDS } from '../data/words';
 import type { Word, WordState, WrongItem, ProgressState } from '../lib/types';
 import { createClient } from '@/lib/supabase/client';
@@ -217,9 +217,15 @@ export function useVocabState(userId: string) {
   const [progress, setProgress] = useState<ProgressState>({ wordStates: {}, wrongQueue: [] });
   const [isHydrated, setIsHydrated] = useState(false);
   const [dbSynced, setDbSynced] = useState(false);
+  // Tracks whether the user mutated state before the initial DB pull landed.
+  // If so, we merge (DB wins for untouched keys, local wins for touched keys)
+  // instead of blindly overwriting with DB data.
+  const localMutationsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
+    // Reset mutation tracking on user switch
+    localMutationsRef.current = new Set();
 
     // 1. Immediately show cached localStorage data (fast first paint)
     const localWords = loadWords(userId);
@@ -239,11 +245,48 @@ export function useVocabState(userId: string) {
       }
 
       if (!data.isEmpty) {
-        // DB has data: it's the source of truth — overwrite local + cache
-        setWords(data.words);
-        setProgress(data.progress);
-        saveWords(userId, data.words);
-        saveProgress(userId, data.progress);
+        // DB has data: merge with local. DB is authoritative, but any word the
+        // user already touched during this brief window keeps the local value
+        // (it's newer) and is re-synced to DB below.
+        const touched = localMutationsRef.current;
+        const mergedWords = data.words.map((w) =>
+          touched.has(w.en) ? (localWords.find((lw) => lw.en === w.en) ?? w) : w
+        );
+        // Include local-only words (user added during the window) that aren't in DB yet
+        localWords.forEach((lw) => {
+          if (!mergedWords.some((w) => w.en === lw.en)) mergedWords.push(lw);
+        });
+
+        const mergedStates: Record<string, WordState> = { ...data.progress.wordStates };
+        touched.forEach((en) => {
+          const localWs = localProgress.wordStates[en];
+          if (localWs) mergedStates[en] = localWs;
+        });
+
+        const localWrongTouched = localProgress.wrongQueue.filter((i) => touched.has(i.en));
+        const mergedWrong = [...data.progress.wrongQueue];
+        localWrongTouched.forEach((i) => {
+          const idx = mergedWrong.findIndex((w) => w.en === i.en);
+          if (idx >= 0) mergedWrong[idx] = i;
+          else mergedWrong.push(i);
+        });
+
+        const mergedProgress = { wordStates: mergedStates, wrongQueue: mergedWrong };
+        setWords(mergedWords);
+        setProgress(mergedProgress);
+        saveWords(userId, mergedWords);
+        saveProgress(userId, mergedProgress);
+
+        // Push any locally-mutated data back to DB so cloud matches
+        const supabaseMut = createClient();
+        touched.forEach((en) => {
+          const ws = mergedStates[en];
+          if (ws) {
+            upsertProgress(supabaseMut, userId, en, ws).catch((e) =>
+              console.error('DB re-sync failed (merge):', en, e)
+            );
+          }
+        });
       } else if (localWords.length > 0 || Object.keys(localProgress.wordStates).length > 0) {
         // DB empty but localStorage has data: one-time migration to cloud
         await syncWords(supabase, userId, localWords);
@@ -328,6 +371,23 @@ export function useVocabState(userId: string) {
     return 'pending';
   }, [getWordState, isWordLearned]);
 
+  // Helper: upsert progress to DB, rolling back the UI on failure so the
+  // visible state never diverges from what's actually persisted.
+  const syncProgressWithRollback = useCallback(
+    (en: string, newState: WordState, oldState: WordState | undefined) => {
+      upsertProgress(createClient(), userId, en, newState).catch((e) => {
+        console.error('DB sync failed, rolling back UI:', en, e);
+        setProgress((prev) => {
+          const next = { ...prev.wordStates };
+          if (oldState) next[en] = oldState;
+          else delete next[en];
+          return { ...prev, wordStates: next };
+        });
+      });
+    },
+    [userId]
+  );
+
   const learnNewWord = useCallback((en: string) => {
     const today = getTodayString();
     setProgress((prev) => {
@@ -336,25 +396,25 @@ export function useVocabState(userId: string) {
       ).length;
       if (currentCount >= MAX_NEW_WORDS_PER_DAY) return prev;
 
+      const oldState = prev.wordStates[en];
       const newState: WordState = {
         level: 1,
         nextReview: Date.now() + INTERVALS[1] * 24 * 60 * 60 * 1000,
         firstLearnedDate: today
       };
-      upsertProgress(createClient(), userId, en, newState).catch((e) =>
-        console.error('DB sync failed (learnNewWord):', en, e)
-      );
+      localMutationsRef.current.add(en);
+      syncProgressWithRollback(en, newState, oldState);
       return {
         ...prev,
         wordStates: { ...prev.wordStates, [en]: newState }
       };
     });
-  }, [userId]);
+  }, [userId, syncProgressWithRollback]);
 
   const markKnown = useCallback((en: string) => {
-    const newStates: WordState[] = [];
     setProgress((prev) => {
-      const ws = prev.wordStates[en] ?? { level: 1, nextReview: Date.now() };
+      const oldState = prev.wordStates[en];
+      const ws = oldState ?? { level: 1, nextReview: Date.now() };
       const newLevel = Math.min(ws.level + 1, MASTERED_LEVEL);
       const newState: WordState = {
         level: newLevel,
@@ -363,40 +423,32 @@ export function useVocabState(userId: string) {
           : Date.now() + INTERVALS[newLevel] * 24 * 60 * 60 * 1000,
         firstLearnedDate: ws.firstLearnedDate
       };
-      newStates.push(newState);
+      localMutationsRef.current.add(en);
+      syncProgressWithRollback(en, newState, oldState);
       return {
         ...prev,
         wordStates: { ...prev.wordStates, [en]: newState }
       };
     });
-    if (newStates[0]) {
-      upsertProgress(createClient(), userId, en, newStates[0]).catch((e) =>
-        console.error('DB sync failed (markKnown):', en, e)
-      );
-    }
-  }, [userId]);
+  }, [userId, syncProgressWithRollback]);
 
   const markAgain = useCallback((en: string) => {
-    const newStates: WordState[] = [];
     setProgress((prev) => {
-      const ws = prev.wordStates[en] ?? { level: 1, nextReview: Date.now() };
+      const oldState = prev.wordStates[en];
+      const ws = oldState ?? { level: 1, nextReview: Date.now() };
       const newState: WordState = {
         level: 1,
         nextReview: Date.now() + INTERVALS[1] * 24 * 60 * 60 * 1000,
         firstLearnedDate: ws.firstLearnedDate
       };
-      newStates.push(newState);
+      localMutationsRef.current.add(en);
+      syncProgressWithRollback(en, newState, oldState);
       return {
         ...prev,
         wordStates: { ...prev.wordStates, [en]: newState }
       };
     });
-    if (newStates[0]) {
-      upsertProgress(createClient(), userId, en, newStates[0]).catch((e) =>
-        console.error('DB sync failed (markAgain):', en, e)
-      );
-    }
-  }, [userId]);
+  }, [userId, syncProgressWithRollback]);
 
   const wrongQueue = progress.wrongQueue;
 
@@ -409,9 +461,14 @@ export function useVocabState(userId: string) {
     setProgress((prev) => {
       if (prev.wrongQueue.some((i) => i.en === en)) return prev;
       const newItem: WrongItem = { en, remaining: 3 };
-      upsertWrongItem(createClient(), userId, newItem).catch((e) =>
-        console.error('DB sync failed (addToWrongQueue):', en, e)
-      );
+      localMutationsRef.current.add(en);
+      upsertWrongItem(createClient(), userId, newItem).catch((e) => {
+        console.error('DB sync failed, rolling back (addToWrongQueue):', en, e);
+        setProgress((p) => ({
+          ...p,
+          wrongQueue: p.wrongQueue.filter((i) => i.en !== en)
+        }));
+      });
       return { ...prev, wrongQueue: [...prev.wrongQueue, newItem] };
     });
   }, [userId]);
@@ -421,20 +478,33 @@ export function useVocabState(userId: string) {
     setProgress((prev) => {
       const index = prev.wrongQueue.findIndex((i) => i.en === en);
       if (index === -1) return prev;
-      const item = prev.wrongQueue[index];
-      const newRemaining = item.remaining - 1;
+      const oldItem = prev.wrongQueue[index];
+      const newRemaining = oldItem.remaining - 1;
       reachedZero = newRemaining <= 0;
       const newQueue = [...prev.wrongQueue];
+      localMutationsRef.current.add(en);
+
       if (reachedZero) {
         newQueue.splice(index, 1);
-        deleteWrongItem(createClient(), userId, en).catch((e) =>
-          console.error('DB sync failed (decrementWrongRemaining delete):', en, e)
-        );
+        deleteWrongItem(createClient(), userId, en).catch((e) => {
+          console.error('DB sync failed, rolling back (decrementWrongRemaining delete):', en, e);
+          setProgress((p) => ({
+            ...p,
+            wrongQueue: p.wrongQueue.some((i) => i.en === en)
+              ? p.wrongQueue
+              : [...p.wrongQueue, oldItem]
+          }));
+        });
       } else {
-        newQueue[index] = { ...item, remaining: newRemaining };
-        upsertWrongItem(createClient(), userId, { en, remaining: newRemaining }).catch((e) =>
-          console.error('DB sync failed (decrementWrongRemaining):', en, e)
-        );
+        const updatedItem = { ...oldItem, remaining: newRemaining };
+        newQueue[index] = updatedItem;
+        upsertWrongItem(createClient(), userId, updatedItem).catch((e) => {
+          console.error('DB sync failed, rolling back (decrementWrongRemaining):', en, e);
+          setProgress((p) => ({
+            ...p,
+            wrongQueue: p.wrongQueue.map((i) => (i.en === en ? oldItem : i))
+          }));
+        });
       }
       return { ...prev, wrongQueue: newQueue };
     });
@@ -442,18 +512,27 @@ export function useVocabState(userId: string) {
   }, [userId]);
 
   const resetWrongQueue = useCallback(() => {
-    setProgress((prev) => ({ ...prev, wrongQueue: [] }));
-    clearWrongQueue(createClient(), userId).catch((e) =>
-      console.error('DB sync failed (resetWrongQueue):', e)
-    );
+    setProgress((prev) => {
+      const oldQueue = prev.wrongQueue;
+      if (oldQueue.length === 0) return prev;
+      clearWrongQueue(createClient(), userId).catch((e) => {
+        console.error('DB sync failed, rolling back (resetWrongQueue):', e);
+        setProgress((p) => ({ ...p, wrongQueue: oldQueue }));
+      });
+      return { ...prev, wrongQueue: [] };
+    });
   }, [userId]);
 
   const reset = useCallback(() => {
     if (confirm('确定要重置所有学习进度吗？')) {
-      setProgress({ wordStates: {}, wrongQueue: [] });
-      dbResetProgress(createClient(), userId).catch((e) =>
-        console.error('DB sync failed (reset):', e)
-      );
+      setProgress((prev) => {
+        const oldProgress = prev;
+        dbResetProgress(createClient(), userId).catch((e) => {
+          console.error('DB sync failed, rolling back (reset):', e);
+          setProgress(oldProgress);
+        });
+        return { wordStates: {}, wrongQueue: [] };
+      });
     }
   }, [userId]);
 
