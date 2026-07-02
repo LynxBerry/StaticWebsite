@@ -83,10 +83,10 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
         ].map((tab) => (
           <button
             key={tab.key}
-            className={`flex-1 py-2 rounded-[0.625rem] font-semibold transition-all duration-200 ${
+            className={`flex-1 py-2 rounded-[0.625rem] font-semibold transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
               currentView === tab.key
-                ? 'bg-orange-500/90 text-farm-text shadow-[0_4px_12px_rgba(249,115,22,0.35)]'
-                : 'bg-transparent text-farm-muted hover:text-farm-text hover:bg-white/5'
+                ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-farm-text shadow-[0_4px_12px_rgba(249,115,22,0.35)] -translate-y-0.5'
+                : 'bg-transparent text-farm-muted hover:text-farm-text hover:bg-white/5 hover:-translate-y-0.5'
             }`}
             onClick={() => setCurrentView(tab.key as ViewType)}
             title={tab.tooltip}

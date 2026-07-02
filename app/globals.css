@@ -65,7 +65,45 @@ body::before {
 
 /* Reduced motion: disable non-essential animations */
 @media (prefers-reduced-motion: reduce) {
-  .progress-shimmer::after {
-    animation: none;
+  .progress-shimmer::after,
+  .animate-fade-up,
+  .animate-pop,
+  .animate-shake {
+    animation: none !important;
   }
+}
+
+/* Card entrance: fade in + slight upward motion */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.3s ease-out both;
+}
+
+/* Correct answer: satisfying spring pop + green glow */
+@keyframes pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.03); box-shadow: 0 0 32px rgba(34, 197, 94, 0.4); }
+  100% { transform: scale(1); }
+}
+.animate-pop {
+  animation: pop 0.4s ease-out;
+}
+
+/* Wrong answer: subtle two-step shake */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.animate-shake {
+  animation: shake 0.35s ease-in-out;
 }

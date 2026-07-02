@@ -9,6 +9,7 @@ interface WordCardProps {
   word: Word;
   wordState: WordState;
   flipped: boolean;
+  feedback?: 'correct' | 'wrong' | null;
   onFlip: () => void;
   onKnown: () => void;
   onAgain: () => void;
@@ -21,6 +22,7 @@ export default function WordCard({
   word,
   wordState,
   flipped,
+  feedback = null,
   onFlip,
   onKnown,
   onAgain,
@@ -28,10 +30,11 @@ export default function WordCard({
   remaining,
   disabled
 }: WordCardProps) {
+  const feedbackClass = feedback === 'correct' ? 'animate-pop' : feedback === 'wrong' ? 'animate-shake' : '';
   return (
     <>
       <section
-        className={`card aspect-[3/2] mb-4 ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''}`}
+        className={`card aspect-[3/2] mb-4 animate-fade-up ${feedbackClass} ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''}`}
         onClick={() => !disabled && onFlip()}
       >
         <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">

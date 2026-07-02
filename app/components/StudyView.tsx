@@ -44,7 +44,13 @@ export default function StudyView({
   onGoToSettings
 }: StudyViewProps) {
   const [flipped, setFlipped] = useState(false);
+  const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const triggerFeedback = useCallback((type: 'correct' | 'wrong') => {
+    setFeedback(type);
+    window.setTimeout(() => setFeedback(null), 450);
+  }, []);
 
   const currentWord = useMemo(() => {
     if (dueWords.length > 0) return dueWords[0];
@@ -82,6 +88,7 @@ export default function StudyView({
     if (!currentWord) return;
     setFlipped(false);
     playSound('success');
+    triggerFeedback('correct');
 
     if (isWrongMode) {
       const reachedZero = onDecrementWrongRemaining(currentWord.en);
@@ -91,12 +98,13 @@ export default function StudyView({
     } else {
       onKnown(currentWord.en);
     }
-  }, [currentWord, isWrongMode, onKnown, onDecrementWrongRemaining, playSound]);
+  }, [currentWord, isWrongMode, onKnown, onDecrementWrongRemaining, playSound, triggerFeedback]);
 
   const handleAgain = useCallback(() => {
     if (!currentWord) return;
     setFlipped(false);
     playSound('wrong');
+    triggerFeedback('wrong');
     onAgain(currentWord.en);
 
     if (!isWrongMode) {
@@ -204,6 +212,7 @@ export default function StudyView({
           word={displayWord}
           wordState={getWordState(displayWord.en)}
           flipped={flipped}
+          feedback={feedback}
           onFlip={handleFlip}
           onKnown={handleKnown}
           onAgain={handleAgain}
