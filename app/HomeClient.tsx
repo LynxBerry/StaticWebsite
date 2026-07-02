@@ -2,16 +2,21 @@
 
 import { useState } from 'react';
 import { useVocabState } from './hooks/useVocabState';
+import { useIdlePrompt } from './hooks/useIdlePrompt';
 import StudyView from './components/StudyView';
 import LearnView from './components/LearnView';
 import FarmView from './components/FarmView';
 import BankView from './components/BankView';
 import SettingsView from './components/SettingsView';
+import StalePrompt from './components/StalePrompt';
 
 type ViewType = 'learn' | 'study' | 'farm' | 'bank' | 'settings';
 
+const IDLE_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
+
 export default function HomeClient({ userId }: { userId: string }) {
   const [currentView, setCurrentView] = useState<ViewType>('settings');
+  const { showPrompt: showStalePrompt, dismiss: dismissStalePrompt } = useIdlePrompt(IDLE_TIMEOUT_MS);
   const {
     isHydrated,
     words,
@@ -135,6 +140,13 @@ export default function HomeClient({ userId }: { userId: string }) {
           exportState={exportState}
           importState={importState}
           onReset={reset}
+        />
+      )}
+
+      {showStalePrompt && (
+        <StalePrompt
+          onRefresh={() => window.location.reload()}
+          onDismiss={dismissStalePrompt}
         />
       )}
     </main>
