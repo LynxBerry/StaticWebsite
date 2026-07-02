@@ -9,6 +9,7 @@ import FarmView from './components/FarmView';
 import BankView from './components/BankView';
 import SettingsView from './components/SettingsView';
 import StalePrompt from './components/StalePrompt';
+import Logo from './components/Logo';
 
 type ViewType = 'learn' | 'study' | 'farm' | 'bank' | 'settings';
 
@@ -48,7 +49,8 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
   if (!isHydrated) {
     return (
       <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
-        <header>
+        <header className="flex flex-col items-center">
+          <Logo size={56} glow className="mb-3 animate-fade-up" />
           <h1 className="text-3xl font-bold mb-1 font-display bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
             {siteTitle}
           </h1>
@@ -66,7 +68,8 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
 
   return (
     <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
-      <header>
+      <header className="flex flex-col items-center">
+        <Logo size={56} glow className="mb-3 animate-fade-up" />
         <h1 className="text-3xl font-bold mb-1 font-display bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
           {siteTitle}
         </h1>
