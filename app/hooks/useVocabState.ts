@@ -12,7 +12,9 @@ import {
   upsertWrongItem,
   deleteWrongItem,
   clearWrongQueue,
-  resetProgress as dbResetProgress
+  resetProgress as dbResetProgress,
+  fetchUserTitle,
+  updateUserTitle
 } from '../lib/supabase-db';
 
 // Re-export types so existing imports from this module keep working.
@@ -22,6 +24,8 @@ export type { Word, WordState, WrongItem, ProgressState };
 // share progress. Legacy single-user keys are migrated on first login.
 const PROGRESS_KEY_BASE = 'zeno-vocab-progress-v3';
 const WORDS_KEY_BASE = 'zeno-vocab-words-v1';
+
+export const DEFAULT_SITE_TITLE = 'Zeno的单词农场';
 
 function progressKey(userId: string) {
   return `${PROGRESS_KEY_BASE}-${userId}`;
@@ -217,6 +221,7 @@ export function useVocabState(userId: string) {
   const [progress, setProgress] = useState<ProgressState>({ wordStates: {}, wrongQueue: [] });
   const [isHydrated, setIsHydrated] = useState(false);
   const [dbSynced, setDbSynced] = useState(false);
+  const [siteTitle, setSiteTitle] = useState(DEFAULT_SITE_TITLE);
   // Tracks whether the user mutated state before the initial DB pull landed.
   // If so, we merge (DB wins for untouched keys, local wins for touched keys)
   // instead of blindly overwriting with DB data.
@@ -238,6 +243,11 @@ export function useVocabState(userId: string) {
     (async () => {
       const supabase = createClient();
       const { data, error } = await fetchUserData(supabase, userId);
+
+      // Title is independent of words/progress; fetch alongside.
+      const dbTitle = await fetchUserTitle(supabase, userId);
+      if (!cancelled && dbTitle) setSiteTitle(dbTitle);
+
       if (cancelled || error || !data) {
         if (error) console.error('DB fetch failed, using local cache:', error);
         setDbSynced(true);
@@ -536,6 +546,14 @@ export function useVocabState(userId: string) {
     }
   }, [userId]);
 
+  const updateSiteTitle = useCallback((title: string) => {
+    const trimmed = title.trim() || DEFAULT_SITE_TITLE;
+    setSiteTitle(trimmed);
+    updateUserTitle(createClient(), userId, trimmed).catch((e) =>
+      console.error('DB sync failed (title):', e)
+    );
+  }, [userId]);
+
   const exportState = useCallback((): FlatWordEntry[] => {
     return words.map((word) => {
       const ws = progress.wordStates[word.en];
@@ -726,6 +744,8 @@ export function useVocabState(userId: string) {
     getWrongRemaining,
     addToWrongQueue,
     decrementWrongRemaining,
-    resetWrongQueue
+    resetWrongQueue,
+    siteTitle,
+    updateSiteTitle
   };
 }

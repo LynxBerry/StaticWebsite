@@ -63,3 +63,21 @@ CREATE POLICY "users manage own wrong queue" ON user_wrong_queue
   FOR ALL
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- 表 4：用户设置（每用户一行，存自定义标题等）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS user_settings (
+  user_id   UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  site_title TEXT NOT NULL DEFAULT 'Zeno的单词农场',
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id)
+);
+
+ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "users manage own settings" ON user_settings;
+CREATE POLICY "users manage own settings" ON user_settings
+  FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);

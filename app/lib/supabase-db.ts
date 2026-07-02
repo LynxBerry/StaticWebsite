@@ -192,3 +192,36 @@ export async function resetProgress(
   ]);
   return pErr.error?.message ?? wErr.error?.message ?? null;
 }
+
+// ============================================================
+// Settings table (per-user single row: custom site title, etc.)
+// ============================================================
+
+export async function fetchUserTitle(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('user_settings')
+    .select('site_title')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error) return null;
+  return (data as { site_title?: string } | null)?.site_title ?? null;
+}
+
+export async function updateUserTitle(
+  supabase: SupabaseClient,
+  userId: string,
+  title: string
+): Promise<string | null> {
+  const { error } = await supabase.from('user_settings').upsert(
+    {
+      user_id: userId,
+      site_title: title,
+      updated_at: new Date().toISOString()
+    },
+    { onConflict: 'user_id' }
+  );
+  return error?.message ?? null;
+}

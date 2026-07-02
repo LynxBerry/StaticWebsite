@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { FlatWordEntry } from '../hooks/useVocabState';
@@ -9,6 +9,8 @@ interface SettingsViewProps {
   exportState: () => FlatWordEntry[];
   importState: (data: unknown, options?: { merge?: boolean }) => boolean;
   onReset: () => void;
+  siteTitle: string;
+  onUpdateSiteTitle: (title: string) => void;
 }
 
 const sectionClass = 'text-left p-5 mb-4 bg-farm-card backdrop-blur-glass border border-farm-border rounded-2xl';
@@ -19,11 +21,26 @@ const primaryBtn =
 const secondaryBtn =
   `relative flex-1 overflow-hidden rounded-xl border border-farm-muted/25 bg-[rgba(69,26,3,0.6)] px-4 py-3.5 text-base font-semibold text-farm-muted backdrop-blur-lg shadow-[0_4px_14px_rgba(0,0,0,0.2)] transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-60 before:transition-opacity before:duration-250 enabled:hover:bg-[rgba(69,26,3,0.8)] enabled:hover:border-farm-muted/45 enabled:hover:shadow-[0_6px_20px_rgba(0,0,0,0.3)] enabled:hover:before:opacity-100 enabled:active:-translate-y-px enabled:active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:grayscale-[0.5]`;
 
-export default function SettingsView({ exportState, importState, onReset }: SettingsViewProps) {
+export default function SettingsView({ exportState, importState, onReset, siteTitle, onUpdateSiteTitle }: SettingsViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const [mergeImport, setMergeImport] = useState(true);
+  const [titleDraft, setTitleDraft] = useState(siteTitle);
+  const [titleSaved, setTitleSaved] = useState(false);
   const router = useRouter();
+
+  // Keep the draft in sync when the loaded title changes (e.g. after DB pull).
+  useEffect(() => {
+    setTitleDraft(siteTitle);
+  }, [siteTitle]);
+
+  const commitTitle = () => {
+    const trimmed = titleDraft.trim();
+    if (trimmed === siteTitle) return;
+    onUpdateSiteTitle(trimmed);
+    setTitleSaved(true);
+    window.setTimeout(() => setTitleSaved(false), 2000);
+  };
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -73,6 +90,33 @@ export default function SettingsView({ exportState, importState, onReset }: Sett
       <div className="mb-4">
         <h2 className="text-xl text-farm-muted mb-1">⚙️ 设置</h2>
         <p className="text-sm text-farm-muted/80">备份、恢复和重置</p>
+      </div>
+
+      <div className={sectionClass}>
+        <h3 className="text-base text-farm-text mb-2">🏷️ 站点名称</h3>
+        <p className="text-sm text-farm-muted mb-4 leading-relaxed">
+          自定义你的单词农场名字，会显示在标题和浏览器标签页，所有设备同步。
+        </p>
+        <input
+          type="text"
+          value={titleDraft}
+          onChange={(e) => setTitleDraft(e.target.value)}
+          onBlur={commitTitle}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+          placeholder="Zeno的单词农场"
+          maxLength={30}
+          className="w-full px-4 py-2.5 rounded-xl border border-farm-muted/25 bg-[rgba(42,24,11,0.5)] backdrop-blur-glass text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-orange-500/60 focus:bg-[rgba(42,24,11,0.7)] focus:shadow-[0_0_0_3px_rgba(249,115,22,0.2)]"
+        />
+        {titleSaved && (
+          <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-green-500/15 text-green-400 border border-green-500/30">
+            已保存 ✓
+          </p>
+        )}
       </div>
 
       <div className={sectionClass}>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useVocabState } from './hooks/useVocabState';
 import { useIdlePrompt } from './hooks/useIdlePrompt';
 import StudyView from './components/StudyView';
@@ -35,15 +35,22 @@ export default function HomeClient({ userId }: { userId: string }) {
     wrongQueue,
     addToWrongQueue,
     decrementWrongRemaining,
-    resetWrongQueue
+    resetWrongQueue,
+    siteTitle,
+    updateSiteTitle
   } = useVocabState(userId);
+
+  // Keep the browser tab title in sync with the user's custom site title.
+  useEffect(() => {
+    document.title = siteTitle;
+  }, [siteTitle]);
 
   if (!isHydrated) {
     return (
       <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
         <header>
           <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-            Zeno的单词农场
+            {siteTitle}
           </h1>
           <p className="text-farm-muted mb-6">一份耕耘一份收获</p>
         </header>
@@ -61,7 +68,7 @@ export default function HomeClient({ userId }: { userId: string }) {
     <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
       <header>
         <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-          Zeno的单词农场
+          {siteTitle}
         </h1>
         <p className="text-farm-muted mb-6">一份耕耘一份收获</p>
       </header>
@@ -140,6 +147,8 @@ export default function HomeClient({ userId }: { userId: string }) {
           exportState={exportState}
           importState={importState}
           onReset={reset}
+          siteTitle={siteTitle}
+          onUpdateSiteTitle={updateSiteTitle}
         />
       )}
 
