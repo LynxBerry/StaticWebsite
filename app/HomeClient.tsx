@@ -50,10 +50,13 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
     return (
       <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
         <header className="flex flex-col items-center">
-          <Logo size={56} glow className="mb-3 animate-fade-up" />
-          <h1 className="text-3xl font-bold mb-1 font-display bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-            {siteTitle}
-          </h1>
+          <div className="relative flex items-center justify-center gap-4 mb-1">
+            <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.9),transparent_70%)] blur-2xl scale-150" aria-hidden="true" />
+            <Logo size={80} glow />
+            <h1 className="text-3xl font-bold font-display text-amber-950 [text-shadow:0_1px_2px_rgba(255,255,255,0.6),0_1px_3px_rgba(0,0,0,0.15)]">
+              {siteTitle}
+            </h1>
+          </div>
           <p className="text-farm-muted mb-6">一份耕耘一份收获</p>
         </header>
         <p className="text-center text-farm-muted">加载中...</p>
@@ -69,10 +72,14 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
   return (
     <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
       <header className="flex flex-col items-center">
-        <Logo size={56} glow className="mb-3 animate-fade-up" />
-        <h1 className="text-3xl font-bold mb-1 font-display bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-          {siteTitle}
-        </h1>
+        <div className="relative flex items-center justify-center gap-4 mb-1 animate-fade-up">
+          {/* soft warm glow behind the logo + title */}
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.9),transparent_70%)] blur-2xl scale-150" aria-hidden="true" />
+          <Logo size={80} glow />
+          <h1 className="text-3xl font-bold font-display text-amber-950 [text-shadow:0_1px_2px_rgba(255,255,255,0.6),0_1px_3px_rgba(0,0,0,0.15)]">
+            {siteTitle}
+          </h1>
+        </div>
         <p className="text-farm-muted mb-6">一份耕耘一份收获</p>
       </header>
 

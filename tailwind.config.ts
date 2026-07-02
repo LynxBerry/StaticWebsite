@@ -10,11 +10,13 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', '-apple-system', 'sans-serif'],
         display: [
+          'var(--font-lora)',
           'var(--font-jakarta)',
-          'var(--font-inter)',
-          'system-ui',
-          '-apple-system',
-          'sans-serif'
+          '"Songti SC"',
+          '"Source Han Serif SC"',
+          '"Noto Serif SC"',
+          'Georgia',
+          'serif'
         ]
       },
       colors: {
