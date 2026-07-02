@@ -205,7 +205,7 @@ export default function StudyView({
   const displayWord = currentWord;
 
   return (
-    <section className="flex-1 flex flex-col min-h-[60vh]" id="study-view">
+    <section className="flex-1 flex flex-col min-h-[60vh] animate-fade-up" id="study-view">
       <ComboBadge count={combo} />
       <section className="mb-6">
         <span className="block text-sm text-farm-muted mb-2">{masteredCount} / {total} 已掌握</span>

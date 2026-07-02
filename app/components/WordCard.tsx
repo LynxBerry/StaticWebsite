@@ -34,7 +34,7 @@ export default function WordCard({
   return (
     <>
       <section
-        className={`card aspect-[3/2] mb-4 animate-fade-up ${feedbackClass} ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''}`}
+        className={`card aspect-[3/2] mb-4 rounded-2xl ${feedbackClass} ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''}`}
         onClick={() => !disabled && onFlip()}
       >
         <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">

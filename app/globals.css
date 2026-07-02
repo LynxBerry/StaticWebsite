@@ -3,7 +3,9 @@
 @tailwind utilities;
 
 body {
-  @apply min-h-screen flex items-center justify-center relative p-4 text-farm-text bg-[#1a120b] font-sans antialiased;
+  /* items-start (not center) so tall pages don't get pushed up by the
+     vertical centering when switching tabs of different heights. */
+  @apply min-h-screen flex items-start justify-center relative p-4 pt-20 text-farm-text bg-[#1a120b] font-sans antialiased;
 }
 
 body::before {
@@ -76,14 +78,15 @@ body::before {
   }
 }
 
-/* Card entrance: fade in + slight upward motion */
+/* Card entrance: slide up from below.
+   Uses transform only (no opacity) because the card background is itself
+   semi-transparent — animating opacity would reveal the dark page bg and
+   cause a black flash. */
 @keyframes fade-up {
   from {
-    opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
@@ -91,11 +94,13 @@ body::before {
   animation: fade-up 0.3s ease-out both;
 }
 
-/* Correct answer: satisfying spring pop + green glow */
+/* Correct answer: green ring that follows the card's rounded corners.
+   Uses box-shadow spread (0 0 0 Npx) which naturally tracks border-radius,
+   unlike outline. Applied on the outer .card which has no shadow of its
+   own, so it won't fight the inner .card-front styling. */
 @keyframes pop {
-  0% { transform: scale(1); }
-  40% { transform: scale(1.03); box-shadow: 0 0 32px rgba(34, 197, 94, 0.4); }
-  100% { transform: scale(1); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.7); }
 }
 .animate-pop {
   animation: pop 0.4s ease-out;

@@ -27,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN" className={`${inter.variable} ${jakarta.variable}`}>
-      <body className="min-h-screen flex items-center justify-center relative p-4 text-farm-text bg-[#1a120b] font-sans antialiased">
+      <body className="min-h-screen flex items-start justify-center relative p-4 pt-20 text-farm-text bg-[#1a120b] font-sans antialiased">
         {children}
       </body>
     </html>

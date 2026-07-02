@@ -73,7 +73,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
         <p className="text-farm-muted mb-6">一份耕耘一份收获</p>
       </header>
 
-      <nav className="flex gap-2 mb-6 p-1 rounded-xl bg-[rgba(69,26,3,0.5)] backdrop-blur-glass border border-farm-muted/15 shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
+      <nav className="flex gap-2 mb-6 p-1.5 rounded-xl bg-[rgba(69,26,3,0.5)] backdrop-blur-glass border border-farm-muted/15 shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
         {[
           { key: 'learn', label: '播种', tooltip: '学习新单词（每日最多15个）' },
           { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
@@ -85,8 +85,8 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
             key={tab.key}
             className={`flex-1 py-2 rounded-[0.625rem] font-semibold transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
               currentView === tab.key
-                ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-farm-text shadow-[0_4px_12px_rgba(249,115,22,0.35)] -translate-y-0.5'
-                : 'bg-transparent text-farm-muted hover:text-farm-text hover:bg-white/5 hover:-translate-y-0.5'
+                ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-farm-text shadow-[0_4px_12px_rgba(249,115,22,0.35)] -translate-y-px'
+                : 'bg-transparent text-farm-muted hover:text-farm-text hover:bg-white/5'
             }`}
             onClick={() => setCurrentView(tab.key as ViewType)}
             title={tab.tooltip}
