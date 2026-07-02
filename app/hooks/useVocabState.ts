@@ -14,7 +14,8 @@ import {
   clearWrongQueue,
   resetProgress as dbResetProgress,
   fetchUserTitle,
-  updateUserTitle
+  updateUserTitle,
+  resetUserTitle
 } from '../lib/supabase-db';
 
 // Re-export types so existing imports from this module keep working.
@@ -216,12 +217,21 @@ function saveProgress(userId: string, progress: ProgressState) {
   localStorage.setItem(progressKey(userId), JSON.stringify(progress));
 }
 
-export function useVocabState(userId: string) {
+// Build a sensible default title from the user's email local part:
+// "zeno@test.com" -> "zeno的单词农场". Falls back to the static default
+// when the email is empty or malformed.
+function deriveDefaultTitle(email: string): string {
+  const localPart = email.split('@')[0]?.trim();
+  if (!localPart) return DEFAULT_SITE_TITLE;
+  return `${localPart}的单词农场`;
+}
+
+export function useVocabState(userId: string, email: string) {
   const [words, setWords] = useState<Word[]>(DEFAULT_WORDS);
   const [progress, setProgress] = useState<ProgressState>({ wordStates: {}, wrongQueue: [] });
   const [isHydrated, setIsHydrated] = useState(false);
   const [dbSynced, setDbSynced] = useState(false);
-  const [siteTitle, setSiteTitle] = useState(DEFAULT_SITE_TITLE);
+  const [siteTitle, setSiteTitle] = useState(() => deriveDefaultTitle(email));
   // Tracks whether the user mutated state before the initial DB pull landed.
   // If so, we merge (DB wins for untouched keys, local wins for touched keys)
   // instead of blindly overwriting with DB data.
@@ -547,12 +557,22 @@ export function useVocabState(userId: string) {
   }, [userId]);
 
   const updateSiteTitle = useCallback((title: string) => {
-    const trimmed = title.trim() || DEFAULT_SITE_TITLE;
+    const trimmed = title.trim();
+    if (!trimmed) {
+      // Empty input = revert to the email-derived default and drop the DB row
+      // so future default-rule changes still apply to this user.
+      const fallback = deriveDefaultTitle(email);
+      setSiteTitle(fallback);
+      resetUserTitle(createClient(), userId).catch((e) =>
+        console.error('DB sync failed (reset title):', e)
+      );
+      return;
+    }
     setSiteTitle(trimmed);
     updateUserTitle(createClient(), userId, trimmed).catch((e) =>
       console.error('DB sync failed (title):', e)
     );
-  }, [userId]);
+  }, [userId, email]);
 
   const exportState = useCallback((): FlatWordEntry[] => {
     return words.map((word) => {

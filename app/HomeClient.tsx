@@ -14,7 +14,7 @@ type ViewType = 'learn' | 'study' | 'farm' | 'bank' | 'settings';
 
 const IDLE_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
 
-export default function HomeClient({ userId }: { userId: string }) {
+export default function HomeClient({ userId, email }: { userId: string; email: string }) {
   const [currentView, setCurrentView] = useState<ViewType>('settings');
   const { showPrompt: showStalePrompt, dismiss: dismissStalePrompt } = useIdlePrompt(IDLE_TIMEOUT_MS);
   const {
@@ -38,7 +38,7 @@ export default function HomeClient({ userId }: { userId: string }) {
     resetWrongQueue,
     siteTitle,
     updateSiteTitle
-  } = useVocabState(userId);
+  } = useVocabState(userId, email);
 
   // Keep the browser tab title in sync with the user's custom site title.
   useEffect(() => {

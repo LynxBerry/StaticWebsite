@@ -225,3 +225,16 @@ export async function updateUserTitle(
   );
   return error?.message ?? null;
 }
+
+// Clear the user's custom title (set to NULL) so the email-derived default
+// takes over again. Keeps the row so other future columns aren't lost.
+export async function resetUserTitle(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<string | null> {
+  const { error } = await supabase
+    .from('user_settings')
+    .update({ site_title: null, updated_at: new Date().toISOString() })
+    .eq('user_id', userId);
+  return error?.message ?? null;
+}

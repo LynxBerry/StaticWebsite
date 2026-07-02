@@ -69,7 +69,7 @@ CREATE POLICY "users manage own wrong queue" ON user_wrong_queue
 -- ============================================================
 CREATE TABLE IF NOT EXISTS user_settings (
   user_id   UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  site_title TEXT NOT NULL DEFAULT 'Zeno的单词农场',
+  site_title TEXT,  -- NULL = use the email-derived default; a value = user customized
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (user_id)
 );

@@ -10,5 +10,5 @@ export default async function Home() {
     redirect('/login');
   }
 
-  return <HomeClient userId={user.id} />;
+  return <HomeClient userId={user.id} email={user.email ?? ''} />;
 }
