@@ -14,12 +14,12 @@ interface FarmViewProps {
 
 function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned') {
   const base =
-    'flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-xl border transition-all duration-200 cursor-default backdrop-blur-lg bg-[rgba(42,24,11,0.55)] border-farm-muted/10 hover:-translate-y-0.5 hover:bg-[rgba(42,24,11,0.75)]';
+    'flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-xl border transition-all duration-200 cursor-default bg-white border-farm-border hover:-translate-y-0.5 hover:bg-[#FAFAF7]';
   switch (status) {
     case 'due':
-      return `${base} border-orange-500/60 shadow-[0_0_16px_rgba(249,115,22,0.25)] bg-[rgba(67,20,7,0.6)]`;
+      return `${base} border-orange-400/70 shadow-[0_0_16px_rgba(240,128,0,0.2)] bg-[#FFF7ED]`;
     case 'mastered':
-      return `${base} border-green-500/50 bg-[rgba(20,40,20,0.55)]`;
+      return `${base} border-[#5CA85C]/50 bg-[#F0F7F0]`;
     default:
       return base;
   }
@@ -60,7 +60,7 @@ export default function FarmView({ words, getStatus, getWordState, onGoToSetting
               title={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : `阶段 ${ws.level}`}`}
             >
               {status === 'unlearned' ? (
-                <span className="w-5 h-5 rounded-full bg-[rgba(120,53,15,0.4)] border border-dashed border-farm-muted/25" />
+                <span className="w-5 h-5 rounded-full bg-[#E8E2D8] border border-dashed border-farm-muted/30" />
               ) : (
                 <span className="text-[1.75rem] leading-none">{getPlantIcon(ws.level)}</span>
               )}

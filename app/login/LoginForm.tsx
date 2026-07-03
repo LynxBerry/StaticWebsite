@@ -37,8 +37,8 @@ export default function LoginForm() {
     router.refresh();
   };
 
-  const inputClass = `w-full mb-4 px-4 py-3 rounded-xl border bg-[rgba(42,24,11,0.6)] text-farm-text text-base outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-orange-500/60 focus:bg-[rgba(42,24,11,0.7)] focus:shadow-[0_0_0_3px_rgba(249,115,22,0.2)] ${
-    hasError ? 'border-farm-red' : 'border-farm-muted/35'
+  const inputClass = `w-full mb-4 px-4 py-3 rounded-xl border bg-white text-farm-text text-base outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-farm-accent/60 focus:shadow-[0_0_0_3px_rgba(112,176,112,0.18)] ${
+    hasError ? 'border-farm-red' : 'border-farm-border'
   }`;
 
   return (
@@ -63,7 +63,7 @@ export default function LoginForm() {
         className={inputClass}
       />
       {(hasError || error) && (
-        <p className="text-red-300 text-sm mb-4">
+        <p className="text-red-500 text-sm mb-4">
           {error || '密码错误，请重试。'}
         </p>
       )}

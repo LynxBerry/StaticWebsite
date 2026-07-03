@@ -84,7 +84,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
         </span>
         <div className="h-2 bg-[#451a03] rounded-full overflow-hidden">
           <div
-            className="progress-shimmer h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-300"
+            className="progress-shimmer h-full bg-gradient-to-r from-[#7CC07C] to-[#5CA85C] transition-all duration-300"
             style={{ width: `${displayTotal > 0 ? (todayCount / displayTotal) * 100 : 0}%` }}
           ></div>
         </div>
@@ -94,7 +94,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
         <>
           <section className="card aspect-[3/2] cursor-default mb-4" aria-label="今日播种完成">
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[rgba(255,247,237,0.92)] to-[rgba(255,237,213,0.88)] backdrop-blur-glass text-[#431407] shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.15)] border border-white/15">
+              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[#FFFFFF] to-[#FAF6EE] text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.5)] border border-farm-border">
                 <h2 className="text-4xl font-bold mb-2">🌱 今日播种完成</h2>
                 <p className="text-base">
                   {actualRemaining === 0 && unlearnedWords.length > 0
@@ -106,8 +106,8 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
           </section>
           <p className="text-sm text-farm-muted mb-6">没有可学的新单词了</p>
           <div className="flex gap-3 mb-6">
-            <Button variant="secondary" className="flex-1" disabled>⏭️ 跳过</Button>
-            <Button className="flex-1" disabled>🌱 播种</Button>
+            <Button variant="secondary" className="flex-1" disabled>跳过</Button>
+            <Button className="flex-1" disabled>播种</Button>
           </div>
         </>
       ) : (
@@ -117,11 +117,11 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
             onClick={() => setFlipped(!flipped)}
           >
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[rgba(255,247,237,0.92)] to-[rgba(255,237,213,0.88)] backdrop-blur-glass text-[#431407] shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.15)] border border-white/15">
+              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[#FFFFFF] to-[#FAF6EE] text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.5)] border border-farm-border">
                 <span className="text-xs uppercase tracking-widest opacity-70 mb-4">新单词 · 点击学习</span>
                 <h2 className="text-4xl font-bold">{currentWord.en}</h2>
               </div>
-              <div className="card-back absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-orange-500/85 to-orange-600/80 backdrop-blur-glass text-farm-text [transform:rotateY(180deg)] shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.15)] border border-white/15">
+              <div className="card-back absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[#7CC07C] to-[#5CA85C] text-white [transform:rotateY(180deg)] shadow-[0_4px_16px_rgba(112,176,112,0.25),inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/15">
                 <span className="text-xs uppercase tracking-widest opacity-70 mb-4">中文 · 明天开始复习</span>
                 <p className="text-2xl font-semibold mb-4">{currentWord.cn}</p>
                 <span className="text-xs uppercase tracking-widest opacity-70">
@@ -135,10 +135,10 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
 
           <div className="flex gap-3 mb-6">
             <Button variant="secondary" className="flex-1" onClick={handleSkip}>
-              ⏭️ 跳过
+              跳过
             </Button>
             <Button className="flex-1" onClick={handleLearn}>
-              🌱 播种
+              播种
             </Button>
           </div>
         </>

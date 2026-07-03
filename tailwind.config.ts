@@ -21,22 +21,22 @@ const config: Config = {
       },
       colors: {
         farm: {
-          bg: '#1a0f08',
-          card: 'rgba(42, 24, 11, 0.55)',
-          border: 'rgba(253, 186, 116, 0.12)',
-          borderLight: 'rgba(253, 186, 116, 0.35)',
-          text: '#fff7ed',
-          muted: '#fed7aa',      // brightened for better contrast on dark bg
-          accent: '#fb923c',     // saturated action color
-          green: '#22c55e',
-          red: '#ef4444'
+          bg: '#F4F4F0',
+          card: '#FFFFFF',
+          border: 'rgba(112, 176, 112, 0.22)',
+          borderLight: 'rgba(112, 176, 112, 0.45)',
+          text: '#3D2F1F',
+          muted: '#7A6B5A',
+          accent: '#70B070',
+          green: '#5CA85C',
+          red: '#E85D5D'
         }
       },
       backdropBlur: {
         glass: '12px'
       },
       boxShadow: {
-        glass: '0 8px 32px rgba(0, 0, 0, 0.35)'
+        glass: '0 4px 20px rgba(0, 0, 0, 0.06)'
       }
     }
   },

@@ -14,7 +14,7 @@ interface SettingsViewProps {
   onUpdateSiteTitle: (title: string) => void;
 }
 
-const sectionClass = 'text-left p-5 mb-4 bg-farm-card backdrop-blur-glass border border-farm-border rounded-2xl';
+const sectionClass = 'text-left p-5 mb-4 bg-farm-card border border-farm-border rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)]';
 
 export default function SettingsView({ exportState, importState, onReset, siteTitle, onUpdateSiteTitle }: SettingsViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -105,10 +105,10 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
           }}
           placeholder="Zeno的单词农场"
           maxLength={30}
-          className="w-full px-4 py-2.5 rounded-xl border border-farm-muted/25 bg-[rgba(42,24,11,0.5)] backdrop-blur-glass text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-orange-500/60 focus:bg-[rgba(42,24,11,0.7)] focus:shadow-[0_0_0_3px_rgba(249,115,22,0.2)]"
+          className="w-full px-4 py-2.5 rounded-xl border border-farm-border bg-white text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-farm-accent/60 focus:shadow-[0_0_0_3px_rgba(112,176,112,0.18)]"
         />
         {titleSaved && (
-          <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-green-500/15 text-green-400 border border-green-500/30">
+          <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-green-500/15 text-green-700 border border-green-500/30">
             已保存 ✓
           </p>
         )}
@@ -147,11 +147,11 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
           className="w-full py-2.5 text-farm-muted text-sm file:mr-3 file:px-4 file:py-2 file:rounded-full file:border file:border-farm-muted/35 file:bg-farm-muted/10 file:text-farm-text file:text-sm file:cursor-pointer file:transition-all file:duration-200 hover:file:bg-farm-muted/20 hover:file:border-farm-muted/60"
           onChange={handleFileChange}
         />
-        {importMessage && <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-green-500/15 text-green-400 border border-green-500/30">{importMessage}</p>}
+        {importMessage && <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-green-500/15 text-green-700 border border-green-500/30">{importMessage}</p>}
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base text-red-300 mb-2">🗑️ 重置进度</h3>
+        <h3 className="text-base text-red-500 mb-2">🗑️ 重置进度</h3>
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">清空所有学习进度（不会删除词库）。此操作不可恢复，建议先导出备份。</p>
         <Button variant="secondary" className="flex-none min-w-[140px]" onClick={onReset}>
           重置所有进度

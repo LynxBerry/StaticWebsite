@@ -5,17 +5,7 @@
 body {
   /* items-start (not center) so tall pages don't get pushed up by the
      vertical centering when switching tabs of different heights. */
-  @apply min-h-screen flex items-start justify-center relative p-4 pt-20 text-farm-text bg-[#1a120b] font-sans antialiased;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: url('/greenfarm.jpg') center/cover no-repeat fixed;
-  filter: blur(5px) brightness(0.45);
-  transform: scale(1.05);
-  z-index: -1;
+  @apply min-h-screen flex items-start justify-center relative p-4 pt-20 text-farm-text bg-farm-bg font-sans antialiased;
 }
 
 .card {

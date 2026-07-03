@@ -167,14 +167,14 @@ export default function StudyView({
         <section className="mb-6">
           <span className="block text-sm text-farm-muted mb-2">{masteredCount} / {total} 已掌握</span>
           <div className="h-2 bg-[#451a03] rounded-full overflow-hidden">
-            <div className="progress-shimmer h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-300" style={{ width: `${progress}%` }}></div>
+            <div className="progress-shimmer h-full bg-gradient-to-r from-[#7CC07C] to-[#5CA85C] transition-all duration-300" style={{ width: `${progress}%` }}></div>
           </div>
         </section>
 
         <section className="card aspect-[3/2] cursor-default mb-4 animate-spring-in relative" aria-label="今日任务完成">
           <Confetti />
           <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-            <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[rgba(255,247,237,0.92)] to-[rgba(255,237,213,0.88)] backdrop-blur-glass text-[#431407] shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.15)] border border-white/15">
+            <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[#FFFFFF] to-[#FAF6EE] text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.5)] border border-farm-border">
               <h2 className="text-4xl font-bold mb-2 font-display">🎉 今日任务完成</h2>
               <p className="text-base">所有错题都已通过，明天再来！</p>
             </div>
@@ -210,7 +210,7 @@ export default function StudyView({
       <section className="mb-6">
         <span className="block text-sm text-farm-muted mb-2">{masteredCount} / {total} 已掌握</span>
         <div className="h-2 bg-[#451a03] rounded-full overflow-hidden">
-          <div className="progress-shimmer h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-300" style={{ width: `${progress}%` }}></div>
+          <div className="progress-shimmer h-full bg-gradient-to-r from-[#7CC07C] to-[#5CA85C] transition-all duration-300" style={{ width: `${progress}%` }}></div>
         </div>
       </section>
 

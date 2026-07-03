@@ -16,27 +16,27 @@ interface BankViewProps {
 }
 
 function wordItemClass(status: StatusType) {
-  const base = 'flex items-center justify-between gap-4 px-4 py-3.5 mb-2 rounded-xl backdrop-blur-lg border border-farm-muted/10 border-l-4';
+  const base = 'flex items-center justify-between gap-4 px-4 py-3.5 mb-2 rounded-xl bg-white border border-farm-border border-l-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]';
   switch (status) {
     case 'mastered':
-      return `${base} border-l-green-500 bg-[rgba(20,40,20,0.6)]`;
+      return `${base} border-l-[#5CA85C] bg-[#F7FBF7]`;
     case 'due':
-      return `${base} border-l-orange-500 bg-[rgba(67,20,7,0.65)] shadow-[0_0_16px_rgba(249,115,22,0.15)]`;
+      return `${base} border-l-orange-500 bg-[#FFF7ED] shadow-[0_2px_8px_rgba(0,0,0,0.04),0_0_12px_rgba(240,128,0,0.12)]`;
     case 'unlearned':
-      return `${base} border-l-stone-400 bg-[rgba(40,35,30,0.5)]`;
+      return `${base} border-l-stone-400 bg-white`;
     default:
-      return `${base} border-l-farm-muted bg-[rgba(42,24,11,0.6)]`;
+      return `${base} border-l-farm-accent bg-[#FAFCFA]`;
   }
 }
 
 function statusTextClass(status: StatusType) {
   switch (status) {
     case 'mastered':
-      return 'text-green-400';
+      return 'text-green-600';
     case 'due':
-      return 'text-farm-muted';
+      return 'text-orange-600';
     case 'unlearned':
-      return 'text-stone-300';
+      return 'text-stone-500';
     default:
       return 'text-farm-text';
   }
@@ -93,7 +93,7 @@ export default function BankView({ words, getStatus, getWordState, onGoToSetting
         <h2 className="text-xl text-farm-muted mb-4">词库</h2>
         <input
           type="text"
-          className="w-full mb-4 px-4 py-2.5 rounded-xl border border-farm-muted/25 bg-[rgba(42,24,11,0.5)] backdrop-blur-glass text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-orange-500/60 focus:bg-[rgba(42,24,11,0.7)] focus:shadow-[0_0_0_3px_rgba(249,115,22,0.2)]"
+          className="w-full mb-4 px-4 py-2.5 rounded-xl border border-farm-border bg-white text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-farm-accent/60 focus:shadow-[0_0_0_3px_rgba(112,176,112,0.18)]"
           placeholder="搜索英文或中文..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -104,8 +104,8 @@ export default function BankView({ words, getStatus, getWordState, onGoToSetting
               key={f}
               className={`px-3.5 py-1.5 rounded-[0.625rem] border text-sm transition-all duration-200 ${
                 filter === f
-                  ? 'bg-orange-500 border-orange-500 text-farm-text'
-                  : 'border-farm-muted bg-transparent text-farm-muted hover:text-farm-text hover:bg-white/5'
+                  ? 'bg-[#70B070] border-[#70B070] text-white'
+                  : 'border-farm-border bg-white text-farm-muted hover:text-farm-text hover:bg-black/5'
               }`}
               onClick={() => setFilter(f)}
             >
