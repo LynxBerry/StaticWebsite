@@ -87,10 +87,10 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
       </section>
 
       {isDone ? (
-        <>
-          <section className="card aspect-[3/2] cursor-default mb-4" aria-label="今日播种完成">
+        <div className="glass-card overflow-hidden mb-6">
+          <section className="card aspect-[3/2] cursor-default" aria-label="今日播种完成">
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-white/30 backdrop-blur-2xl text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
+              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 bg-white/30 backdrop-blur-2xl text-farm-text">
                 <h2 className="text-4xl font-bold mb-2 font-display">🌱 今日播种完成</h2>
                 <p className="text-base">
                   {actualRemaining === 0 && unlearnedWords.length > 0
@@ -100,20 +100,22 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
               </div>
             </div>
           </section>
-          <p className="text-sm text-farm-muted mb-6">没有可学的新单词了</p>
-          <div className="flex gap-3 mb-6">
-            <Button variant="secondary" size="lg" className="flex-1" disabled>跳过</Button>
-            <Button size="lg" className="flex-1" disabled>播种</Button>
+          <div className="px-6 pb-6 pt-2">
+            <p className="text-sm text-farm-muted mb-4 text-center">没有可学的新单词了</p>
+            <div className="flex gap-3">
+              <Button variant="secondary" size="lg" className="flex-1" disabled>跳过</Button>
+              <Button size="lg" className="flex-1" disabled>播种</Button>
+            </div>
           </div>
-        </>
+        </div>
       ) : (
-        <>
+        <div className="glass-card overflow-hidden mb-6">
           <section
-            className={`card aspect-[3/2] cursor-pointer mb-4 ${flipped ? 'flipped' : ''}`}
+            className={`card aspect-[3/2] cursor-pointer ${flipped ? 'flipped' : ''}`}
             onClick={() => setFlipped(!flipped)}
           >
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-white/30 backdrop-blur-2xl text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
+              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 bg-white/30 backdrop-blur-2xl text-farm-text">
                 <span className="text-xs uppercase tracking-widest opacity-70 mb-4">新单词 · 点击学习</span>
                 <h2 className="text-4xl font-bold">{currentWord.en}</h2>
               </div>
@@ -127,17 +129,18 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
             </div>
           </section>
 
-          <p className="text-sm text-farm-muted mb-6">点击卡片查看释义</p>
-
-          <div className="flex gap-3 mb-6">
-            <Button variant="secondary" size="lg" className="flex-1" onClick={handleSkip}>
-              跳过
-            </Button>
-            <Button size="lg" className="flex-1" onClick={handleLearn}>
-              播种
-            </Button>
+          <div className="px-6 pb-6 pt-2">
+            <p className="text-sm text-farm-muted mb-4 text-center">点击卡片查看释义</p>
+            <div className="flex gap-3">
+              <Button variant="secondary" size="lg" className="flex-1" onClick={handleSkip}>
+                跳过
+              </Button>
+              <Button size="lg" className="flex-1" onClick={handleLearn}>
+                播种
+              </Button>
+            </div>
           </div>
-        </>
+        </div>
       )}
     </section>
   );

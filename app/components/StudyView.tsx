@@ -170,25 +170,29 @@ export default function StudyView({
           <ProgressBar value={masteredCount} max={total} />
         </section>
 
-        <section className="card aspect-[3/2] cursor-default mb-4 animate-spring-in relative" aria-label="今日任务完成">
-          <Confetti />
-          <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-            <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-white/30 backdrop-blur-2xl text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
-              <h2 className="text-4xl font-bold mb-2 font-display">🎉 今日任务完成</h2>
-              <p className="text-base">所有错题都已通过，明天再来！</p>
+        <div className="glass-card overflow-hidden mb-6">
+          <section className="card aspect-[3/2] cursor-default animate-spring-in relative" aria-label="今日任务完成">
+            <Confetti />
+            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
+              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 bg-white/30 backdrop-blur-2xl text-farm-text">
+                <h2 className="text-4xl font-bold mb-2 font-display">🎉 今日任务完成</h2>
+                <p className="text-base">所有错题都已通过，明天再来！</p>
+              </div>
+            </div>
+          </section>
+
+          <div className="px-6 pb-6 pt-2">
+            <p className="text-sm text-farm-muted mb-4 text-center">全部复习完成</p>
+            <div className="flex gap-3">
+              <Button variant="secondary" size="lg" className="flex-1" disabled>
+                😅 不认识
+              </Button>
+              <Button size="lg" className="flex-1" disabled>
+                😎 认识
+              </Button>
             </div>
           </div>
-        </section>
-        <p className="text-sm text-farm-muted mb-6">全部复习完成</p>
-
-        <section className="flex gap-3 mb-6">
-          <Button variant="secondary" size="lg" className="flex-1" disabled>
-            😅 不认识
-          </Button>
-          <Button size="lg" className="flex-1" disabled>
-            😎 认识
-          </Button>
-        </section>
+        </div>
 
         <section className="flex justify-center gap-8 mb-4 text-sm text-farm-muted">
           <div>已掌握：<strong className="block text-xl text-farm-text">{masteredCount}</strong></div>

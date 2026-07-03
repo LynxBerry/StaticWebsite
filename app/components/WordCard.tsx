@@ -32,13 +32,13 @@ export default function WordCard({
 }: WordCardProps) {
   const feedbackClass = feedback === 'correct' ? 'animate-pop' : feedback === 'wrong' ? 'animate-shake' : '';
   return (
-    <>
+    <div className="glass-card overflow-hidden mb-6">
       <section
-        className={`card aspect-[3/2] mb-4 rounded-2xl ${feedbackClass} ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''}`}
+        className={`card aspect-[3/2] ${feedbackClass} ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''}`}
         onClick={() => !disabled && onFlip()}
       >
         <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-          <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-white/30 backdrop-blur-2xl text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
+          <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 bg-white/30 backdrop-blur-2xl text-farm-text">
             <span className="text-xs uppercase tracking-widest opacity-70 mb-4">
               {isWrongMode
                 ? `错题复习 · ${getPlantIcon(wordState.level)} 阶段 ${wordState.level} · 还需答对 ${remaining} 次`
@@ -55,29 +55,31 @@ export default function WordCard({
         </div>
       </section>
 
-      <p className="text-sm text-farm-muted mb-6">
-        {disabled
-          ? '全部复习完成'
-          : isWrongMode
-            ? `错题必须连续答对 ${remaining} 次才能通过`
-            : flipped
-              ? '翻卡片后只能点不认识'
-              : '认识直接点按钮，想不起来就点卡片'}
-      </p>
+      <div className="px-6 pb-6 pt-2">
+        <p className="text-sm text-farm-muted mb-4 text-center">
+          {disabled
+            ? '全部复习完成'
+            : isWrongMode
+              ? `错题必须连续答对 ${remaining} 次才能通过`
+              : flipped
+                ? '翻卡片后只能点不认识'
+                : '认识直接点按钮，想不起来就点卡片'}
+        </p>
 
-      <div className="flex gap-3 mb-6">
-        <Button variant="secondary" size="lg" className="flex-1" onClick={onAgain} disabled={disabled}>
-          😅 不认识
-        </Button>
-        <Button
-          size="lg"
-          className="flex-1"
-          onClick={onKnown}
-          disabled={disabled || (!isWrongMode && flipped)}
-        >
-          😎 认识
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="secondary" size="lg" className="flex-1" onClick={onAgain} disabled={disabled}>
+            😅 不认识
+          </Button>
+          <Button
+            size="lg"
+            className="flex-1"
+            onClick={onKnown}
+            disabled={disabled || (!isWrongMode && flipped)}
+          >
+            😎 认识
+          </Button>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
