@@ -29,7 +29,7 @@ const config: Config = {
           borderSecondary: '#e9e8e3',
           fillQuaternary: '#f0f0ec',
           text: '#3D2F1F',
-          muted: '#7A6B5A',
+          muted: '#5C5045',
           textSecondary: '#7d7468',
           accent: '#70B070',
           green: '#5CA85C',

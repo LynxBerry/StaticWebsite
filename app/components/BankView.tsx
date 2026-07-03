@@ -17,7 +17,7 @@ interface BankViewProps {
 
 function wordItemClass(status: StatusType) {
   const base =
-    'flex items-center gap-3 px-3 py-3 mb-2 rounded-[18px] bg-white/30 backdrop-blur-2xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] border-l-4';
+    'flex items-center gap-3 px-3 py-3 mb-2 rounded-[18px] bg-white/65 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] border-l-4';
   switch (status) {
     case 'mastered':
       return `${base} border-l-sprout-500 bg-sprout-50/60`;
