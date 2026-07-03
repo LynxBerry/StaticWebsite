@@ -151,13 +151,15 @@ export default function DashboardView({
       </div>
 
       {/* Quick actions */}
-      <div className="flex gap-3">
-        <Button variant="secondary" size="lg" className="flex-1" onClick={onGoToLearn} disabled={todayRemaining === 0 || unlearnedCount === 0}>
-          播种新词
-        </Button>
-        <Button variant="secondary" size="lg" className="flex-1" onClick={onGoToSettings}>
-          设置
-        </Button>
+      <div className="glass-card p-4">
+        <div className="flex gap-3">
+          <Button variant="secondary" size="lg" className="flex-1" onClick={onGoToLearn} disabled={todayRemaining === 0 || unlearnedCount === 0}>
+            播种新词
+          </Button>
+          <Button variant="secondary" size="lg" className="flex-1" onClick={onGoToSettings}>
+            设置
+          </Button>
+        </div>
       </div>
     </section>
   );
