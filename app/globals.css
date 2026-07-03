@@ -5,7 +5,7 @@
 body {
   /* items-start (not center) so tall pages don't get pushed up by the
      vertical centering when switching tabs of different heights. */
-  @apply min-h-screen flex items-start justify-center relative p-4 pt-20 text-farm-text bg-farm-bg font-sans antialiased;
+  @apply min-h-screen flex items-start justify-center relative p-4 pt-20 text-farm-text bg-farm-layout font-sans antialiased;
 }
 
 .card {

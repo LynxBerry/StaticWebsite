@@ -3,6 +3,7 @@
 import { Word } from '../data/words';
 import { WordState, WrongItem } from '../lib/types';
 import { Button } from './ui/Button';
+import ProgressBar from './ui/ProgressBar';
 import EmptyState from './EmptyState';
 import { getPlantIcon } from '../lib/utils';
 
@@ -116,12 +117,7 @@ export default function DashboardView({
           </div>
           <span className="text-lg font-bold text-[#3D7A4D]">{progressPercent}%</span>
         </div>
-        <div className="h-2.5 bg-[#E8E2D8] rounded-full overflow-hidden mb-3">
-          <div
-            className="progress-shimmer h-full bg-gradient-to-r from-[#7CC07C] to-[#5CA85C] transition-all duration-300"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
+        <ProgressBar value={masteredCount} max={totalCount} className="mb-3" />
         <div className="flex gap-4 text-xs text-farm-muted">
           <span>已学 <strong className="text-farm-text">{learnedCount}</strong></span>
           <span>待播种 <strong className="text-farm-text">{unlearnedCount}</strong></span>
@@ -141,12 +137,7 @@ export default function DashboardView({
             return (
               <div key={stage} className="flex items-center gap-3">
                 <span className="text-base w-8 text-center">{getPlantIcon(stage)}</span>
-                <div className="flex-1 h-5 bg-[#E8E2D8] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[#70B070] transition-all duration-300"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
+                <ProgressBar value={count} max={learnedCount} className="flex-1" />
                 <span className="text-xs text-farm-muted w-8 text-right">{count}</span>
               </div>
             );

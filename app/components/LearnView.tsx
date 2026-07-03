@@ -6,6 +6,7 @@ import { formatDate, getPlantIcon } from '../lib/utils';
 import { MAX_NEW_WORDS_PER_DAY } from '../hooks/useVocabState';
 import EmptyState from './EmptyState';
 import { Button } from './ui/Button';
+import ProgressBar from './ui/ProgressBar';
 
 interface LearnViewProps {
   unlearnedWords: Word[];
@@ -82,12 +83,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
         <span className="block text-sm text-farm-muted mb-2">
           今日新学 {todayCount} / {displayTotal}
         </span>
-        <div className="h-2 bg-[#451a03] rounded-full overflow-hidden">
-          <div
-            className="progress-shimmer h-full bg-gradient-to-r from-[#7CC07C] to-[#5CA85C] transition-all duration-300"
-            style={{ width: `${displayTotal > 0 ? (todayCount / displayTotal) * 100 : 0}%` }}
-          ></div>
-        </div>
+        <ProgressBar value={todayCount} max={displayTotal} />
       </section>
 
       {isDone ? (

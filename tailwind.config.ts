@@ -21,8 +21,9 @@ const config: Config = {
       },
       colors: {
         farm: {
-          bg: '#F4F4F0',
-          card: '#FFFFFF',
+          layout: '#edece8',
+          bg: '#f4f4f0',
+          card: '#ffffff',
           border: 'rgba(112, 176, 112, 0.22)',
           borderLight: 'rgba(112, 176, 112, 0.45)',
           borderSecondary: '#e9e8e3',

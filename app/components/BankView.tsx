@@ -16,27 +16,28 @@ interface BankViewProps {
 }
 
 function wordItemClass(status: StatusType) {
-  const base = 'flex items-center justify-between gap-4 px-4 py-3.5 mb-2 rounded-[18px] bg-farm-bg border border-farm-borderSecondary border-l-4 shadow-[0_1px_2px_#f0f0ec]';
+  const base =
+    'flex items-center justify-between gap-4 px-4 py-3.5 mb-2 rounded-[18px] bg-farm-bg border border-farm-borderSecondary border-l-4 shadow-[0_1px_2px_#f0f0ec]';
   switch (status) {
     case 'mastered':
-      return `${base} border-l-[#5CA85C] bg-[#F7FBF7]`;
+      return `${base} border-l-sprout-500 bg-sprout-50`;
     case 'due':
-      return `${base} border-l-orange-500 bg-[#FFF7ED] shadow-[0_2px_8px_rgba(0,0,0,0.04),0_0_12px_rgba(240,128,0,0.12)]`;
+      return `${base} border-l-harvest-500 bg-harvest-50`;
     case 'unlearned':
-      return `${base} border-l-stone-400 bg-white`;
+      return `${base} border-l-farm-border bg-white`;
     default:
-      return `${base} border-l-farm-accent bg-[#FAFCFA]`;
+      return `${base} border-l-farm-accent bg-farm-bg`;
   }
 }
 
 function statusTextClass(status: StatusType) {
   switch (status) {
     case 'mastered':
-      return 'text-[#3D7A4D]';
+      return 'text-sprout-600';
     case 'due':
-      return 'text-orange-600';
+      return 'text-harvest-600';
     case 'unlearned':
-      return 'text-stone-500';
+      return 'text-farm-muted';
     default:
       return 'text-farm-text';
   }
@@ -90,28 +91,31 @@ export default function BankView({ words, getStatus, getWordState, onGoToSetting
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="bank-view">
       <div className="mb-4">
-        <h2 className="text-xl text-farm-muted mb-4">词库</h2>
+        <h2 className="text-xl font-display text-farm-text mb-4">词库</h2>
         <input
           type="text"
-          className="w-full mb-4 px-4 py-2.5 rounded-xl border border-farm-border bg-white text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-farm-accent/60 focus:shadow-[0_0_0_3px_rgba(112,176,112,0.18)]"
+          className="w-full mb-4 px-3 h-8 rounded-2xl border border-[#d9d6d1] bg-farm-bg text-farm-text text-sm outline-none transition-all duration-sprout-mid placeholder:text-farm-muted/60 focus:border-farm-accent/60 focus:shadow-[0_0_0_3px_rgba(112,176,112,0.18)]"
           placeholder="搜索英文或中文..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <div className="flex gap-2 justify-center">
-          {(['all', 'unlearned', 'due', 'mastered'] as FilterType[]).map((f) => (
-            <button
-              key={f}
-              className={`px-3.5 py-1.5 rounded-[0.625rem] border text-sm transition-all duration-200 ${
-                filter === f
-                  ? 'bg-[#70B070] border-[#70B070] text-white'
-                  : 'border-farm-border bg-white text-farm-muted hover:text-farm-text hover:bg-black/5'
-              }`}
-              onClick={() => setFilter(f)}
-            >
-              {f === 'all' ? '全部' : f === 'unlearned' ? '待播种' : f === 'due' ? '今日到期' : '已掌握'}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-2 justify-center">
+          {(['all', 'unlearned', 'due', 'mastered'] as FilterType[]).map((f) => {
+            const active = filter === f;
+            return (
+              <button
+                key={f}
+                className={`inline-flex items-center h-6 px-2 text-sm rounded-[11px] border transition-all duration-sprout-mid ${
+                  active
+                    ? 'text-farm-accent bg-sprout-50 border-sprout-200'
+                    : 'text-farm-textSecondary bg-farm-bg border-farm-borderSecondary hover:text-farm-text hover:bg-farm-fillQuaternary'
+                }`}
+                onClick={() => setFilter(f)}
+              >
+                {f === 'all' ? '全部' : f === 'unlearned' ? '待播种' : f === 'due' ? '今日到期' : '已掌握'}
+              </button>
+            );
+          })}
         </div>
       </div>
       <ul className="list-none max-h-[60vh] overflow-y-auto text-left">

@@ -6,6 +6,7 @@ import EmptyState from './EmptyState';
 import ComboBadge from './ComboBadge';
 import Confetti from './Confetti';
 import { Button } from './ui/Button';
+import ProgressBar from './ui/ProgressBar';
 import { Word } from '../data/words';
 import { getAudioContext, playSuccessSound, playWrongSound } from '../lib/sound';
 
@@ -166,9 +167,7 @@ export default function StudyView({
       <section className="flex-1 flex flex-col min-h-[60vh]" id="study-view">
         <section className="mb-6">
           <span className="block text-sm text-farm-muted mb-2">{masteredCount} / {total} 已掌握</span>
-          <div className="h-2 bg-[#451a03] rounded-full overflow-hidden">
-            <div className="progress-shimmer h-full bg-gradient-to-r from-[#7CC07C] to-[#5CA85C] transition-all duration-300" style={{ width: `${progress}%` }}></div>
-          </div>
+          <ProgressBar value={masteredCount} max={total} />
         </section>
 
         <section className="card aspect-[3/2] cursor-default mb-4 animate-spring-in relative" aria-label="今日任务完成">
@@ -209,9 +208,7 @@ export default function StudyView({
       <ComboBadge count={combo} />
       <section className="mb-6">
         <span className="block text-sm text-farm-muted mb-2">{masteredCount} / {total} 已掌握</span>
-        <div className="h-2 bg-[#451a03] rounded-full overflow-hidden">
-          <div className="progress-shimmer h-full bg-gradient-to-r from-[#7CC07C] to-[#5CA85C] transition-all duration-300" style={{ width: `${progress}%` }}></div>
-        </div>
+        <ProgressBar value={masteredCount} max={total} />
       </section>
 
       {displayWord && (
