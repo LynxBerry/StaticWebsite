@@ -173,7 +173,7 @@ export default function StudyView({
         <section className="card aspect-[3/2] cursor-default mb-4 animate-spring-in relative" aria-label="今日任务完成">
           <Confetti />
           <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-            <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-white/70 backdrop-blur-xl text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-white/60">
+            <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-white/30 backdrop-blur-2xl text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-white/50">
               <h2 className="text-4xl font-bold mb-2 font-display">🎉 今日任务完成</h2>
               <p className="text-base">所有错题都已通过，明天再来！</p>
             </div>

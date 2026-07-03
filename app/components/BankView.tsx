@@ -17,12 +17,12 @@ interface BankViewProps {
 
 function wordItemClass(status: StatusType) {
   const base =
-    'flex items-center gap-3 px-3 py-3 mb-2 rounded-[18px] bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_4px_16px_rgba(0,0,0,0.06)] border-l-4';
+    'flex items-center gap-3 px-3 py-3 mb-2 rounded-[18px] bg-white/30 backdrop-blur-2xl border border-white/50 shadow-[0_4px_16px_rgba(0,0,0,0.08)] border-l-4';
   switch (status) {
     case 'mastered':
-      return `${base} border-l-sprout-500 bg-sprout-50/80`;
+      return `${base} border-l-sprout-500 bg-sprout-50/60`;
     case 'due':
-      return `${base} border-l-harvest-500 bg-harvest-50/80`;
+      return `${base} border-l-harvest-500 bg-harvest-50/60`;
     case 'unlearned':
       return `${base} border-l-farm-border`;
     default:

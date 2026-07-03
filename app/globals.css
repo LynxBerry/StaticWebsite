@@ -23,7 +23,7 @@ body::before {
   inset: 0;
   z-index: -2;
   background: url('/greenfarm.jpg') center/cover no-repeat fixed;
-  filter: blur(14px) brightness(0.6) saturate(1.1);
+  filter: blur(16px) brightness(0.85) saturate(1.25);
   transform: scale(1.08);
 }
 
@@ -34,14 +34,14 @@ body::after {
   z-index: -1;
   background: linear-gradient(
     180deg,
-    rgba(244, 244, 240, 0.55) 0%,
-    rgba(237, 236, 232, 0.8) 100%
+    rgba(244, 244, 240, 0.35) 0%,
+    rgba(237, 236, 232, 0.55) 100%
   );
 }
 
 @layer components {
   .glass-card {
-    @apply bg-white/70 backdrop-blur-xl border border-white/60 rounded-[24px] shadow-[0_8px_32px_rgba(0,0,0,0.08)];
+    @apply bg-white/30 backdrop-blur-2xl border border-white/50 rounded-[24px] shadow-[0_8px_32px_rgba(0,0,0,0.12)];
   }
 }
 

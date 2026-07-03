@@ -90,7 +90,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
         <>
           <section className="card aspect-[3/2] cursor-default mb-4" aria-label="今日播种完成">
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-white/70 backdrop-blur-xl text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-white/60">
+              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-white/30 backdrop-blur-2xl text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-white/50">
                 <h2 className="text-4xl font-bold mb-2 font-display">🌱 今日播种完成</h2>
                 <p className="text-base">
                   {actualRemaining === 0 && unlearnedWords.length > 0
@@ -113,7 +113,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
             onClick={() => setFlipped(!flipped)}
           >
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-white/70 backdrop-blur-xl text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-white/60">
+              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-white/30 backdrop-blur-2xl text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-white/50">
                 <span className="text-xs uppercase tracking-widest opacity-70 mb-4">新单词 · 点击学习</span>
                 <h2 className="text-4xl font-bold">{currentWord.en}</h2>
               </div>

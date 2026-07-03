@@ -14,12 +14,12 @@ interface FarmViewProps {
 
 function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned') {
   const base =
-    'flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-xl border transition-all duration-200 cursor-default bg-white/60 backdrop-blur-md border-white/60 hover:-translate-y-0.5 hover:bg-white/80';
+    'flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-xl border transition-all duration-200 cursor-default bg-white/25 backdrop-blur-xl border-white/50 hover:-translate-y-0.5 hover:bg-white/40';
   switch (status) {
     case 'due':
-      return `${base} border-harvest-400/70 shadow-[0_0_16px_rgba(240,128,0,0.2)] bg-harvest-50/80`;
+      return `${base} border-harvest-400/70 shadow-[0_0_16px_rgba(240,128,0,0.2)] bg-harvest-50/50`;
     case 'mastered':
-      return `${base} border-sprout-400/50 bg-sprout-50/80`;
+      return `${base} border-sprout-400/50 bg-sprout-50/50`;
     default:
       return base;
   }
