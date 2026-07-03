@@ -81,7 +81,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
         <p className="text-farm-muted mb-6 italic tracking-wide text-sm">One seed, one harvest</p>
       </header>
 
-      <nav className="flex flex-wrap justify-center gap-6 mb-6 border-b border-farm-borderSecondary">
+      <nav className="flex flex-wrap justify-center gap-2 mb-6">
         {[
           { key: 'dashboard', label: '首页', tooltip: '总览与统计' },
           { key: 'learn', label: '播种', tooltip: '学习新单词（每日最多15个）' },
@@ -89,20 +89,23 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
           { key: 'farm', label: '收成', tooltip: '查看单词农场' },
           { key: 'bank', label: '词库', tooltip: '查看全部单词' },
           { key: 'settings', label: '设置', tooltip: '备份与恢复' }
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            className={`px-[2px] py-2 -mb-px text-base whitespace-nowrap cursor-pointer transition-colors duration-sprout-mid ease-sprout-in-out border-b-2 ${
-              currentView === tab.key
-                ? 'text-white font-semibold border-white'
-                : 'text-white/60 border-transparent hover:text-white'
-            }`}
-            onClick={() => setCurrentView(tab.key as ViewType)}
-            title={tab.tooltip}
-          >
-            {tab.label}
-          </button>
-        ))}
+        ].map((tab) => {
+          const active = currentView === tab.key;
+          return (
+            <button
+              key={tab.key}
+              className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-sprout-mid ease-sprout-in-out ${
+                active
+                  ? 'bg-white/80 text-[#1a1a1a] backdrop-blur-xl'
+                  : 'bg-white/30 text-white/90 backdrop-blur-md hover:bg-white/45'
+              }`}
+              onClick={() => setCurrentView(tab.key as ViewType)}
+              title={tab.tooltip}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </nav>
 
       {currentView === 'dashboard' && (
