@@ -14,7 +14,7 @@ interface SettingsViewProps {
   onUpdateSiteTitle: (title: string) => void;
 }
 
-const sectionClass = 'text-left p-5 mb-4 bg-farm-bg border border-farm-borderSecondary rounded-[18px] shadow-[0_1px_2px_#f0f0ec]';
+const sectionClass = 'text-left p-5 mb-4 glass-card';
 
 export default function SettingsView({ exportState, importState, onReset, siteTitle, onUpdateSiteTitle }: SettingsViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);

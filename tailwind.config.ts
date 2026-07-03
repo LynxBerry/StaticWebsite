@@ -8,15 +8,15 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['var(--font-nunito)', 'system-ui', '-apple-system', '"PingFang SC"', '"Hiragino Sans GB"', 'sans-serif'],
         display: [
-          'var(--font-lora)',
-          'var(--font-jakarta)',
-          '"Songti SC"',
-          '"Source Han Serif SC"',
-          '"Noto Serif SC"',
-          'Georgia',
-          'serif'
+          'var(--font-quicksand)',
+          'var(--font-nunito)',
+          'system-ui',
+          '-apple-system',
+          '"PingFang SC"',
+          '"Hiragino Sans GB"',
+          'sans-serif'
         ]
       },
       colors: {

@@ -25,9 +25,9 @@ const primaryVariant =
   'enabled:active:scale-[0.98]';
 
 const secondaryVariant =
-  'bg-farm-bg border-[#d9d6d1] text-[#534738] ' +
-  'enabled:hover:bg-[#e9e8e3] ' +
-  'enabled:active:bg-[#edece8] ' +
+  'bg-white/60 backdrop-blur-md border-white/70 text-[#534738] ' +
+  'enabled:hover:bg-white/80 ' +
+  'enabled:active:bg-white/90 ' +
   'enabled:active:scale-[0.98]';
 
 const sizeSm = 'h-6 px-2 text-xs';

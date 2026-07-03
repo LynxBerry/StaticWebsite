@@ -38,7 +38,7 @@ export default function WordCard({
         onClick={() => !disabled && onFlip()}
       >
         <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-          <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[#FFFFFF] to-[#FAF6EE] text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.5)] border border-farm-border">
+          <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-white/70 backdrop-blur-xl text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-white/60">
             <span className="text-xs uppercase tracking-widest opacity-70 mb-4">
               {isWrongMode
                 ? `错题复习 · ${getPlantIcon(wordState.level)} 阶段 ${wordState.level} · 还需答对 ${remaining} 次`

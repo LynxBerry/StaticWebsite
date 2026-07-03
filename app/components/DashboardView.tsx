@@ -22,7 +22,7 @@ interface DashboardViewProps {
   onGoToSettings: () => void;
 }
 
-const sectionClass = 'text-left p-5 bg-farm-bg border border-farm-borderSecondary rounded-[18px] shadow-[0_1px_2px_#f0f0ec]';
+const sectionClass = 'text-left p-5 glass-card';
 
 export default function DashboardView({
   words,

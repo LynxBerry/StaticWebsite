@@ -14,12 +14,12 @@ interface FarmViewProps {
 
 function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned') {
   const base =
-    'flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-xl border transition-all duration-200 cursor-default bg-white border-farm-border hover:-translate-y-0.5 hover:bg-[#FAFAF7]';
+    'flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-xl border transition-all duration-200 cursor-default bg-white/60 backdrop-blur-md border-white/60 hover:-translate-y-0.5 hover:bg-white/80';
   switch (status) {
     case 'due':
-      return `${base} border-orange-400/70 shadow-[0_0_16px_rgba(240,128,0,0.2)] bg-[#FFF7ED]`;
+      return `${base} border-harvest-400/70 shadow-[0_0_16px_rgba(240,128,0,0.2)] bg-harvest-50/80`;
     case 'mastered':
-      return `${base} border-[#5CA85C]/50 bg-[#F0F7F0]`;
+      return `${base} border-sprout-400/50 bg-sprout-50/80`;
     default:
       return base;
   }
@@ -49,7 +49,7 @@ export default function FarmView({ words, getStatus, getWordState, onGoToSetting
 
       <Legend />
 
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-3 max-h-[60vh] overflow-y-auto p-2">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-3 max-h-[60vh] overflow-y-auto no-scrollbar p-2">
         {words.map((word) => {
           const status = getStatus(word.en);
           const ws = getWordState(word.en);

@@ -51,13 +51,13 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
     return (
       <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
         <header className="flex flex-col items-center">
-          <div className="flex items-center justify-center gap-4 mb-1">
+          <div className="flex items-center justify-center gap-2 mb-1">
             <Logo size={80} />
             <h1 className="text-3xl font-bold text-[#3D7A4D]">
               {siteTitle}
             </h1>
           </div>
-          <p className="text-farm-muted mb-6">一份耕耘一份收获</p>
+          <p className="text-farm-muted mb-6 italic tracking-wide text-sm">One seed, one harvest</p>
         </header>
         <p className="text-center text-farm-muted">加载中...</p>
       </main>
@@ -72,13 +72,13 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
   return (
     <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
       <header className="flex flex-col items-center">
-        <div className="flex items-center justify-center gap-4 mb-1 animate-fade-up">
+        <div className="flex items-center justify-center gap-2 mb-1 animate-fade-up">
           <Logo size={80} />
           <h1 className="text-3xl font-bold text-[#3D7A4D]">
             {siteTitle}
           </h1>
         </div>
-        <p className="text-farm-muted mb-6">一份耕耘一份收获</p>
+        <p className="text-farm-muted mb-6 italic tracking-wide text-sm">One seed, one harvest</p>
       </header>
 
       <nav className="flex flex-wrap justify-center gap-6 mb-6 border-b border-farm-borderSecondary">

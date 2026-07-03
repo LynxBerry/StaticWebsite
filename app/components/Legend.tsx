@@ -11,7 +11,7 @@ export default function Legend() {
   ];
 
   return (
-    <section className="mb-6 p-4 bg-farm-bg rounded-[18px] border border-farm-borderSecondary shadow-[0_1px_2px_#f0f0ec]">
+    <section className="mb-6 p-4 glass-card">
       <div className="text-sm text-farm-muted mb-4 font-semibold">熟悉度成长图</div>
       <div className="flex items-center justify-start gap-0.5 overflow-x-auto pb-2 -mb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {steps.map((step, index) => (

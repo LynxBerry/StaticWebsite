@@ -2,10 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide scrollbars but keep scrolling */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
 body {
   /* items-start (not center) so tall pages don't get pushed up by the
      vertical centering when switching tabs of different heights. */
   @apply min-h-screen flex items-start justify-center relative p-4 pt-20 text-farm-text bg-farm-layout font-sans antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: url('/greenfarm.jpg') center/cover no-repeat fixed;
+  filter: blur(14px) brightness(0.6) saturate(1.1);
+  transform: scale(1.08);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(244, 244, 240, 0.55) 0%,
+    rgba(237, 236, 232, 0.8) 100%
+  );
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white/60 rounded-[24px] shadow-[0_8px_32px_rgba(0,0,0,0.08)];
+  }
 }
 
 .card {

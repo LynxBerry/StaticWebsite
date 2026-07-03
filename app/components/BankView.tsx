@@ -17,16 +17,31 @@ interface BankViewProps {
 
 function wordItemClass(status: StatusType) {
   const base =
-    'flex items-center justify-between gap-4 px-4 py-3.5 mb-2 rounded-[18px] bg-farm-bg border border-farm-borderSecondary border-l-4 shadow-[0_1px_2px_#f0f0ec]';
+    'flex items-center gap-3 px-3 py-3 mb-2 rounded-[18px] bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_4px_16px_rgba(0,0,0,0.06)] border-l-4';
   switch (status) {
     case 'mastered':
-      return `${base} border-l-sprout-500 bg-sprout-50`;
+      return `${base} border-l-sprout-500 bg-sprout-50/80`;
     case 'due':
-      return `${base} border-l-harvest-500 bg-harvest-50`;
+      return `${base} border-l-harvest-500 bg-harvest-50/80`;
     case 'unlearned':
-      return `${base} border-l-farm-border bg-white`;
+      return `${base} border-l-farm-border`;
     default:
-      return `${base} border-l-farm-accent bg-farm-bg`;
+      return `${base} border-l-farm-accent`;
+  }
+}
+
+/** Circular avatar holding the plant icon, tinted by status. */
+function iconClass(status: StatusType) {
+  const base = 'flex items-center justify-center shrink-0 w-10 h-10 rounded-full text-lg';
+  switch (status) {
+    case 'mastered':
+      return `${base} bg-sprout-50`;
+    case 'due':
+      return `${base} bg-harvest-50`;
+    case 'unlearned':
+      return `${base} bg-farm-fillQuaternary opacity-60`;
+    default:
+      return `${base} bg-sprout-50`;
   }
 }
 
@@ -83,11 +98,6 @@ export default function BankView({ words, getStatus, getWordState, onGoToSetting
     return `下次复习 ${formatDate(ws.nextReview)}`;
   };
 
-  const getLevelText = (status: StatusType, ws: { level: number }) => {
-    if (status === 'unlearned') return `${getPlantIcon(1)} 待播种`;
-    return `${getPlantIcon(ws.level)} 阶段 ${ws.level}`;
-  };
-
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="bank-view">
       <div className="mb-4">
@@ -118,7 +128,7 @@ export default function BankView({ words, getStatus, getWordState, onGoToSetting
           })}
         </div>
       </div>
-      <ul className="list-none max-h-[60vh] overflow-y-auto text-left">
+      <ul className="list-none max-h-[60vh] overflow-y-auto no-scrollbar text-left">
         {items.length === 0 ? (
           <li className="flex items-center justify-center px-4 py-3.5 mb-2 rounded-xl text-farm-muted">
             没有符合条件的单词
@@ -126,12 +136,15 @@ export default function BankView({ words, getStatus, getWordState, onGoToSetting
         ) : (
           items.map(({ word, status, ws }) => (
             <li key={word.en} className={wordItemClass(status)}>
-              <div className="flex flex-col gap-1">
-                <span className="font-bold text-farm-text">{word.en}</span>
-                <span className="text-sm text-farm-muted">{word.cn}</span>
+              <span className={iconClass(status)}>
+                {status === 'unlearned' ? getPlantIcon(1) : getPlantIcon(ws.level)}
+              </span>
+              <div className="flex flex-col gap-1 min-w-0 flex-1">
+                <span className="font-bold text-farm-text truncate">{word.en}</span>
+                <span className="text-sm text-farm-muted truncate">{word.cn}</span>
               </div>
-              <div className="flex flex-col items-end gap-1 text-xs">
-                <span className="text-farm-muted">{getLevelText(status, ws)}</span>
+              <div className="flex flex-col items-end gap-1 text-xs shrink-0">
+                <span className="text-farm-muted">{status === 'unlearned' ? '阶段 1' : `阶段 ${ws.level}`}</span>
                 <span className={`font-semibold ${statusTextClass(status)}`}>{getStatusText(status, ws)}</span>
               </div>
             </li>
