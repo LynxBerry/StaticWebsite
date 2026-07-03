@@ -92,7 +92,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
         ].map((tab) => (
           <button
             key={tab.key}
-            className={`px-[2px] py-2 -mb-px text-sm whitespace-nowrap cursor-pointer transition-colors duration-sprout-mid ease-sprout-in-out border-b-2 ${
+            className={`px-[2px] py-2 -mb-px text-base whitespace-nowrap cursor-pointer transition-colors duration-sprout-mid ease-sprout-in-out border-b-2 ${
               currentView === tab.key
                 ? 'text-farm-accent font-semibold border-farm-accent'
                 : 'text-farm-textSecondary border-transparent hover:text-farm-text'
