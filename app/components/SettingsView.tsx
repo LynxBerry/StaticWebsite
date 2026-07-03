@@ -103,7 +103,7 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
               (e.target as HTMLInputElement).blur();
             }
           }}
-          placeholder="Zeno的单词农场"
+          placeholder="Sprout · 单词农场"
           maxLength={30}
           className="w-full px-4 py-2.5 rounded-xl border border-farm-border bg-white text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-farm-accent/60 focus:shadow-[0_0_0_3px_rgba(112,176,112,0.18)]"
         />

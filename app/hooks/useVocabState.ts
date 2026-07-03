@@ -26,7 +26,7 @@ export type { Word, WordState, WrongItem, ProgressState };
 const PROGRESS_KEY_BASE = 'zeno-vocab-progress-v3';
 const WORDS_KEY_BASE = 'zeno-vocab-words-v1';
 
-export const DEFAULT_SITE_TITLE = 'Zeno的单词农场';
+export const DEFAULT_SITE_TITLE = 'Sprout · 单词农场';
 
 function progressKey(userId: string) {
   return `${PROGRESS_KEY_BASE}-${userId}`;

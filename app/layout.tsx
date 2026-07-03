@@ -27,8 +27,8 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  title: 'Zeno的单词农场',
-  description: 'Zeno的单词农场，基于艾宾浩斯 / Leitner 间隔重复系统背单词。'
+  title: 'Sprout · 单词农场',
+  description: 'Sprout · 单词农场，基于艾宾浩斯 / Leitner 间隔重复系统背单词。'
 };
 
 export default function RootLayout({
