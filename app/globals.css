@@ -34,8 +34,8 @@ body::after {
   z-index: -1;
   background: linear-gradient(
     180deg,
-    rgba(244, 244, 240, 0.3) 0%,
-    rgba(237, 236, 232, 0.5) 100%
+    rgba(244, 244, 240, 0.15) 0%,
+    rgba(237, 236, 232, 0.25) 100%
   );
 }
 
