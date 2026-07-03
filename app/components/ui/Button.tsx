@@ -14,12 +14,12 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const base =
   'inline-flex items-center justify-center box-border cursor-pointer whitespace-nowrap select-none ' +
   'font-semibold leading-none no-underline ' +
-  'rounded-2xl border transition-all duration-sprout-mid ease-sprout-in-out ' +
+  'rounded-2xl transition-all duration-sprout-mid ease-sprout-in-out ' +
   'disabled:opacity-40 disabled:cursor-not-allowed ' +
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#70B070]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F4F4F0]';
 
 const primaryVariant =
-  'text-white bg-[#70b070] border-[#70b070] shadow-[0_2px_0_#e4f0e1] ' +
+  'text-white bg-[#70b070] border border-[#70b070] shadow-[0_2px_0_#e4f0e1] ' +
   'enabled:hover:bg-[#5ca85c] ' +
   'enabled:active:bg-[#518a53] ' +
   'enabled:active:scale-[0.98]';
