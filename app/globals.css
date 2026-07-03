@@ -23,7 +23,7 @@ body::before {
   inset: 0;
   z-index: -2;
   background: url('/greenfarm.jpg') center/cover no-repeat fixed;
-  filter: blur(10px) brightness(0.85) saturate(1.25);
+  filter: blur(6px) brightness(0.85) saturate(1.25);
   transform: scale(1.08);
 }
 
