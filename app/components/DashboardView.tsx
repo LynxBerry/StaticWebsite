@@ -69,7 +69,7 @@ export default function DashboardView({
     <section className="flex-1 flex flex-col min-h-[60vh]" id="dashboard-view">
       {/* Today's action hero */}
       <div className={`${sectionClass} mb-4`}>
-        <h3 className="text-base text-farm-text mb-3 font-display">今日</h3>
+        <h3 className="text-base font-semibold text-farm-text mb-3 font-display">今日</h3>
         {dueCount > 0 ? (
           <>
             <div className="flex items-end justify-between mb-3">
@@ -109,7 +109,7 @@ export default function DashboardView({
 
       {/* Progress overview */}
       <div className={`${sectionClass} mb-4`}>
-        <h3 className="text-base text-farm-text mb-3 font-display">进度</h3>
+        <h3 className="text-base font-semibold text-farm-text mb-3 font-display">进度</h3>
         <div className="flex items-end justify-between mb-2">
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-farm-text">{masteredCount}</span>
@@ -129,7 +129,7 @@ export default function DashboardView({
 
       {/* Stage distribution */}
       <div className={`${sectionClass} mb-4`}>
-        <h3 className="text-base text-farm-text mb-3 font-display">熟悉度分布</h3>
+        <h3 className="text-base font-semibold text-farm-text mb-3 font-display">熟悉度分布</h3>
         <div className="space-y-1.5">
           {[1, 2, 3, 4, 5, 6].map((stage) => {
             const count = stageCounts[stage] || 0;

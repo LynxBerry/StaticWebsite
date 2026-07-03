@@ -91,7 +91,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
           <section className="card aspect-[3/2] cursor-default mb-4" aria-label="今日播种完成">
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
               <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[#FFFFFF] to-[#FAF6EE] text-farm-text shadow-[0_4px_16px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.5)] border border-farm-border">
-                <h2 className="text-4xl font-bold mb-2">🌱 今日播种完成</h2>
+                <h2 className="text-4xl font-bold mb-2 font-display">🌱 今日播种完成</h2>
                 <p className="text-base">
                   {actualRemaining === 0 && unlearnedWords.length > 0
                     ? `今天已经学了 ${todayCount} 个新单词，明天再来吧！`

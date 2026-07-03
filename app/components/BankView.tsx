@@ -91,7 +91,7 @@ export default function BankView({ words, getStatus, getWordState, onGoToSetting
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="bank-view">
       <div className="mb-4">
-        <h2 className="text-xl font-display text-farm-text mb-4">词库</h2>
+        <h2 className="text-xl font-semibold font-display text-farm-text mb-4">词库</h2>
         <input
           type="text"
           className="w-full mb-4 px-3 h-8 rounded-2xl border border-[#d9d6d1] bg-farm-bg text-farm-text text-sm outline-none transition-all duration-sprout-mid placeholder:text-farm-muted/60 focus:border-farm-accent/60 focus:shadow-[0_0_0_3px_rgba(112,176,112,0.18)]"
