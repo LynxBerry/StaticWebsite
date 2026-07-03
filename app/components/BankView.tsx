@@ -16,7 +16,7 @@ interface BankViewProps {
 }
 
 function wordItemClass(status: StatusType) {
-  const base = 'flex items-center justify-between gap-4 px-4 py-3.5 mb-2 rounded-xl bg-white border border-farm-border border-l-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]';
+  const base = 'flex items-center justify-between gap-4 px-4 py-3.5 mb-2 rounded-[18px] bg-farm-bg border border-farm-borderSecondary border-l-4 shadow-[0_1px_2px_#f0f0ec]';
   switch (status) {
     case 'mastered':
       return `${base} border-l-[#5CA85C] bg-[#F7FBF7]`;

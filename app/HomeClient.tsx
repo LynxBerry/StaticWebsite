@@ -9,14 +9,15 @@ import FarmView from './components/FarmView';
 import BankView from './components/BankView';
 import SettingsView from './components/SettingsView';
 import StalePrompt from './components/StalePrompt';
+import DashboardView from './components/DashboardView';
 import Logo from './components/Logo';
 
-type ViewType = 'learn' | 'study' | 'farm' | 'bank' | 'settings';
+type ViewType = 'dashboard' | 'learn' | 'study' | 'farm' | 'bank' | 'settings';
 
 const IDLE_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
 
 export default function HomeClient({ userId, email }: { userId: string; email: string }) {
-  const [currentView, setCurrentView] = useState<ViewType>('settings');
+  const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const { showPrompt: showStalePrompt, dismiss: dismissStalePrompt } = useIdlePrompt(IDLE_TIMEOUT_MS);
   const {
     isHydrated,
@@ -80,8 +81,9 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
         <p className="text-farm-muted mb-6">一份耕耘一份收获</p>
       </header>
 
-      <nav className="flex gap-2 mb-6 p-1.5 rounded-xl bg-white border border-farm-border shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
+      <nav className="flex flex-wrap justify-center gap-6 mb-6 border-b border-farm-borderSecondary">
         {[
+          { key: 'dashboard', label: '首页', tooltip: '总览与统计' },
           { key: 'learn', label: '播种', tooltip: '学习新单词（每日最多15个）' },
           { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
           { key: 'farm', label: '收成', tooltip: '查看单词农场' },
@@ -90,10 +92,10 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
         ].map((tab) => (
           <button
             key={tab.key}
-            className={`flex-1 py-2 rounded-[0.625rem] font-semibold transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+            className={`px-[2px] py-2 -mb-px text-sm whitespace-nowrap cursor-pointer transition-colors duration-sprout-mid ease-sprout-in-out border-b-2 ${
               currentView === tab.key
-                ? 'bg-gradient-to-br from-[#7CC07C] to-[#5CA85C] text-white shadow-[0_4px_12px_rgba(112,176,112,0.35)] -translate-y-px'
-                : 'bg-transparent text-farm-muted hover:text-farm-text hover:bg-black/5'
+                ? 'text-farm-accent font-semibold border-farm-accent'
+                : 'text-farm-textSecondary border-transparent hover:text-farm-text'
             }`}
             onClick={() => setCurrentView(tab.key as ViewType)}
             title={tab.tooltip}
@@ -102,6 +104,23 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
           </button>
         ))}
       </nav>
+
+      {currentView === 'dashboard' && (
+        <DashboardView
+          words={words}
+          dueCount={dueWords.length}
+          masteredCount={masteredCount}
+          todayCount={todayCount}
+          todayRemaining={remaining}
+          unlearnedCount={unlearnedWords.length}
+          wrongQueue={wrongQueue}
+          getWordState={getWordState}
+          onGoToStudy={() => setCurrentView('study')}
+          onGoToLearn={() => setCurrentView('learn')}
+          onGoToFarm={() => setCurrentView('farm')}
+          onGoToSettings={() => setCurrentView('settings')}
+        />
+      )}
 
       {currentView === 'learn' && (
         <LearnView

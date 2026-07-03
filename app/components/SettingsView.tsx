@@ -14,7 +14,7 @@ interface SettingsViewProps {
   onUpdateSiteTitle: (title: string) => void;
 }
 
-const sectionClass = 'text-left p-5 mb-4 bg-farm-card border border-farm-border rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)]';
+const sectionClass = 'text-left p-5 mb-4 bg-farm-bg border border-farm-borderSecondary rounded-[18px] shadow-[0_1px_2px_#f0f0ec]';
 
 export default function SettingsView({ exportState, importState, onReset, siteTitle, onUpdateSiteTitle }: SettingsViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,6 +42,62 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
     await supabase.auth.signOut();
     router.push('/login');
     router.refresh();
+  };
+
+  // Password change: verify the old password by re-signing in, then update.
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+
+  const handleChangePassword = async () => {
+    setPasswordMessage(null);
+
+    if (newPassword.length < 6) {
+      setPasswordMessage({ type: 'error', text: '新密码至少需要 6 个字符。' });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({ type: 'error', text: '两次输入的新密码不一致。' });
+      return;
+    }
+
+    setPasswordSubmitting(true);
+    const supabase = createClient();
+
+    // Get the current user's email to verify the old password.
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.email) {
+      setPasswordMessage({ type: 'error', text: '无法获取用户信息，请重新登录后再试。' });
+      setPasswordSubmitting(false);
+      return;
+    }
+
+    // Verify the old password by re-signing in.
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: oldPassword
+    });
+    if (signInError) {
+      setPasswordMessage({ type: 'error', text: '旧密码不正确。' });
+      setPasswordSubmitting(false);
+      return;
+    }
+
+    // Update to the new password.
+    const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+    setPasswordSubmitting(false);
+
+    if (updateError) {
+      setPasswordMessage({ type: 'error', text: '修改失败：' + updateError.message });
+      return;
+    }
+
+    setPasswordMessage({ type: 'success', text: '密码已更新 ✓' });
+    setOldPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
   };
 
   const handleExport = () => {
@@ -156,6 +212,51 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
         <Button variant="secondary" className="flex-none min-w-[140px]" onClick={onReset}>
           重置所有进度
         </Button>
+      </div>
+
+      <div className={sectionClass}>
+        <h3 className="text-base text-farm-text mb-2">🔑 修改密码</h3>
+        <p className="text-sm text-farm-muted mb-4 leading-relaxed">
+          修改你的登录密码。需要先验证旧密码。
+        </p>
+        <div className="space-y-3">
+          <input
+            type="password"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            placeholder="旧密码"
+            autoComplete="current-password"
+            className="w-full px-4 py-2.5 rounded-xl border border-farm-border bg-white text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-farm-accent/60 focus:shadow-[0_0_0_3px_rgba(112,176,112,0.18)]"
+          />
+          <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="新密码（至少 6 位）"
+            autoComplete="new-password"
+            className="w-full px-4 py-2.5 rounded-xl border border-farm-border bg-white text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-farm-accent/60 focus:shadow-[0_0_0_3px_rgba(112,176,112,0.18)]"
+          />
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="确认新密码"
+            autoComplete="new-password"
+            className="w-full px-4 py-2.5 rounded-xl border border-farm-border bg-white text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-farm-accent/60 focus:shadow-[0_0_0_3px_rgba(112,176,112,0.18)]"
+          />
+          {passwordMessage && (
+            <p className={`text-sm ${passwordMessage.type === 'success' ? 'text-[#3D7A4D]' : 'text-red-500'}`}>
+              {passwordMessage.text}
+            </p>
+          )}
+          <Button
+            className="flex-none min-w-[140px]"
+            onClick={handleChangePassword}
+            disabled={passwordSubmitting || !oldPassword || !newPassword || !confirmPassword}
+          >
+            {passwordSubmitting ? '更新中...' : '更新密码'}
+          </Button>
+        </div>
       </div>
 
       <div className={sectionClass}>

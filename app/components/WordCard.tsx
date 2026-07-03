@@ -66,10 +66,11 @@ export default function WordCard({
       </p>
 
       <div className="flex gap-3 mb-6">
-        <Button variant="secondary" className="flex-1" onClick={onAgain} disabled={disabled}>
+        <Button variant="secondary" size="lg" className="flex-1" onClick={onAgain} disabled={disabled}>
           😅 不认识
         </Button>
         <Button
+          size="lg"
           className="flex-1"
           onClick={onKnown}
           disabled={disabled || (!isWrongMode && flipped)}

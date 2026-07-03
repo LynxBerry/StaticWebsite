@@ -106,8 +106,8 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
           </section>
           <p className="text-sm text-farm-muted mb-6">没有可学的新单词了</p>
           <div className="flex gap-3 mb-6">
-            <Button variant="secondary" className="flex-1" disabled>跳过</Button>
-            <Button className="flex-1" disabled>播种</Button>
+            <Button variant="secondary" size="lg" className="flex-1" disabled>跳过</Button>
+            <Button size="lg" className="flex-1" disabled>播种</Button>
           </div>
         </>
       ) : (
@@ -134,10 +134,10 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
           <p className="text-sm text-farm-muted mb-6">点击卡片查看释义</p>
 
           <div className="flex gap-3 mb-6">
-            <Button variant="secondary" className="flex-1" onClick={handleSkip}>
+            <Button variant="secondary" size="lg" className="flex-1" onClick={handleSkip}>
               跳过
             </Button>
-            <Button className="flex-1" onClick={handleLearn}>
+            <Button size="lg" className="flex-1" onClick={handleLearn}>
               播种
             </Button>
           </div>

@@ -28,7 +28,7 @@ export default function EmptyState({
       <h2 className="text-xl font-bold text-farm-text mb-2 font-display">{title}</h2>
       <p className="text-sm text-farm-muted mb-6 max-w-[280px] leading-relaxed">{message}</p>
       {actionLabel && onAction && (
-        <Button onClick={onAction} className="px-6 py-3">
+        <Button size="lg" onClick={onAction}>
           {actionLabel}
         </Button>
       )}

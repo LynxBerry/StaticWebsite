@@ -183,10 +183,10 @@ export default function StudyView({
         <p className="text-sm text-farm-muted mb-6">全部复习完成</p>
 
         <section className="flex gap-3 mb-6">
-          <Button variant="secondary" className="flex-1" disabled>
+          <Button variant="secondary" size="lg" className="flex-1" disabled>
             😅 不认识
           </Button>
-          <Button className="flex-1" disabled>
+          <Button size="lg" className="flex-1" disabled>
             😎 认识
           </Button>
         </section>
