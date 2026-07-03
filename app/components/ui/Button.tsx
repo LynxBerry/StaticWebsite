@@ -19,9 +19,9 @@ const base =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#70B070]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F4F4F0]';
 
 const primaryVariant =
-  'text-white bg-[#70b070] border border-[#70b070] shadow-[0_2px_0_#e4f0e1] ' +
-  'enabled:hover:bg-[#5ca85c] ' +
-  'enabled:active:bg-[#518a53] ' +
+  'text-white bg-[#5a9e5a] border border-[#5a9e5a] shadow-[0_2px_0_#d4ead4] ' +
+  'enabled:hover:bg-[#4d8a4d] ' +
+  'enabled:active:bg-[#407040] ' +
   'enabled:active:scale-[0.98]';
 
 const secondaryVariant =
