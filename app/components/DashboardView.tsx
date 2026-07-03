@@ -73,7 +73,7 @@ export default function DashboardView({
             <div className="flex items-end justify-between mb-3">
               <div>
                 <span className="text-4xl font-bold text-[#3D7A4D]">{dueCount}</span>
-                <span className="text-sm text-farm-muted ml-2">个单词待复习</span>
+                <span className="text-sm text-white/80 ml-2">个单词待复习</span>
               </div>
               <Button size="lg" onClick={onGoToStudy}>开始复习</Button>
             </div>
@@ -82,20 +82,20 @@ export default function DashboardView({
           <div className="flex items-end justify-between mb-3">
             <div>
               <span className="text-4xl font-bold text-farm-red">{wrongQueue.length}</span>
-              <span className="text-sm text-farm-muted ml-2">个错题待通过</span>
+              <span className="text-sm text-white/80 ml-2">个错题待通过</span>
             </div>
             <Button size="lg" onClick={onGoToStudy}>去练错题</Button>
           </div>
         ) : (
           <div className="flex items-center gap-2 mb-3">
             <span className="text-3xl">🎉</span>
-            <span className="text-sm text-farm-muted">今日复习已完成</span>
+            <span className="text-sm text-white/80">今日复习已完成</span>
           </div>
         )}
-        <div className="flex gap-4 text-xs text-farm-muted">
-          <span>今日新学 <strong className="text-farm-text">{todayCount}</strong>/{todayCount + todayRemaining}</span>
+        <div className="flex gap-4 text-xs text-white/80">
+          <span>今日新学 <strong className="text-white">{todayCount}</strong>/{todayCount + todayRemaining}</span>
           {wrongQueue.length > 0 && (
-            <span>错题队列 <strong className="text-farm-text">{wrongQueue.length}</strong></span>
+            <span>错题队列 <strong className="text-white">{wrongQueue.length}</strong></span>
           )}
         </div>
       </div>
@@ -105,15 +105,15 @@ export default function DashboardView({
         <h3 className="text-base font-semibold text-white mb-3 font-display">进度</h3>
         <div className="flex items-end justify-between mb-2">
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-farm-text">{masteredCount}</span>
-            <span className="text-sm text-farm-muted">/ {totalCount} 已掌握</span>
+            <span className="text-3xl font-bold text-white">{masteredCount}</span>
+            <span className="text-sm text-white/80">/ {totalCount} 已掌握</span>
           </div>
           <span className="text-lg font-bold text-[#3D7A4D]">{progressPercent}%</span>
         </div>
         <ProgressBar value={masteredCount} max={totalCount} className="mb-3" />
-        <div className="flex gap-4 text-xs text-farm-muted">
-          <span>已学 <strong className="text-farm-text">{learnedCount}</strong></span>
-          <span>待播种 <strong className="text-farm-text">{unlearnedCount}</strong></span>
+        <div className="flex gap-4 text-xs text-white/80">
+          <span>已学 <strong className="text-white">{learnedCount}</strong></span>
+          <span>待播种 <strong className="text-white">{unlearnedCount}</strong></span>
           <button className="ml-auto text-[#3D7A4D] hover:underline" onClick={onGoToFarm}>
             查看农场 →
           </button>
@@ -131,13 +131,13 @@ export default function DashboardView({
               <div key={stage} className="flex items-center gap-3">
                 <span className="text-base w-8 text-center">{getPlantIcon(stage)}</span>
                 <ProgressBar value={count} max={learnedCount} className="flex-1" />
-                <span className="text-xs text-farm-muted w-8 text-right">{count}</span>
+                <span className="text-xs text-white/80 w-8 text-right">{count}</span>
               </div>
             );
           })}
         </div>
         {learnedCount === 0 && (
-          <p className="text-xs text-farm-muted mt-3 text-center">
+          <p className="text-xs text-white/80 mt-3 text-center">
             还没有开始学习，去播种你的第一个单词吧
           </p>
         )}
