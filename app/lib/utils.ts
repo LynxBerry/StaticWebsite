@@ -6,7 +6,7 @@ export function formatDate(timestamp: number): string {
 }
 
 export function getPlantIcon(level: number): string {
-  if (level >= MASTERED_LEVEL) return '✨🌳✨';
+  if (level >= MASTERED_LEVEL) return '🏆';
   const icons: Record<number, string> = {
     1: '🌰',
     2: '🌱',

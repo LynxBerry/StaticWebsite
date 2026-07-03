@@ -16,10 +16,10 @@ const base =
   'font-semibold leading-none no-underline ' +
   'rounded-2xl transition-all duration-sprout-mid ease-sprout-in-out ' +
   'disabled:opacity-40 disabled:cursor-not-allowed ' +
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#70B070]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F4F4F0]';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#70B070]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent';
 
 const primaryVariant =
-  'text-white bg-[#1a1a1a] ' +
+  'text-white text-engrave-dark bg-[#1a1a1a] ' +
   'enabled:hover:bg-[#333333] ' +
   'enabled:active:bg-[#000000] ' +
   'enabled:active:scale-[0.98]';

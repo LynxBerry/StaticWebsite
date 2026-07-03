@@ -66,9 +66,6 @@ const config: Config = {
           700: '#c2410c'
         }
       },
-      backdropBlur: {
-        glass: '12px'
-      },
       boxShadow: {
         glass: '0 4px 20px rgba(0, 0, 0, 0.06)',
         'glass-sm': '0 2px 12px rgba(0, 0, 0, 0.05)',

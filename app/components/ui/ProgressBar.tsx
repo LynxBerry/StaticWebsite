@@ -16,18 +16,21 @@ export default function ProgressBar({
   className = ''
 }: ProgressBarProps) {
   const percent = max === 0 ? 0 : Math.min(100, Math.max(0, Math.round((value / max) * 100)));
-  const fillColor = color === 'success' ? 'bg-sprout-500' : 'bg-farm-accent';
+  // Neutral grey-white fill, zero hue, low saturation. Reads clearly
+  // against the dark photo backdrop via its opacity contrast with the
+  // translucent track.
+  const fillClass = 'bg-gradient-to-r from-[#f5f5f5] to-[#d4d4d4]';
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      <div className="flex-1 h-2 rounded-full bg-farm-borderSecondary overflow-hidden">
+      <div className="flex-1 h-2.5 rounded-full bg-white/15">
         <div
-          className={`h-full rounded-full ${fillColor} transition-all duration-sprout-slow ease-sprout-out`}
-          style={{ width: `${percent}%` }}
+          className={`h-[calc(100%-4px)] my-[2px] ml-[2px] rounded-full ${fillClass} transition-all duration-sprout-slow ease-sprout-out`}
+          style={{ width: `calc(${percent}% - 4px)` }}
         />
       </div>
       {showLabel && (
-        <span className="flex-none text-sm text-farm-muted tabular-nums">
+        <span className="flex-none text-sm text-white/80 tabular-nums">
           {percent}%
         </span>
       )}

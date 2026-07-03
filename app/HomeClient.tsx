@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { Pixelify_Sans } from 'next/font/google';
 import { useVocabState } from './hooks/useVocabState';
 import { useIdlePrompt } from './hooks/useIdlePrompt';
 import StudyView from './components/StudyView';
@@ -10,15 +11,60 @@ import BankView from './components/BankView';
 import SettingsView from './components/SettingsView';
 import StalePrompt from './components/StalePrompt';
 import DashboardView from './components/DashboardView';
+import ParallaxBackground from './components/ParallaxBackground';
 import Logo from './components/Logo';
+
 
 type ViewType = 'dashboard' | 'learn' | 'study' | 'farm' | 'bank' | 'settings';
 
 const IDLE_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
 
+const dotMatrix = Pixelify_Sans({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap'
+});
+
+const tabs = [
+  { key: 'dashboard', label: '首页', tooltip: '总览与统计' },
+  { key: 'learn', label: '播种', tooltip: '学习新单词（每日最多15个）' },
+  { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
+  { key: 'farm', label: '收成', tooltip: '查看单词农场' },
+  { key: 'bank', label: '词库', tooltip: '查看全部单词' },
+  { key: 'settings', label: '设置', tooltip: '备份与恢复' }
+] as const;
+
 export default function HomeClient({ userId, email }: { userId: string; email: string }) {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const { showPrompt: showStalePrompt, dismiss: dismissStalePrompt } = useIdlePrompt(IDLE_TIMEOUT_MS);
+
+  const navRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
+
+  useEffect(() => {
+    const updateIndicator = () => {
+      const container = navRef.current;
+      const activeIndex = tabs.findIndex((t) => t.key === currentView);
+      const activeBtn = buttonRefs.current[activeIndex];
+      if (!container || !activeBtn) return;
+      const cRect = container.getBoundingClientRect();
+      const bRect = activeBtn.getBoundingClientRect();
+      // Subtract scrollLeft because the nav scrolls horizontally when tabs overflow.
+      setIndicatorStyle({
+        left: bRect.left - cRect.left + container.scrollLeft,
+        width: bRect.width,
+        opacity: 1
+      });
+    };
+    updateIndicator();
+    window.addEventListener('resize', updateIndicator);
+    // Font load (Nunito→Quicksand swap) changes button widths; re-measure when ready.
+    if (typeof document !== 'undefined' && document.fonts) {
+      document.fonts.ready.then(updateIndicator);
+    }
+    return () => window.removeEventListener('resize', updateIndicator);
+  }, [currentView]);
   const {
     isHydrated,
     words,
@@ -30,6 +76,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
     getUnlearnedWords,
     getNewWordsStats,
     getDueWords,
+    getReviewStats,
     getMasteredCount,
     getStatus,
     exportState,
@@ -42,6 +89,23 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
     updateSiteTitle
   } = useVocabState(userId, email);
 
+  // Shared site header — used by both the loading state and the hydrated
+  // state so the styling (padding, layout) lives in exactly one place.
+  // Only difference: the hydrated version fades up on mount.
+  const renderHeader = (animate: boolean) => (
+    <header className="flex flex-col items-center mb-6">
+      <div className={`glass-card w-full px-5 pt-5 pb-4 flex items-center justify-center gap-3${animate ? ' animate-fade-up' : ''}`}>
+        <Logo size={40} />
+        <div className="flex flex-col items-center">
+          <h1 className={`text-3xl font-bold text-white ${dotMatrix.className}`}>
+            {siteTitle}
+          </h1>
+          <p className="text-white/70 italic tracking-wide text-sm mt-0.5">One seed, one harvest</p>
+        </div>
+      </div>
+    </header>
+  );
+
   // Keep the browser tab title in sync with the user's custom site title.
   useEffect(() => {
     document.title = siteTitle;
@@ -50,16 +114,8 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
   if (!isHydrated) {
     return (
       <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
-        <header className="flex flex-col items-center">
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <Logo size={80} />
-            <h1 className="text-3xl font-bold text-[#3D7A4D]">
-              {siteTitle}
-            </h1>
-          </div>
-          <p className="text-farm-muted mb-6 italic tracking-wide text-sm">One seed, one harvest</p>
-        </header>
-        <p className="text-center text-farm-muted">加载中...</p>
+        {renderHeader(false)}
+        <p className="text-center text-white/70">加载中...</p>
       </main>
     );
   }
@@ -71,34 +127,28 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
 
   return (
     <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
-      <header className="flex flex-col items-center">
-        <div className="flex items-center justify-center gap-2 mb-1 animate-fade-up">
-          <Logo size={80} />
-          <h1 className="text-3xl font-bold text-[#3D7A4D]">
-            {siteTitle}
-          </h1>
-        </div>
-        <p className="text-farm-muted mb-6 italic tracking-wide text-sm">One seed, one harvest</p>
-      </header>
+      <ParallaxBackground />
+      {renderHeader(true)}
 
       <nav className="flex justify-center mb-6">
-        <div className="glass-card p-1.5 flex gap-1 overflow-x-auto no-scrollbar">
-          {[
-            { key: 'dashboard', label: '首页', tooltip: '总览与统计' },
-            { key: 'learn', label: '播种', tooltip: '学习新单词（每日最多15个）' },
-            { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
-            { key: 'farm', label: '收成', tooltip: '查看单词农场' },
-            { key: 'bank', label: '词库', tooltip: '查看全部单词' },
-            { key: 'settings', label: '设置', tooltip: '备份与恢复' }
-          ].map((tab) => {
+        <div
+          ref={navRef}
+          className="glass-card w-full p-1.5 flex justify-center gap-1 overflow-x-auto no-scrollbar relative"
+        >
+          <span
+            className="absolute top-1.5 bottom-1.5 rounded-xl bg-white/30 backdrop-blur-xl transition-all duration-300 ease-out pointer-events-none"
+            style={indicatorStyle}
+          />
+          {tabs.map((tab, index) => {
             const active = currentView === tab.key;
             return (
               <button
                 key={tab.key}
-                className={`px-3 py-1.5 text-sm font-medium rounded-lg whitespace-nowrap transition-all duration-sprout-mid ease-sprout-in-out ${
+                ref={(el) => { buttonRefs.current[index] = el; }}
+                className={`relative z-10 px-3 py-1.5 text-sm font-medium rounded-xl whitespace-nowrap transition-colors duration-300 ${
                   active
-                    ? 'bg-white/85 text-[#1a1a1a]'
-                    : 'text-white/90 hover:bg-white/20'
+                    ? 'text-white'
+                    : 'text-white/60 hover:text-white/90'
                 }`}
                 onClick={() => setCurrentView(tab.key as ViewType)}
                 title={tab.tooltip}
@@ -120,6 +170,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
           unlearnedCount={unlearnedWords.length}
           wrongQueue={wrongQueue}
           getWordState={getWordState}
+          getReviewStats={getReviewStats}
           onGoToStudy={() => setCurrentView('study')}
           onGoToLearn={() => setCurrentView('learn')}
           onGoToFarm={() => setCurrentView('farm')}

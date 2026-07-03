@@ -30,7 +30,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN" className={`${nunito.variable} ${quicksand.variable}`}>
-      <body className="min-h-screen flex items-start justify-center relative p-4 pt-20 text-farm-text bg-farm-layout font-sans antialiased">
+      <body className="min-h-screen flex items-start justify-center relative p-4 pt-20 font-sans antialiased">
         {children}
       </body>
     </html>

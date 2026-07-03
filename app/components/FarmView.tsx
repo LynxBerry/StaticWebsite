@@ -13,15 +13,25 @@ interface FarmViewProps {
 }
 
 function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned') {
+  // Frosted glass tile matching the rest of the app. Status is conveyed by
+  // the plant icon itself (growth stage) plus opacity for unlearned slots —
+  // no extra color bars, keep it clean.
   const base =
-    'flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-xl transition-all duration-200 cursor-default bg-white/30 backdrop-blur-2xl hover:-translate-y-0.5 hover:bg-white/45';
+    'flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-[16px] ' +
+    'transition-all duration-200 cursor-default ' +
+    'bg-white/30 backdrop-blur-xl backdrop-saturate-150 ' +
+    'shadow-[0_1px_3px_rgba(0,0,0,0.12),inset_0_1px_1px_0_rgba(255,255,255,0.3)] ' +
+    'hover:-translate-y-0.5 hover:bg-white/45';
   switch (status) {
     case 'due':
-      return `${base} shadow-[0_0_16px_rgba(240,128,0,0.2)] bg-harvest-50/50`;
+      // Subtle warm tint to flag attention, no glow.
+      return `${base} bg-harvest-400/15`;
     case 'mastered':
-      return `${base} bg-sprout-50/50`;
-    default:
+    case 'pending':
       return base;
+    default:
+      // Unlearned: dim to read as an empty slot.
+      return `${base} opacity-40`;
   }
 }
 
@@ -43,35 +53,37 @@ export default function FarmView({ words, getStatus, getWordState, onGoToSetting
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="farm-view">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold font-display text-farm-text mb-1">🌾 收成</h2>
-        <p className="text-sm text-farm-muted/80">每棵植物代表一个单词，成长阶段反映熟悉度</p>
+        <h2 className="text-xl font-semibold font-display text-white mb-1">🌾 收成</h2>
+        <p className="text-sm text-white/60">每棵植物代表一个单词，成长阶段反映熟悉度</p>
       </div>
 
       <Legend />
 
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-3 max-h-[60vh] overflow-y-auto no-scrollbar p-2">
-        {words.map((word) => {
-          const status = getStatus(word.en);
-          const ws = getWordState(word.en);
-          return (
-            <div
-              key={word.en}
-              className={tileClass(status)}
-              title={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : `阶段 ${ws.level}`}`}
-            >
-              {status === 'unlearned' ? (
-                <span className="w-5 h-5 rounded-full bg-[#E8E2D8] border border-dashed border-farm-muted/30" />
-              ) : (
-                <span className="text-[1.75rem] leading-none">{getPlantIcon(ws.level)}</span>
-              )}
-              {status !== 'unlearned' && (
-                <span className="text-[0.6875rem] text-farm-text text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
-                  {word.en}
-                </span>
-              )}
-            </div>
-          );
-        })}
+      <div className="glass-card p-3 max-h-[58vh] overflow-y-auto no-scrollbar">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-2.5">
+          {words.map((word) => {
+            const status = getStatus(word.en);
+            const ws = getWordState(word.en);
+            return (
+              <div
+                key={word.en}
+                className={tileClass(status)}
+                title={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : `阶段 ${ws.level}`}`}
+              >
+                {status === 'unlearned' ? (
+                  <span className="w-5 h-5 rounded-full border border-dashed border-white/40" />
+                ) : (
+                  <span className="text-[1.75rem] leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">{getPlantIcon(ws.level)}</span>
+                )}
+                {status !== 'unlearned' && (
+                  <span className="text-[0.75rem] font-semibold text-white text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                    {word.en}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

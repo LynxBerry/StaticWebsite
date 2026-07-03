@@ -80,17 +80,17 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="learn-view">
       <section className="mb-6">
-        <span className="block text-sm text-farm-muted mb-2">
+        <span className="block text-sm text-white/80 mb-2">
           今日新学 {todayCount} / {displayTotal}
         </span>
         <ProgressBar value={todayCount} max={displayTotal} />
       </section>
 
       {isDone ? (
-        <div className="glass-card overflow-hidden mb-6">
+        <div className="glass-card mb-6 p-1.5">
           <section className="card aspect-[3/2] cursor-default" aria-label="今日播种完成">
-            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 bg-white/30 backdrop-blur-2xl text-farm-text">
+            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
+              <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
                 <h2 className="text-4xl font-bold mb-2 font-display">🌱 今日播种完成</h2>
                 <p className="text-base">
                   {actualRemaining === 0 && unlearnedWords.length > 0
@@ -100,8 +100,8 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
               </div>
             </div>
           </section>
-          <div className="px-6 pb-6 pt-2">
-            <p className="text-sm text-farm-muted mb-4 text-center">没有可学的新单词了</p>
+          <div className="px-5 pb-5 pt-3">
+            <p className="text-sm text-white/70 mb-4 text-center">没有可学的新单词了</p>
             <div className="flex gap-3">
               <Button variant="secondary" size="lg" className="flex-1" disabled>跳过</Button>
               <Button size="lg" className="flex-1" disabled>播种</Button>
@@ -109,28 +109,28 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
           </div>
         </div>
       ) : (
-        <div className="glass-card overflow-hidden mb-6">
+        <div className="glass-card mb-6 p-1.5">
           <section
             className={`card aspect-[3/2] cursor-pointer ${flipped ? 'flipped' : ''}`}
             onClick={() => setFlipped(!flipped)}
           >
-            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 bg-white/30 backdrop-blur-2xl text-farm-text">
+            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
+              <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
                 <span className="text-xs uppercase tracking-widest opacity-70 mb-4">新单词 · 点击学习</span>
                 <h2 className="text-4xl font-bold">{currentWord.en}</h2>
               </div>
-              <div className="card-back absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[#7CC07C] to-[#5CA85C] text-white [transform:rotateY(180deg)] shadow-[0_4px_16px_rgba(112,176,112,0.25),inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/15">
-                <span className="text-xs uppercase tracking-widest opacity-70 mb-4">中文 · 明天开始复习</span>
+              <div className="card-back word-card-back text-engrave-dark absolute inset-0 flex flex-col items-center justify-center p-6 [transform:rotateY(180deg)]">
+                <span className="text-xs uppercase tracking-widest opacity-80 mb-4">中文 · 明天开始复习</span>
                 <p className="text-2xl font-semibold mb-4">{currentWord.cn}</p>
-                <span className="text-xs uppercase tracking-widest opacity-70">
+                <span className="text-xs uppercase tracking-widest opacity-80">
                   {getPlantIcon(1)} 阶段 1 · 下次复习 {formatDate(Date.now() + 24 * 60 * 60 * 1000)}
                 </span>
               </div>
             </div>
           </section>
 
-          <div className="px-6 pb-6 pt-2">
-            <p className="text-sm text-farm-muted mb-4 text-center">点击卡片查看释义</p>
+          <div className="px-5 pb-5 pt-3">
+            <p className="text-sm text-white/70 mb-4 text-center">点击卡片查看释义</p>
             <div className="flex gap-3">
               <Button variant="secondary" size="lg" className="flex-1" onClick={handleSkip}>
                 跳过

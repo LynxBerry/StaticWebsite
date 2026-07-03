@@ -166,23 +166,23 @@ export default function StudyView({
     return (
       <section className="flex-1 flex flex-col min-h-[60vh]" id="study-view">
         <section className="mb-6">
-          <span className="block text-sm text-farm-muted mb-2">{masteredCount} / {total} 已掌握</span>
+          <span className="block text-sm text-white/80 mb-2">{masteredCount} / {total} 已掌握</span>
           <ProgressBar value={masteredCount} max={total} />
         </section>
 
-        <div className="glass-card overflow-hidden mb-6">
+        <div className="glass-card mb-6 p-1.5">
           <section className="card aspect-[3/2] cursor-default animate-spring-in relative" aria-label="今日任务完成">
             <Confetti />
-            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-              <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 bg-white/30 backdrop-blur-2xl text-farm-text">
+            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
+              <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
                 <h2 className="text-4xl font-bold mb-2 font-display">🎉 今日任务完成</h2>
                 <p className="text-base">所有错题都已通过，明天再来！</p>
               </div>
             </div>
           </section>
 
-          <div className="px-6 pb-6 pt-2">
-            <p className="text-sm text-farm-muted mb-4 text-center">全部复习完成</p>
+          <div className="px-5 pb-5 pt-3">
+            <p className="text-sm text-white/70 mb-4 text-center">全部复习完成</p>
             <div className="flex gap-3">
               <Button variant="secondary" size="lg" className="flex-1" disabled>
                 😅 不认识
@@ -194,11 +194,11 @@ export default function StudyView({
           </div>
         </div>
 
-        <section className="flex justify-center gap-8 mb-4 text-sm text-farm-muted">
-          <div>已掌握：<strong className="block text-xl text-farm-text">{masteredCount}</strong></div>
-          <div>今日到期：<strong className="block text-xl text-farm-text">{dueWords.length}</strong></div>
+        <section className="flex justify-center gap-8 mb-4 text-sm text-white/70">
+          <div>已掌握：<strong className="block text-xl text-white">{masteredCount}</strong></div>
+          <div>今日到期：<strong className="block text-xl text-white">{dueWords.length}</strong></div>
           {wrongQueue.length > 0 && (
-            <div>待通过错题：<strong className="block text-xl text-farm-text">{wrongQueue.length}</strong></div>
+            <div>待通过错题：<strong className="block text-xl text-white">{wrongQueue.length}</strong></div>
           )}
         </section>
       </section>
@@ -211,7 +211,7 @@ export default function StudyView({
     <section className="flex-1 flex flex-col min-h-[60vh] animate-fade-up" id="study-view">
       <ComboBadge count={combo} />
       <section className="mb-6">
-        <span className="block text-sm text-farm-muted mb-2">{masteredCount} / {total} 已掌握</span>
+        <span className="block text-sm text-white/80 mb-2">{masteredCount} / {total} 已掌握</span>
         <ProgressBar value={masteredCount} max={total} />
       </section>
 
@@ -230,11 +230,11 @@ export default function StudyView({
         />
       )}
 
-      <section className="flex justify-center gap-8 mb-4 text-sm text-farm-muted">
-        <div>已掌握：<strong className="block text-xl text-farm-text">{masteredCount}</strong></div>
-        <div>今日到期：<strong className="block text-xl text-farm-text">{dueWords.length}</strong></div>
+      <section className="flex justify-center gap-8 mb-4 text-sm text-white/70">
+        <div>已掌握：<strong className="block text-xl text-white">{masteredCount}</strong></div>
+        <div>今日到期：<strong className="block text-xl text-white">{dueWords.length}</strong></div>
         {wrongQueue.length > 0 && (
-          <div>待通过错题：<strong className="block text-xl text-farm-text">{wrongQueue.length}</strong></div>
+          <div>待通过错题：<strong className="block text-xl text-white">{wrongQueue.length}</strong></div>
         )}
       </section>
     </section>
