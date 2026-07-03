@@ -236,6 +236,9 @@ export function useVocabState(userId: string, email: string) {
   // If so, we merge (DB wins for untouched keys, local wins for touched keys)
   // instead of blindly overwriting with DB data.
   const localMutationsRef = useRef<Set<string>>(new Set());
+  // Tracks today's initial due count so we can show review *progress*
+  // (sown = initial - current), not just the remaining count. Reset daily.
+  const todayInitialDueRef = useRef<{ date: string; count: number } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -376,6 +379,36 @@ export function useVocabState(userId: string, email: string) {
       const ws = getWordState(word.en);
       return ws.level < MASTERED_LEVEL && getDateStringFromTimestamp(ws.nextReview) <= today;
     });
+  }, [words, getWordState, isWordLearned]);
+
+  // Review stats: tracks today's initial due count so the dashboard can show
+  // real review PROGRESS (done / total), not just the remaining count.
+  // Lazily snapshots the current due count on first call each day; if the
+  // count later grows (because a new word becomes due mid-day), we keep the
+  // max so the denominator never shrinks below what we've already shown.
+  const getReviewStats = useCallback(() => {
+    const today = getTodayString();
+    const currentDue = words.filter((word) => {
+      if (!isWordLearned(word.en)) return false;
+      const ws = getWordState(word.en);
+      return ws.level < MASTERED_LEVEL && getDateStringFromTimestamp(ws.nextReview) <= today;
+    }).length;
+
+    const stored = todayInitialDueRef.current;
+    if (!stored || stored.date !== today) {
+      // First call today (or day rolled over): snapshot the current count.
+      todayInitialDueRef.current = { date: today, count: currentDue };
+      return { initialDue: currentDue, currentDue, done: 0 };
+    }
+    // Denominator = max of stored and current (so it never shrinks below
+    // what was already shown, and accommodates new words becoming due).
+    const initialDue = Math.max(stored.count, currentDue);
+    if (currentDue > stored.count) {
+      // New words became due; bump the stored baseline.
+      todayInitialDueRef.current = { date: today, count: currentDue };
+    }
+    const done = Math.max(0, initialDue - currentDue);
+    return { initialDue, currentDue, done };
   }, [words, getWordState, isWordLearned]);
 
   const getMasteredCount = useCallback(() => {
@@ -756,6 +789,7 @@ export function useVocabState(userId: string, email: string) {
     markAgain,
     reset,
     getDueWords,
+    getReviewStats,
     getMasteredCount,
     getStatus,
     exportState,

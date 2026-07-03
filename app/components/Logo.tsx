@@ -5,20 +5,18 @@ interface LogoProps {
 }
 
 /**
- * Sprout logo. Uses the cropped transparent PNG from public/sprout-logo.png.
- * No rounded corners on the container so the full image shows without
- * clipping — make sure the source PNG is cropped to the graphic you want.
+ * Sprout logo — a tree emoji (🌳) rendered as text. Simple, recognizable,
+ * and on-theme (growth). Sized via the `size` prop (in px).
  */
-export default function Logo({ size = 48, className = '', glow = false }: LogoProps) {
+export default function Logo({ size = 40, className = '', glow = false }: LogoProps) {
   return (
-    <img
-      src="/sprout-logo.png"
-      alt="Sprout"
-      width={size}
-      height={size}
-      draggable={false}
-      className={`${glow ? 'drop-shadow-[0_4px_20px_rgba(112,176,112,0.4)]' : ''} ${className}`}
-      style={{ width: 'auto', height: size, objectFit: 'contain' }}
-    />
+    <span
+      role="img"
+      aria-label="Sprout"
+      className={`${glow ? 'drop-shadow-[0_0_12px_rgba(112,176,112,0.5)]' : ''} ${className}`}
+      style={{ fontSize: size, lineHeight: 1, display: 'inline-block' }}
+    >
+      🌳
+    </span>
   );
 }

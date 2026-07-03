@@ -14,34 +14,75 @@
 body {
   /* items-start (not center) so tall pages don't get pushed up by the
      vertical centering when switching tabs of different heights. */
-  @apply min-h-screen flex items-start justify-center relative p-4 pt-20 text-farm-text bg-farm-layout font-sans antialiased;
+  @apply min-h-screen flex items-start justify-center relative p-4 pt-20 font-sans antialiased;
+  /* Solid fallback shown only while the photo loads — mid-green from the image. */
+  background: #3d5a30;
+  /* Light-on-glass: base text is now pale so it reads over the darkened
+     mesh through translucent cards. A dark hairline highlight gives the
+     same engraved dimension as the previous white carve. */
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.25);
 }
 
+/* White text on dark/colored surfaces (card backs, primary buttons,
+   combo badges): invert the carve so white text gets dimension without
+   going muddy. Apply via the .text-engrave-dark utility class. */
+.text-engrave-dark {
+  text-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* User's own photo as a fixed backdrop — SHARP, not blurred. The frosted
+   effect comes from each glass card's backdrop-blur, which blurs only the
+   photo *behind* that card (real glass physics), leaving the rest of the
+   photo crisp so users still see the scene.
+   The source has extreme brightness range (blown-out whites next to
+   near-black shadows), so we darken to ~0.55 so light text reads over
+   even the brightest patches. Saturate keeps the greens vivid. */
 body::before {
   content: '';
   position: fixed;
-  inset: 0;
-  z-index: -2;
-  background: url('/greenfarm.jpg') center/cover no-repeat fixed;
-  filter: blur(4px) brightness(0.85) saturate(1.25);
-  transform: scale(1.08);
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: -1;
-  background: linear-gradient(
-    180deg,
-    rgba(244, 244, 240, 0.15) 0%,
-    rgba(237, 236, 232, 0.25) 100%
-  );
+  background: url('/photo-bg.jpg') center center / cover no-repeat;
+  filter: saturate(1.1) brightness(0.55);
 }
 
 @layer components {
+  /* Translucent frosted sheet over a SHARP photo. The backdrop-blur frosts
+     only the photo region behind each card (real glass physics); the rest
+     of the photo stays crisp so users still see the scene.
+     Thickness cues: an inset top highlight (light catching the glass edge)
+     plus a slightly deeper drop shadow give the sheet dimension without
+     going back to the heavy "jelly" look. */
   .glass-card {
-    @apply bg-white/30 backdrop-blur-2xl rounded-[24px] shadow-[0_8px_32px_rgba(0,0,0,0.12)];
+    @apply bg-white/25 backdrop-blur-xl backdrop-saturate-150 rounded-[20px]
+           shadow-[0_2px_8px_rgba(0,0,0,0.18),inset_0_1px_1px_0_rgba(255,255,255,0.35)];
+  }
+
+  /* Word card front face: lighter than before so the photo shows through
+     (true glass, not paper), but dark text still reads via the engrave.
+     Inset ring of light at the edge reads as glass thickness/refraction. */
+  .word-card-face {
+    @apply bg-white/55 backdrop-blur-xl backdrop-saturate-150 rounded-[20px]
+           shadow-[0_2px_8px_rgba(0,0,0,0.18),inset_0_1px_1px_0_rgba(255,255,255,0.6)];
+  }
+
+  /* Word card back face: a TINTED dark glass (not a solid green gradient).
+     Translucent dark-green over the photo = frosted tinted glass, with
+     light text floating on top. The inset light edge matches the front. */
+  .word-card-back {
+    @apply bg-sprout-900/55 backdrop-blur-xl backdrop-saturate-150 rounded-[20px] text-white
+           shadow-[0_2px_8px_rgba(0,0,0,0.25),inset_0_1px_1px_0_rgba(255,255,255,0.25)];
+  }
+
+  /* Word card & input fields keep dark text on light surface — flip the
+     body's light-text + dark-shadow back to dark-text + light-shadow. */
+  .text-engrave-light {
+    color: #3D2F1F; /* farm-text */
+    text-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.6);
   }
 }
 

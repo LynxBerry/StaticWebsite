@@ -32,13 +32,13 @@ export default function WordCard({
 }: WordCardProps) {
   const feedbackClass = feedback === 'correct' ? 'animate-pop' : feedback === 'wrong' ? 'animate-shake' : '';
   return (
-    <div className="glass-card overflow-hidden mb-6">
+    <div className="glass-card mb-6 p-1.5">
       <section
         className={`card aspect-[3/2] ${feedbackClass} ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''}`}
         onClick={() => !disabled && onFlip()}
       >
-        <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-2xl">
-          <div className="card-front absolute inset-0 flex flex-col items-center justify-center p-6 bg-white/30 backdrop-blur-2xl text-farm-text">
+        <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
+          <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
             <span className="text-xs uppercase tracking-widest opacity-70 mb-4">
               {isWrongMode
                 ? `错题复习 · ${getPlantIcon(wordState.level)} 阶段 ${wordState.level} · 还需答对 ${remaining} 次`
@@ -46,8 +46,8 @@ export default function WordCard({
             </span>
             <h2 className="text-4xl font-bold">{word.en}</h2>
           </div>
-          <div className="card-back absolute inset-0 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-br from-[#7CC07C] to-[#5CA85C] text-white [transform:rotateY(180deg)] shadow-[0_4px_16px_rgba(112,176,112,0.25),inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/15">
-            <span className="text-xs uppercase tracking-widest opacity-70 mb-4">
+          <div className="card-back word-card-back text-engrave-dark absolute inset-0 flex flex-col items-center justify-center p-6 [transform:rotateY(180deg)]">
+            <span className="text-xs uppercase tracking-widest opacity-80 mb-4">
               {isWrongMode ? '中文 · 再想想？' : '中文'}
             </span>
             <p className="text-2xl font-semibold">{word.cn}</p>
@@ -55,8 +55,8 @@ export default function WordCard({
         </div>
       </section>
 
-      <div className="px-6 pb-6 pt-2">
-        <p className="text-sm text-farm-muted mb-4 text-center">
+      <div className="px-5 pb-5 pt-3">
+        <p className="text-sm text-white/70 mb-4 text-center">
           {disabled
             ? '全部复习完成'
             : isWrongMode

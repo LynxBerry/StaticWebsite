@@ -24,9 +24,9 @@ export default function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center min-h-[50vh] text-center px-6">
-      <div className="text-6xl mb-4 opacity-80">{icon}</div>
-      <h2 className="text-xl font-bold text-farm-text mb-2 font-display">{title}</h2>
-      <p className="text-sm text-farm-muted mb-6 max-w-[280px] leading-relaxed">{message}</p>
+      <div className="text-6xl mb-4 opacity-90">{icon}</div>
+      <h2 className="text-xl font-bold text-white mb-2 font-display">{title}</h2>
+      <p className="text-sm text-white/70 mb-6 max-w-[280px] leading-relaxed">{message}</p>
       {actionLabel && onAction && (
         <Button size="lg" onClick={onAction}>
           {actionLabel}
