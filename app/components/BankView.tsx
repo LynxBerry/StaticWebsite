@@ -32,7 +32,7 @@ function wordItemClass(status: StatusType) {
 function statusTextClass(status: StatusType) {
   switch (status) {
     case 'mastered':
-      return 'text-green-600';
+      return 'text-[#3D7A4D]';
     case 'due':
       return 'text-orange-600';
     case 'unlearned':

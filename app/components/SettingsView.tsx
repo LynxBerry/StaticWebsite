@@ -108,7 +108,7 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
           className="w-full px-4 py-2.5 rounded-xl border border-farm-border bg-white text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-muted/60 focus:border-farm-accent/60 focus:shadow-[0_0_0_3px_rgba(112,176,112,0.18)]"
         />
         {titleSaved && (
-          <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-green-500/15 text-green-700 border border-green-500/30">
+          <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-[#3D7A4D]/10 text-[#3D7A4D] border border-[#3D7A4D]/25">
             已保存 ✓
           </p>
         )}
@@ -147,7 +147,7 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
           className="w-full py-2.5 text-farm-muted text-sm file:mr-3 file:px-4 file:py-2 file:rounded-full file:border file:border-farm-muted/35 file:bg-farm-muted/10 file:text-farm-text file:text-sm file:cursor-pointer file:transition-all file:duration-200 hover:file:bg-farm-muted/20 hover:file:border-farm-muted/60"
           onChange={handleFileChange}
         />
-        {importMessage && <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-green-500/15 text-green-700 border border-green-500/30">{importMessage}</p>}
+        {importMessage && <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-[#3D7A4D]/10 text-[#3D7A4D] border border-[#3D7A4D]/25">{importMessage}</p>}
       </div>
 
       <div className={sectionClass}>
