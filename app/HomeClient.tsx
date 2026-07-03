@@ -94,8 +94,8 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
             key={tab.key}
             className={`px-[2px] py-2 -mb-px text-base whitespace-nowrap cursor-pointer transition-colors duration-sprout-mid ease-sprout-in-out border-b-2 ${
               currentView === tab.key
-                ? 'text-farm-accent font-semibold border-farm-accent'
-                : 'text-farm-textSecondary border-transparent hover:text-farm-text'
+                ? 'text-white font-semibold border-white'
+                : 'text-white/60 border-transparent hover:text-white'
             }`}
             onClick={() => setCurrentView(tab.key as ViewType)}
             title={tab.tooltip}
