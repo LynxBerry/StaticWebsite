@@ -17,7 +17,6 @@ interface DashboardViewProps {
   wrongQueue: WrongItem[];
   getWordState: (en: string) => WordState;
   onGoToStudy: () => void;
-  onGoToLearn: () => void;
   onGoToFarm: () => void;
   onGoToSettings: () => void;
 }
@@ -34,7 +33,6 @@ export default function DashboardView({
   wrongQueue,
   getWordState,
   onGoToStudy,
-  onGoToLearn,
   onGoToFarm,
   onGoToSettings
 }: DashboardViewProps) {
@@ -89,14 +87,9 @@ export default function DashboardView({
             <Button size="lg" onClick={onGoToStudy}>去练错题</Button>
           </div>
         ) : (
-          <div className="flex items-end justify-between mb-3">
-            <div>
-              <span className="text-3xl">🎉</span>
-              <span className="text-sm text-farm-muted ml-2">今日复习已完成</span>
-            </div>
-            {todayRemaining > 0 && unlearnedCount > 0 && (
-              <Button size="lg" onClick={onGoToLearn}>学新词</Button>
-            )}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-3xl">🎉</span>
+            <span className="text-sm text-farm-muted">今日复习已完成</span>
           </div>
         )}
         <div className="flex gap-4 text-xs text-farm-muted">
@@ -150,17 +143,7 @@ export default function DashboardView({
         )}
       </div>
 
-      {/* Quick actions */}
-      <div className="glass-card p-4">
-        <div className="flex gap-3">
-          <Button variant="secondary" size="lg" className="flex-1" onClick={onGoToLearn} disabled={todayRemaining === 0 || unlearnedCount === 0}>
-            播种新词
-          </Button>
-          <Button variant="secondary" size="lg" className="flex-1" onClick={onGoToSettings}>
-            设置
-          </Button>
-        </div>
-      </div>
+
     </section>
   );
 }
