@@ -116,6 +116,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
           wrongQueue={wrongQueue}
           getWordState={getWordState}
           onGoToStudy={() => setCurrentView('study')}
+          onGoToLearn={() => setCurrentView('learn')}
           onGoToFarm={() => setCurrentView('farm')}
           onGoToSettings={() => setCurrentView('settings')}
         />

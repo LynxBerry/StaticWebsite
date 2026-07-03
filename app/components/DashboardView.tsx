@@ -17,6 +17,7 @@ interface DashboardViewProps {
   wrongQueue: WrongItem[];
   getWordState: (en: string) => WordState;
   onGoToStudy: () => void;
+  onGoToLearn: () => void;
   onGoToFarm: () => void;
   onGoToSettings: () => void;
 }
@@ -33,6 +34,7 @@ export default function DashboardView({
   wrongQueue,
   getWordState,
   onGoToStudy,
+  onGoToLearn,
   onGoToFarm,
   onGoToSettings
 }: DashboardViewProps) {
@@ -87,9 +89,14 @@ export default function DashboardView({
             <Button size="lg" onClick={onGoToStudy}>去练错题</Button>
           </div>
         ) : (
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-3xl">🎉</span>
-            <span className="text-sm text-white/80">今日复习已完成</span>
+          <div className="flex items-end justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-3xl">🎉</span>
+              <span className="text-sm text-white/80">今日复习已完成</span>
+            </div>
+            {todayRemaining > 0 && unlearnedCount > 0 && (
+              <Button size="lg" onClick={onGoToLearn}>学新词</Button>
+            )}
           </div>
         )}
         <div className="flex gap-4 text-xs text-white/80">
