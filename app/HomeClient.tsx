@@ -81,31 +81,33 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
         <p className="text-farm-muted mb-6 italic tracking-wide text-sm">One seed, one harvest</p>
       </header>
 
-      <nav className="flex flex-wrap justify-center gap-2 mb-6">
-        {[
-          { key: 'dashboard', label: '首页', tooltip: '总览与统计' },
-          { key: 'learn', label: '播种', tooltip: '学习新单词（每日最多15个）' },
-          { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
-          { key: 'farm', label: '收成', tooltip: '查看单词农场' },
-          { key: 'bank', label: '词库', tooltip: '查看全部单词' },
-          { key: 'settings', label: '设置', tooltip: '备份与恢复' }
-        ].map((tab) => {
-          const active = currentView === tab.key;
-          return (
-            <button
-              key={tab.key}
-              className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-sprout-mid ease-sprout-in-out ${
-                active
-                  ? 'bg-white/80 text-[#1a1a1a] backdrop-blur-xl'
-                  : 'bg-white/30 text-white/90 backdrop-blur-md hover:bg-white/45'
-              }`}
-              onClick={() => setCurrentView(tab.key as ViewType)}
-              title={tab.tooltip}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
+      <nav className="flex justify-center mb-6">
+        <div className="glass-card p-1.5 flex gap-1 overflow-x-auto no-scrollbar">
+          {[
+            { key: 'dashboard', label: '首页', tooltip: '总览与统计' },
+            { key: 'learn', label: '播种', tooltip: '学习新单词（每日最多15个）' },
+            { key: 'study', label: '施肥', tooltip: '复习今日到期单词' },
+            { key: 'farm', label: '收成', tooltip: '查看单词农场' },
+            { key: 'bank', label: '词库', tooltip: '查看全部单词' },
+            { key: 'settings', label: '设置', tooltip: '备份与恢复' }
+          ].map((tab) => {
+            const active = currentView === tab.key;
+            return (
+              <button
+                key={tab.key}
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg whitespace-nowrap transition-all duration-sprout-mid ease-sprout-in-out ${
+                  active
+                    ? 'bg-white/85 text-[#1a1a1a]'
+                    : 'text-white/90 hover:bg-white/20'
+                }`}
+                onClick={() => setCurrentView(tab.key as ViewType)}
+                title={tab.tooltip}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
       </nav>
 
       {currentView === 'dashboard' && (
