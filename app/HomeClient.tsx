@@ -109,7 +109,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
 
   if (!isHydrated) {
     return (
-      <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
+      <main className="w-full max-w-[420px] sm:max-w-[480px] lg:max-w-[540px] min-h-[90vh] text-center flex flex-col mx-auto">
         <div
           className="glass-card w-full mb-6 animate-descend"
           style={{

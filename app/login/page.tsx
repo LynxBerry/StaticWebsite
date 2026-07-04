@@ -14,7 +14,7 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
+    <main className="w-full max-w-[420px] sm:max-w-[480px] lg:max-w-[540px] min-h-[90vh] text-center flex flex-col mx-auto">
       <section className="flex-1 flex flex-col min-h-screen justify-center">
         <div className="glass-card w-full max-w-[360px] mx-auto text-left p-5">
           <div className="mb-6 flex flex-col items-center">

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Nunito, Quicksand, Fredoka, ZCOOL_KuaiLe } from 'next/font/google';
 import './globals.css';
 
@@ -42,6 +42,18 @@ export const metadata: Metadata = {
   description: 'Sprout · 单词农场，基于艾宾浩斯 / Leitner 间隔重复系统背单词。'
 };
 
+// Viewport: width=device-width makes mobile render at real device width
+// (otherwise phones fake a 980px desktop viewport and shrink the page).
+// maximumScale=5 lets users zoom in (kid-friendly — they may need bigger
+// text), but we cap it so iOS doesn't auto-zoom on input focus in a jarring way.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: '#1e2a1f'
+};
+
 export default function RootLayout({
   children
 }: {
@@ -49,7 +61,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN" className={`${nunito.variable} ${quicksand.variable} ${fredoka.variable} ${zcool.variable}`}>
-      <body className="min-h-screen flex items-start justify-center relative p-4 pt-20 font-sans antialiased">
+      <body className="min-h-screen flex items-start justify-center relative p-4 sm:p-6 lg:p-10 pt-20 sm:pt-24 lg:pt-28 font-sans antialiased">
         {children}
       </body>
     </html>

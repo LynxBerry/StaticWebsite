@@ -13,12 +13,22 @@
 
 body {
   /* items-start (not center) so tall pages don't get pushed up by the
-     vertical centering when switching tabs of different heights. */
-  @apply min-h-screen flex items-start justify-center relative p-4 pt-20 font-sans antialiased;
+     vertical centering when switching tabs of different heights.
+     Padding grows on bigger screens so content isn't crammed to the edge
+     of a desktop browser. */
+  @apply min-h-screen flex items-start justify-center relative p-4 sm:p-6 lg:p-10 pt-20 sm:pt-24 lg:pt-28 font-sans antialiased;
   /* Light-on-glass: pale text + a real drop shadow so each glyph is
      "lifted" off the colored backdrop behind the glass. */
   color: rgba(255, 255, 255, 0.95);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Short viewports (phone landscape, ~≤500px tall): shrink the top padding
+   so the header doesn't eat half the screen and content can breathe. */
+@media (max-height: 500px) {
+  body {
+    @apply pt-12 p-3;
+  }
 }
 
 /* White text on dark/colored surfaces (card backs, primary buttons,
