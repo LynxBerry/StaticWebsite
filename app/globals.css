@@ -80,7 +80,7 @@ body::after {
         inset 1px edge highlight (front-surface reflection at the rim). */
   .glass-card {
     @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[20px];
-    background: linear-gradient(135deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.06) 100%);
+    background: linear-gradient(135deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.10) 100%);
     box-shadow: 0 8px 32px rgba(0,0,0,0.18), inset 0 1px 1px 0 rgba(255,255,255,0.35);
   }
 
