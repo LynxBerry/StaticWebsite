@@ -175,7 +175,7 @@ export default function StudyView({
             <Confetti />
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
               <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
-                <h2 className="text-4xl font-bold mb-2 font-display"><span className="emoji">🎉</span> 今日任务完成</h2>
+                <h2 className="text-4xl font-bold mb-2 font-display">🎉 今日任务完成</h2>
                 <p className="text-base">所有错题都已通过，明天再来！</p>
               </div>
             </div>
@@ -208,7 +208,7 @@ export default function StudyView({
   const displayWord = currentWord;
 
   return (
-    <section className="flex-1 flex flex-col min-h-[60vh] animate-fade-up" id="study-view">
+    <section className="flex-1 flex flex-col min-h-[60vh]" id="study-view">
       <ComboBadge count={combo} />
       <section className="mb-6">
         <span className="block text-sm text-white/80 mb-2">{masteredCount} / {total} 已掌握</span>

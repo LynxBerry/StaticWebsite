@@ -17,9 +17,9 @@ export default function Legend() {
         {steps.map((step, index) => (
           <div key={step.box} className="flex items-center gap-0.5 shrink-0">
             <div className={`flex flex-col items-center min-w-[3rem] px-0.5 py-1 rounded-lg transition-colors duration-200 ${step.mastered ? 'bg-white/20' : ''}`}>
-              <span className="emoji text-lg mb-0.5">{step.icon}</span>
-              <span className="text-[0.625rem] font-bold text-white/90">{step.box}</span>
-              <span className="text-[0.5625rem] text-white/70 whitespace-nowrap">{step.desc}</span>
+              <span className="text-lg mb-0.5">{step.icon}</span>
+              <span className="text-[0.75rem] font-bold text-white/90">{step.box}</span>
+              <span className="text-[0.6875rem] text-white/70 whitespace-nowrap">{step.desc}</span>
             </div>
             {index < steps.length - 1 && <div className="text-white/40 text-xs font-bold opacity-80 shrink-0">→</div>}
           </div>

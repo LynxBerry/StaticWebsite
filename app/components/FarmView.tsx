@@ -53,7 +53,7 @@ export default function FarmView({ words, getStatus, getWordState, onGoToSetting
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="farm-view">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold font-display text-white mb-1"><span className="emoji">🌾</span> 收成</h2>
+        <h2 className="text-xl font-semibold font-display text-white mb-1">🌾 收成</h2>
         <p className="text-sm text-white/60">每棵植物代表一个单词，成长阶段反映熟悉度</p>
       </div>
 
@@ -73,7 +73,7 @@ export default function FarmView({ words, getStatus, getWordState, onGoToSetting
                 {status === 'unlearned' ? (
                   <span className="w-5 h-5 rounded-full border border-dashed border-white/40" />
                 ) : (
-                  <span className="emoji text-[1.75rem] leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">{getPlantIcon(ws.level)}</span>
+                  <span className="text-[1.75rem] leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">{getPlantIcon(ws.level)}</span>
                 )}
                 {status !== 'unlearned' && (
                   <span className="text-[0.75rem] font-semibold text-white text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">

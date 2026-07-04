@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
-import { Pixelify_Sans } from 'next/font/google';
 import { useVocabState } from './hooks/useVocabState';
 import { useIdlePrompt } from './hooks/useIdlePrompt';
 import StudyView from './components/StudyView';
@@ -19,11 +18,10 @@ type ViewType = 'dashboard' | 'learn' | 'study' | 'farm' | 'bank' | 'settings';
 
 const IDLE_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
 
-const dotMatrix = Pixelify_Sans({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap'
-});
+// Child-friendly title font stack: Fredoka renders latin glyphs, ZCOOL
+// KuaiLe renders Chinese glyphs (the variables are set on <html> in
+// layout.tsx). Both are round and playful, fitting the kids audience.
+const titleFont = 'var(--font-fredoka), var(--font-zcool), var(--font-nunito), system-ui, sans-serif';
 
 const tabs = [
   { key: 'dashboard', label: '首页', tooltip: '总览与统计' },
@@ -89,21 +87,19 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
     updateSiteTitle
   } = useVocabState(userId, email);
 
-  // Shared site header — used by both the loading state and the hydrated
-  // state so the styling (padding, layout) lives in exactly one place.
-  // Only difference: the hydrated version fades up on mount.
-  const renderHeader = (animate: boolean) => (
-    <header className="flex flex-col items-center mb-6">
-      <div className={`glass-card w-full px-5 pt-5 pb-4 flex items-center justify-center gap-3${animate ? ' animate-fade-up' : ''}`}>
-        <Logo size={40} />
-        <div className="flex flex-col items-center">
-          <h1 className={`text-3xl font-bold text-white ${dotMatrix.className}`}>
-            {siteTitle}
-          </h1>
-          <p className="text-white/70 italic tracking-wide text-sm mt-0.5">One seed, one harvest</p>
-        </div>
+  // Shared site header content (logo + title block). Used by both the
+  // loading state and the hydrated state. Only difference: the hydrated
+  // version fades up on mount.
+  const renderHeaderContent = (animate: boolean) => (
+    <div className={`px-5 pt-12 pb-4 flex items-center justify-center gap-3${animate ? ' animate-fade-up' : ''}`}>
+      <Logo size={40} />
+      <div className="flex flex-col items-center">
+        <h1 className="text-3xl font-semibold text-white" style={{ fontFamily: titleFont }}>
+          {siteTitle}
+        </h1>
+        <p className="text-white/70 italic tracking-wide text-sm mt-0.5">One seed, one harvest</p>
       </div>
-    </header>
+    </div>
   );
 
   // Keep the browser tab title in sync with the user's custom site title.
@@ -114,7 +110,15 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
   if (!isHydrated) {
     return (
       <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
-        {renderHeader(false)}
+        <div
+          className="glass-card w-full mb-6 animate-descend"
+          style={{
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 40px)',
+            maskImage: 'linear-gradient(to bottom, transparent 0%, black 40px)'
+          }}
+        >
+          {renderHeaderContent(false)}
+        </div>
         <p className="text-center text-white/70">加载中...</p>
       </main>
     );
@@ -128,15 +132,26 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
   return (
     <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
       <ParallaxBackground />
-      {renderHeader(true)}
 
-      <nav className="flex justify-center mb-6">
-        <div
-          ref={navRef}
-          className="glass-card w-full p-1.5 flex justify-center gap-1 overflow-x-auto no-scrollbar relative"
-        >
+      {/* Unified top bar: header + nav merged into one glass container.
+          A faint gradient divider separates the brand block from the tabs,
+          so it reads as a single "app bar" instead of two stacked cards.
+          The mask fades the top edge into the background so the bar reads
+          as emerging from the scene, not pasted on top of it. */}
+      <div
+        className="glass-card w-full mb-6 animate-descend"
+        style={{
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 40px)',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, black 40px)'
+        }}
+      >
+        {renderHeaderContent(true)}
+        {/* Divider — fades from transparent to ~12% white and back, so it
+            reads as a hairline etched into the glass, not a hard line. */}
+        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+        <nav ref={navRef} className="flex justify-center gap-1 overflow-x-auto no-scrollbar p-1.5 relative">
           <span
-            className="absolute top-1.5 bottom-1.5 rounded-xl bg-white/30 backdrop-blur-xl transition-all duration-300 ease-out pointer-events-none"
+            className="absolute top-1.5 bottom-1.5 rounded-xl bg-white/25 backdrop-blur-md transition-all duration-300 ease-out pointer-events-none"
             style={indicatorStyle}
           />
           {tabs.map((tab, index) => {
@@ -157,8 +172,8 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
               </button>
             );
           })}
-        </div>
-      </nav>
+        </nav>
+      </div>
 
       {currentView === 'dashboard' && (
         <DashboardView

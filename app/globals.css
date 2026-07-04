@@ -15,10 +15,8 @@ body {
   /* items-start (not center) so tall pages don't get pushed up by the
      vertical centering when switching tabs of different heights. */
   @apply min-h-screen flex items-start justify-center relative p-4 pt-20 font-sans antialiased;
-  /* Solid fallback shown only while the photo loads — dark blue-grey from the image. */
-  background: #2a3038;
-  /* Light-on-glass: pale text + a real drop shadow (not just a hairline)
-     so each glyph is "lifted" off the busy photo behind the glass. */
+  /* Light-on-glass: pale text + a real drop shadow so each glyph is
+     "lifted" off the colored backdrop behind the glass. */
   color: rgba(255, 255, 255, 0.95);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
@@ -30,15 +28,13 @@ body {
   text-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.25);
 }
 
-/* User's own photo as a fixed backdrop — SHARP, not blurred. The frosted
-   effect comes from each glass card's backdrop-blur, which blurs only the
-   photo *behind* that card (real glass physics), leaving the rest of the
-   photo crisp so users still see the scene.
-   This source is already dark (avg brightness ~90/255, 55% dark area),
-   so we only nudge it: slight brightness lift so detail in the shadows
-   stays visible, and a saturate boost so the cool blue-grey tones read
-   as color rather than murk. Light text reads naturally without heavy
-   darkening. */
+/* Pure-CSS mesh gradient backdrop — no image request, fully controllable.
+   Several large soft radial color blobs over a dark green base, blended by
+   their own transparency into a calm "meadow at dusk" wash. The palette is
+   warm-farm: sage / olive / sprout greens with a sunny-yellow highlight,
+   echoing the brand's sprout + harvest colors. Designed for kids — warm
+   and lively, not cool and corporate. Glass cards' backdrop-blur frosts
+   this layer the same way it frosted a photo. */
 body::before {
   content: '';
   position: fixed;
@@ -47,25 +43,19 @@ body::before {
   right: 0;
   bottom: 0;
   z-index: -1;
-  background: url('/photo-bg.jpg') center center / cover no-repeat;
-  filter: saturate(1.15) brightness(0.9);
-}
-
-/* Global darkening veil over the photo. The source has high dynamic range
-   (warm-white patches at ~b=223 next to near-black corners at ~b=18), so a
-   uniform brightness() filter can't make light text readable in the bright
-   patches without crushing the dark ones. This semi-opaque dark layer sits
-   between the photo (z:-1) and the content, evenly lifting contrast for
-   light text everywhere while preserving the photo's tonal variation. */
-body::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -1;
-  background: rgba(15, 18, 25, 0.38);
+  background:
+    /* warm amber glow — upper-left, brighter & warmer than before */
+    radial-gradient(ellipse 50% 40% at 18% 22%, rgba(232, 180, 90, 0.28) 0%, transparent 65%),
+    /* soft peach — center-top, adds overall warmth */
+    radial-gradient(ellipse 45% 38% at 55% 18%, rgba(220, 150, 110, 0.18) 0%, transparent 60%),
+    /* fresh sprout green — right side, the main note */
+    radial-gradient(ellipse 55% 50% at 82% 30%, rgba(82, 138, 83, 0.30) 0%, transparent 60%),
+    /* olive depth — bottom-left */
+    radial-gradient(ellipse 50% 45% at 25% 80%, rgba(54, 99, 57, 0.36) 0%, transparent 60%),
+    /* sage — bottom-right */
+    radial-gradient(ellipse 45% 40% at 78% 78%, rgba(98, 119, 80, 0.26) 0%, transparent 60%),
+    /* base — warm dark green */
+    linear-gradient(160deg, #23291c 0%, #1a1f14 100%);
 }
 
 @layer components {
@@ -80,7 +70,7 @@ body::after {
         inset 1px edge highlight (front-surface reflection at the rim). */
   .glass-card {
     @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[20px];
-    background: linear-gradient(135deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.10) 100%);
+    background: linear-gradient(135deg, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.12) 100%);
     box-shadow: 0 8px 32px rgba(0,0,0,0.18), inset 0 1px 1px 0 rgba(255,255,255,0.35);
   }
 
@@ -92,12 +82,14 @@ body::after {
     box-shadow: 0 8px 32px rgba(0,0,0,0.18), inset 0 1px 1px 0 rgba(255,255,255,0.6);
   }
 
-  /* Word card back face: a TINTED dark glass. The diagonal gradient uses
-     a dark-green tint so transmitted light reads as colored (tinted) glass. */
+  /* Word card back face: a LIVELY green-tinted glass — not the murky
+     dark-green that read as grey. Bright sprout green at moderate opacity
+     so the mesh still glows through, but the surface reads clearly as
+     "green" (celebratory reveal moment when the card flips). */
   .word-card-back {
     @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[20px] text-white;
-    background: linear-gradient(135deg, rgba(11,23,13,0.62) 0%, rgba(11,23,13,0.48) 100%);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25), inset 0 1px 1px 0 rgba(255,255,255,0.25);
+    background: linear-gradient(135deg, rgba(112, 176, 112, 0.78) 0%, rgba(81, 138, 83, 0.72) 100%);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 1px 0 rgba(255,255,255,0.4);
   }
 
   /* Word card & input fields keep dark text on light surface — flip the
@@ -105,13 +97,6 @@ body::after {
   .text-engrave-light {
     color: #3D2F1F; /* farm-text */
     text-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.6);
-  }
-
-  /* Monochrome emoji — strip the rainbow of color emojis so they read as
-     light grey-white silhouettes that match the pale text on glass. Apply
-     to any element wrapping an emoji via className="emoji". */
-  .emoji {
-    filter: grayscale(1) brightness(1.2);
   }
 }
 
@@ -166,6 +151,8 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .progress-shimmer::after,
   .animate-fade-up,
+  .animate-descend,
+  .animate-enter,
   .animate-pop,
   .animate-shake,
   .animate-combo,
@@ -252,4 +239,40 @@ body::after {
 }
 .animate-spring-in {
   animation: spring-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Top bar entrance: slides down from above + fades in, like emerging from
+   the background scene itself. The translateY starts above the mask fade
+   zone so the glass reads as materializing out of the backdrop.
+   cubic-bezier gives a soft decelerate (lands gently, no hard stop). */
+@keyframes descend-from-bg {
+  0% {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-descend {
+  animation: descend-from-bg 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* View content entrance: a lighter version of descend for tab bodies.
+   Shorter, smaller offset, no mask. Plays when a tab's content mounts,
+   so each tab switch feels like content arriving — but quick enough not
+   to slow down interaction. Delayed 0.15s so it follows the top bar. */
+@keyframes enter-from-below {
+  0% {
+    opacity: 0.7;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-enter {
+  animation: enter-from-below 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
 }

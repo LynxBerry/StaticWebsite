@@ -19,7 +19,9 @@ export default function ProgressBar({
   // Neutral grey-white fill, zero hue, low saturation. Reads clearly
   // against the dark photo backdrop via its opacity contrast with the
   // translucent track.
-  const fillClass = 'bg-gradient-to-r from-[#f5f5f5] to-[#d4d4d4]';
+  // Light green-tinted fill — neutral enough to stay calm, but carries a
+  // hint of the brand sprout green so it ties into the warm-farm palette.
+  const fillClass = 'bg-gradient-to-r from-[#e8f0d8] to-[#a8c890]';
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>

@@ -88,7 +88,10 @@ export default function DashboardView({
 
           return (
             <>
-              <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="grid grid-cols-2 gap-3 mb-4 relative">
+                {/* Vertical divider between the two donuts — a faint hairline
+                    etched into the glass, like the header's horizontal one. */}
+                <div className="absolute top-2 bottom-2 left-1/2 w-px bg-gradient-to-b from-transparent via-white/15 to-transparent pointer-events-none" />
                 {/* Review donut */}
                 <div className="flex flex-col items-center gap-1.5">
                   <DonutChart
@@ -181,7 +184,7 @@ export default function DashboardView({
             const pct = learnedCount === 0 ? 0 : Math.round((count / learnedCount) * 100);
             return (
               <div key={stage} className="flex items-center gap-3">
-                <span className="emoji text-base w-8 text-center shrink-0">{getPlantIcon(stage)}</span>
+                <span className="text-base w-8 text-center shrink-0">{getPlantIcon(stage)}</span>
                 <ProgressBar value={count} max={learnedCount} className="flex-1" />
                 <span className="text-xs text-white/70 w-8 text-right shrink-0">{count}</span>
               </div>

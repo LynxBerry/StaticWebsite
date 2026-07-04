@@ -21,7 +21,7 @@ function wordItemClass(status: StatusType) {
   // the outer glass-card wrapping the whole <ul>. Slightly higher opacity
   // (25%) than the outer card to keep dense text readable without blur.
   const base =
-    'flex items-center gap-3 px-3 py-3 mb-2 rounded-[12px] ' +
+    'flex items-center gap-3 px-3 py-3 mb-2 rounded-[14px] ' +
     'bg-white/25 ' +
     'transition-colors duration-200 hover:bg-white/35';
   switch (status) {
@@ -36,14 +36,14 @@ function wordItemClass(status: StatusType) {
 
 /** Circular avatar holding the plant icon, tinted by status. */
 function iconClass(status: StatusType) {
-  const base = 'emoji flex items-center justify-center shrink-0 w-10 h-10 rounded-full text-lg backdrop-blur-md';
+  const base = 'flex items-center justify-center shrink-0 w-10 h-10 rounded-full text-lg backdrop-blur-md';
   switch (status) {
     case 'mastered':
-      return `${base} bg-white/25`;
+      return `${base} bg-sprout-400/30`;
     case 'due':
-      return `${base} bg-white/25`;
+      return `${base} bg-harvest-400/30`;
     case 'unlearned':
-      return `${base} bg-white/10`;
+      return `${base} bg-white/15`;
     default:
       return `${base} bg-white/20`;
   }
@@ -119,7 +119,7 @@ export default function BankView({ words, getStatus, getWordState, onGoToSetting
             return (
               <button
                 key={f}
-                className={`inline-flex items-center h-7 px-3 text-xs rounded-full transition-all duration-sprout-mid ${
+                className={`inline-flex items-center h-9 px-3 text-xs rounded-full transition-all duration-sprout-mid ${
                   active
                     ? 'bg-white/45 backdrop-blur-md text-white font-semibold shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.4)]'
                     : 'bg-white/15 backdrop-blur-md text-white/70 hover:bg-white/25 hover:text-white'

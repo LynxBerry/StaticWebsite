@@ -14,25 +14,27 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const base =
   'inline-flex items-center justify-center box-border cursor-pointer whitespace-nowrap select-none ' +
   'font-semibold leading-none no-underline ' +
-  'rounded-2xl transition-all duration-sprout-mid ease-sprout-in-out ' +
+  'rounded-full transition-all duration-sprout-mid ease-sprout-in-out ' +
   'disabled:opacity-40 disabled:cursor-not-allowed ' +
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#70B070]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent';
 
 const primaryVariant =
-  'text-white text-engrave-dark bg-[#1a1a1a] ' +
-  'enabled:hover:bg-[#333333] ' +
-  'enabled:active:bg-[#000000] ' +
+  'text-white text-engrave-dark bg-sprout-500 shadow-sprout ' +
+  'enabled:hover:bg-sprout-600 enabled:hover:shadow-sprout-hover ' +
+  'enabled:active:bg-sprout-700 ' +
   'enabled:active:scale-[0.98]';
 
 const secondaryVariant =
-  'bg-[#f4f4f0] text-[#1a1a1a] ' +
-  'enabled:hover:bg-[#e9e8e3] ' +
-  'enabled:active:bg-[#deddd6] ' +
+  'bg-white/20 text-white backdrop-blur-md border border-white/25 ' +
+  'enabled:hover:bg-white/30 ' +
+  'enabled:active:bg-white/15 ' +
   'enabled:active:scale-[0.98]';
 
-const sizeSm = 'h-6 px-2 text-xs';
-const sizeMd = 'h-8 px-4 text-sm';
-const sizeLg = 'h-10 px-6 text-lg';
+// Larger tap targets for kids (Apple HIG / WCAG recommend ≥44px for the
+// primary interaction sizes). sm is reserved for non-critical actions.
+const sizeSm = 'h-8 px-4 text-xs';
+const sizeMd = 'h-10 px-5 text-sm';
+const sizeLg = 'h-12 px-7 text-base';
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { variant = 'primary', size = 'md', fullWidth = false, className = '', children, ...props },
