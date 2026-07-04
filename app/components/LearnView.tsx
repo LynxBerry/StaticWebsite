@@ -6,6 +6,7 @@ import { formatDate, getPlantIcon } from '../lib/utils';
 import { MAX_NEW_WORDS_PER_DAY } from '../hooks/useVocabState';
 import EmptyState from './EmptyState';
 import { Button } from './ui/Button';
+import SpeakButton from './ui/SpeakButton';
 import ProgressBar from './ui/ProgressBar';
 
 interface LearnViewProps {
@@ -14,10 +15,11 @@ interface LearnViewProps {
   todayCount: number;
   remaining: number;
   onLearn: (en: string) => void;
+  onGoToBank: () => void;
   onGoToSettings: () => void;
 }
 
-export default function LearnView({ unlearnedWords, totalWords, todayCount, remaining, onLearn, onGoToSettings }: LearnViewProps) {
+export default function LearnView({ unlearnedWords, totalWords, todayCount, remaining, onLearn, onGoToBank, onGoToSettings }: LearnViewProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
@@ -69,9 +71,9 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
         <EmptyState
           icon="📭"
           title="词库还是空的"
-          message="先去设置里导入单词，播种才能开始哦。"
-          actionLabel="去导入单词"
-          onAction={onGoToSettings}
+          message="先去词库添加单词，播种才能开始哦。"
+          actionLabel="去添加单词"
+          onAction={onGoToBank}
         />
       </section>
     );
@@ -117,7 +119,10 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
               <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
                 <span className="text-xs uppercase tracking-widest opacity-70 mb-4">新单词 · 点击学习</span>
-                <h2 className="text-4xl font-bold">{currentWord.en}</h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-4xl font-bold">{currentWord.en}</h2>
+                  <SpeakButton text={currentWord.en} size="lg" />
+                </div>
               </div>
               <div className="card-back word-card-back text-engrave-dark absolute inset-0 flex flex-col items-center justify-center p-6 [transform:rotateY(180deg)]">
                 <span className="text-xs uppercase tracking-widest opacity-80 mb-4">中文 · 明天开始复习</span>

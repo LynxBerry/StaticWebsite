@@ -12,6 +12,7 @@ import StalePrompt from './components/StalePrompt';
 import DashboardView from './components/DashboardView';
 import ParallaxBackground from './components/ParallaxBackground';
 import Logo from './components/Logo';
+import Toast, { type ToastData } from './components/ui/Toast';
 
 
 type ViewType = 'dashboard' | 'learn' | 'study' | 'farm' | 'bank' | 'settings';
@@ -35,6 +36,22 @@ const tabs = [
 export default function HomeClient({ userId, email }: { userId: string; email: string }) {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const { showPrompt: showStalePrompt, dismiss: dismissStalePrompt } = useIdlePrompt(IDLE_TIMEOUT_MS);
+  const [toast, setToast] = useState<ToastData | null>(null);
+
+  /** Delete a word and surface an undo toast for 5 seconds. */
+  const handleRemoveWord = (en: string) => {
+    const removed = removeWord(en);
+    if (removed) {
+      setToast({
+        message: `已删除 ${en}`,
+        action: {
+          label: '撤销',
+          onClick: () => undoRemoveWord(removed.word, removed.state)
+        },
+        duration: 5000
+      });
+    }
+  };
 
   const navRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -79,6 +96,10 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
     getStatus,
     exportState,
     importState,
+    addWord,
+    updateWord,
+    removeWord,
+    undoRemoveWord,
     wrongQueue,
     addToWrongQueue,
     decrementWrongRemaining,
@@ -189,6 +210,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
           onGoToStudy={() => setCurrentView('study')}
           onGoToLearn={() => setCurrentView('learn')}
           onGoToFarm={() => setCurrentView('farm')}
+          onGoToBank={() => setCurrentView('bank')}
           onGoToSettings={() => setCurrentView('settings')}
         />
       )}
@@ -200,6 +222,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
           todayCount={todayCount}
           remaining={remaining}
           onLearn={learnNewWord}
+          onGoToBank={() => setCurrentView('bank')}
           onGoToSettings={() => setCurrentView('settings')}
         />
       )}
@@ -217,6 +240,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
           onAddToWrongQueue={addToWrongQueue}
           onDecrementWrongRemaining={decrementWrongRemaining}
           onResetWrongQueue={resetWrongQueue}
+          onGoToBank={() => setCurrentView('bank')}
           onGoToSettings={() => setCurrentView('settings')}
         />
       )}
@@ -226,6 +250,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
           words={words}
           getStatus={getStatus}
           getWordState={getWordState}
+          onGoToBank={() => setCurrentView('bank')}
           onGoToSettings={() => setCurrentView('settings')}
         />
       )}
@@ -236,6 +261,10 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
           getStatus={getStatus}
           getWordState={getWordState}
           onGoToSettings={() => setCurrentView('settings')}
+          onAddWord={addWord}
+          onUpdateWord={updateWord}
+          onRemoveWord={handleRemoveWord}
+          onUndoRemove={undoRemoveWord}
         />
       )}
 
@@ -255,6 +284,8 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
           onDismiss={dismissStalePrompt}
         />
       )}
+
+      <Toast toast={toast} onDismiss={() => setToast(null)} />
     </main>
   );
 }

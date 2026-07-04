@@ -4,6 +4,7 @@ import { Word } from '../data/words';
 import { WordState } from '../hooks/useVocabState';
 import { formatDate, getPlantIcon } from '../lib/utils';
 import { Button } from './ui/Button';
+import SpeakButton from './ui/SpeakButton';
 
 interface WordCardProps {
   word: Word;
@@ -44,7 +45,10 @@ export default function WordCard({
                 ? `错题复习 · ${getPlantIcon(wordState.level)} 阶段 ${wordState.level} · 还需答对 ${remaining} 次`
                 : `英文 · ${getPlantIcon(wordState.level)} 阶段 ${wordState.level} · 下次复习 ${formatDate(wordState.nextReview)}`}
             </span>
-            <h2 className="text-4xl font-bold">{word.en}</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-4xl font-bold">{word.en}</h2>
+              <SpeakButton text={word.en} size="lg" />
+            </div>
           </div>
           <div className="card-back word-card-back text-engrave-dark absolute inset-0 flex flex-col items-center justify-center p-6 [transform:rotateY(180deg)]">
             <span className="text-xs uppercase tracking-widest opacity-80 mb-4">

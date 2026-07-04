@@ -9,6 +9,7 @@ interface FarmViewProps {
   words: Word[];
   getStatus: (en: string) => 'mastered' | 'due' | 'pending' | 'unlearned';
   getWordState: (en: string) => { level: number; nextReview: number };
+  onGoToBank: () => void;
   onGoToSettings: () => void;
 }
 
@@ -35,16 +36,16 @@ function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned') {
   }
 }
 
-export default function FarmView({ words, getStatus, getWordState, onGoToSettings }: FarmViewProps) {
+export default function FarmView({ words, getStatus, getWordState, onGoToBank, onGoToSettings }: FarmViewProps) {
   if (words.length === 0) {
     return (
       <section className="flex-1 flex flex-col min-h-[60vh]" id="farm-view">
         <EmptyState
           icon="🌾"
           title="农场还是荒地"
-          message="去设置里导入单词，种下第一颗种子吧。"
-          actionLabel="去导入单词"
-          onAction={onGoToSettings}
+          message="去词库添加单词，种下第一颗种子吧。"
+          actionLabel="去添加单词"
+          onAction={onGoToBank}
         />
       </section>
     );

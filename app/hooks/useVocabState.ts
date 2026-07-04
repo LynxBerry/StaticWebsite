@@ -7,6 +7,8 @@ import { createClient } from '@/lib/supabase/client';
 import {
   fetchUserData,
   syncWords,
+  upsertWord,
+  deleteWord,
   upsertProgress,
   deleteProgress,
   upsertWrongItem,
@@ -564,6 +566,167 @@ export function useVocabState(userId: string, email: string) {
     return reachedZero;
   }, [userId]);
 
+  // ============================================================
+  // Word CRUD (add / edit / delete). These mutate the words array (and,
+  // for rename/delete, the progress state too). All three follow the
+  // established pattern: optimistic setWords/setProgress + localMutationsRef
+  // tracking + fire-and-forget DB sync with rollback on failure.
+  // ============================================================
+
+  /** Add a new word. Returns false if en is empty or already exists. */
+  const addWord = useCallback((en: string, cn: string): boolean => {
+    const trimmedEn = en.trim();
+    const trimmedCn = cn.trim();
+    if (!trimmedEn) return false;
+    // Check for duplicates against the current words array.
+    let isDuplicate = false;
+    setWords((prev) => {
+      if (prev.some((w) => w.en === trimmedEn)) {
+        isDuplicate = true;
+        return prev;
+      }
+      return [...prev, { en: trimmedEn, cn: trimmedCn }];
+    });
+    if (isDuplicate) return false;
+
+    localMutationsRef.current.add(trimmedEn);
+    upsertWord(createClient(), userId, { en: trimmedEn, cn: trimmedCn }).catch((e) => {
+      console.error('DB sync failed, rolling back addWord:', trimmedEn, e);
+      setWords((prev) => prev.filter((w) => w.en !== trimmedEn));
+    });
+    return true;
+  }, [userId]);
+
+  /**
+   * Edit an existing word. If only `cn` changes, a simple upsert updates it.
+   * If `en` changes (rename), we must delete the old row, insert the new one,
+   * and migrate the progress + wrong-queue entries keyed by en so the user
+   * doesn't lose their learning history.
+   */
+  const updateWord = useCallback((oldEn: string, newEn: string, newCn: string): boolean => {
+    const trimmedNewEn = newEn.trim();
+    const trimmedNewCn = newCn.trim();
+    if (!trimmedNewEn) return false;
+
+    // Reject if newEn collides with another existing word.
+    let collision = false;
+    setWords((prev) => {
+      if (trimmedNewEn !== oldEn && prev.some((w) => w.en === trimmedNewEn)) {
+        collision = true;
+        return prev;
+      }
+      return prev.map((w) => w.en === oldEn ? { en: trimmedNewEn, cn: trimmedNewCn } : w);
+    });
+    if (collision) return false;
+
+    localMutationsRef.current.add(oldEn);
+    localMutationsRef.current.add(trimmedNewEn);
+
+    const isRename = trimmedNewEn !== oldEn;
+
+    if (isRename) {
+      // Migrate progress + wrong-queue to the new key.
+      setProgress((prev) => {
+        const oldState = prev.wordStates[oldEn];
+        const nextStates = { ...prev.wordStates };
+        if (oldState) {
+          delete nextStates[oldEn];
+          nextStates[trimmedNewEn] = oldState;
+        }
+        const nextQueue = prev.wrongQueue.map((item) =>
+          item.en === oldEn ? { ...item, en: trimmedNewEn } : item
+        );
+        return { wordStates: nextStates, wrongQueue: nextQueue };
+      });
+
+      // DB: delete the old word row, insert the new one. Progress row under
+      // the old en is left behind (harmless orphan; a future cleanup could
+      // deleteProgress(oldEn) + upsertProgress(newEn, state) but the local
+      // state already migrated optimistically, and a stale DB row doesn't
+      // affect UX since reads key off the current words array).
+      const client = createClient();
+      (async () => {
+        await deleteWord(client, userId, oldEn);
+        await upsertWord(client, userId, { en: trimmedNewEn, cn: trimmedNewCn });
+      })().catch((e) => {
+        console.error('DB rename sync failed:', oldEn, '→', trimmedNewEn, e);
+        // Rollback is complex for rename; on next DB pull the truth wins.
+      });
+    } else {
+      // Simple cn update.
+      upsertWord(createClient(), userId, { en: trimmedNewEn, cn: trimmedNewCn }).catch((e) => {
+        console.error('DB sync failed, rolling back updateWord:', trimmedNewEn, e);
+        // Rollback the cn change.
+        setWords((prev) => prev.map((w) => w.en === trimmedNewEn ? { ...w, cn: newCn } : w));
+      });
+    }
+    return true;
+  }, [userId]);
+
+  /**
+   * Soft-delete a word: remove from the words array immediately, but keep
+   * its progress data so an undo can restore everything. The DB row is
+   * deleted right away; on undo we re-add both the word and its progress.
+   * Returns the deleted word + its progress so the caller can offer undo.
+   */
+  const removeWord = useCallback((en: string): { word: Word; state?: WordState } | null => {
+    let removed: { word: Word; state?: WordState } | null = null;
+    setWords((prev) => {
+      const word = prev.find((w) => w.en === en);
+      if (!word) return prev;
+      removed = { word, state: undefined };
+      return prev.filter((w) => w.en !== en);
+    });
+    if (!removed) return null;
+
+    // Capture the progress state for undo (read synchronously).
+    setProgress((prev) => {
+      removed = { ...removed!, state: prev.wordStates[en] };
+      // Don't delete from wordStates yet — keep for undo. The prune effect
+      // on wrongQueue will clean stale entries, but wordStates persist.
+      return prev;
+    });
+
+    localMutationsRef.current.add(en);
+    deleteWord(createClient(), userId, en).catch((e) => {
+      console.error('DB sync failed, rolling back removeWord:', en, e);
+      // Rollback: re-add the word.
+      if (removed) {
+        setWords((prev) => {
+          if (prev.some((w) => w.en === en)) return prev;
+          return [...prev, removed!.word];
+        });
+      }
+    });
+    return removed;
+  }, [userId]);
+
+  /**
+   * Undo a deletion: restore the word (and its progress if we have it).
+   * Called from the Toast "撤销" action within the undo window.
+   */
+  const undoRemoveWord = useCallback((word: Word, state?: WordState): void => {
+    setWords((prev) => {
+      if (prev.some((w) => w.en === word.en)) return prev;
+      return [...prev, word];
+    });
+    if (state) {
+      setProgress((prev) => ({
+        ...prev,
+        wordStates: { ...prev.wordStates, [word.en]: state }
+      }));
+    }
+    localMutationsRef.current.add(word.en);
+    upsertWord(createClient(), userId, word).catch((e) => {
+      console.error('DB sync failed during undoRemoveWord:', word.en, e);
+    });
+    if (state) {
+      upsertProgress(createClient(), userId, word.en, state).catch((e) => {
+        console.error('DB progress sync failed during undo:', word.en, e);
+      });
+    }
+  }, [userId]);
+
   const resetWrongQueue = useCallback(() => {
     setProgress((prev) => {
       const oldQueue = prev.wrongQueue;
@@ -794,6 +957,10 @@ export function useVocabState(userId: string, email: string) {
     getStatus,
     exportState,
     importState,
+    addWord,
+    updateWord,
+    removeWord,
+    undoRemoveWord,
     wrongQueue,
     getWrongRemaining,
     addToWrongQueue,

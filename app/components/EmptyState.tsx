@@ -9,10 +9,14 @@ interface EmptyStateProps {
   title: string;
   /** 描述文字 */
   message: string;
-  /** 可选的跳转按钮文字（不传则不显示按钮） */
+  /** 可选的主按钮文字（不传则不显示按钮） */
   actionLabel?: string;
-  /** 按钮点击回调 */
+  /** 主按钮点击回调 */
   onAction?: () => void;
+  /** 可选的次级按钮文字（与主按钮并排显示） */
+  secondaryLabel?: string;
+  /** 次级按钮点击回调 */
+  onSecondary?: () => void;
 }
 
 export default function EmptyState({
@@ -20,17 +24,30 @@ export default function EmptyState({
   title,
   message,
   actionLabel,
-  onAction
+  onAction,
+  secondaryLabel,
+  onSecondary
 }: EmptyStateProps) {
+  const hasPrimary = actionLabel && onAction;
+  const hasSecondary = secondaryLabel && onSecondary;
   return (
     <div className="flex-1 flex flex-col items-center justify-center min-h-[50vh] text-center px-6">
       <div className="text-6xl mb-4 opacity-90">{icon}</div>
       <h2 className="text-xl font-bold text-white mb-2 font-display">{title}</h2>
       <p className="text-sm text-white/70 mb-6 max-w-[280px] leading-relaxed">{message}</p>
-      {actionLabel && onAction && (
-        <Button size="lg" onClick={onAction}>
-          {actionLabel}
-        </Button>
+      {(hasPrimary || hasSecondary) && (
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          {hasPrimary && (
+            <Button size="lg" onClick={onAction}>
+              {actionLabel}
+            </Button>
+          )}
+          {hasSecondary && (
+            <Button variant="secondary" size="lg" onClick={onSecondary}>
+              {secondaryLabel}
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );

@@ -29,6 +29,7 @@ interface StudyViewProps {
   onAddToWrongQueue: (en: string) => void;
   onDecrementWrongRemaining: (en: string) => boolean;
   onResetWrongQueue: () => void;
+  onGoToBank: () => void;
   onGoToSettings: () => void;
 }
 
@@ -44,6 +45,7 @@ export default function StudyView({
   onAddToWrongQueue,
   onDecrementWrongRemaining,
   onResetWrongQueue,
+  onGoToBank,
   onGoToSettings
 }: StudyViewProps) {
   const [flipped, setFlipped] = useState(false);
@@ -154,9 +156,9 @@ export default function StudyView({
         <EmptyState
           icon="📭"
           title="词库还是空的"
-          message="先去设置里导入单词，复习才能开始哦。"
-          actionLabel="去导入单词"
-          onAction={onGoToSettings}
+          message="先去词库添加单词，复习才能开始哦。"
+          actionLabel="去添加单词"
+          onAction={onGoToBank}
         />
       </section>
     );

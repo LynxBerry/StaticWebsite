@@ -37,7 +37,7 @@ export default function LoginForm() {
     router.refresh();
   };
 
-  const inputClass = `w-full mb-4 px-4 py-3 rounded-xl bg-white/15 backdrop-blur-md text-white text-base outline-none transition-all duration-200 placeholder:text-white/45 focus:bg-white/25 focus:shadow-[0_0_0_2px_rgba(255,255,255,0.25)] ${
+  const inputClass = `w-full mb-4 px-4 py-3 rounded-lg bg-white/15 backdrop-blur-md text-white text-base outline-none transition-all duration-200 placeholder:text-white/45 focus:bg-white/25 focus:shadow-[0_0_0_2px_rgba(255,255,255,0.25)] ${
     hasError ? 'shadow-[0_0_0_2px_rgba(248,113,113,0.5)]' : ''
   }`;
 

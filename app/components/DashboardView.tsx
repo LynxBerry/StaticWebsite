@@ -21,6 +21,7 @@ interface DashboardViewProps {
   onGoToStudy: () => void;
   onGoToLearn: () => void;
   onGoToFarm: () => void;
+  onGoToBank: () => void;
   onGoToSettings: () => void;
 }
 
@@ -39,18 +40,23 @@ export default function DashboardView({
   onGoToStudy,
   onGoToLearn,
   onGoToFarm,
+  onGoToBank,
   onGoToSettings
 }: DashboardViewProps) {
-  // Empty library: guide to import
+  // Empty library: primary CTA goes to the bank where the user can add
+  // words (single or batch). Backup/restore lives in Settings and is
+  // offered as the secondary path for users coming from another device.
   if (words.length === 0) {
     return (
       <section className="flex-1 flex flex-col min-h-[60vh]" id="dashboard-view">
         <EmptyState
           icon="🌱"
           title="欢迎使用 Sprout"
-          message="还没有单词。先去设置导入你的词库，开始种下第一颗种子吧。"
-          actionLabel="去导入单词"
-          onAction={onGoToSettings}
+          message="还没有单词。去词库添加你的第一批单词，开始种下第一颗种子吧。"
+          actionLabel="去添加单词"
+          onAction={onGoToBank}
+          secondaryLabel="恢复备份"
+          onSecondary={onGoToSettings}
         />
       </section>
     );

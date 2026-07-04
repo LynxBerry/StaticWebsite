@@ -163,6 +163,9 @@ body::before {
   .animate-fade-up,
   .animate-descend,
   .animate-enter,
+  .animate-toast-in,
+  .speak-ring,
+  .speak-ring-2,
   .animate-pop,
   .animate-shake,
   .animate-combo,
@@ -285,4 +288,38 @@ body::before {
 }
 .animate-enter {
   animation: enter-from-below 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+/* Toast entrance: slides up from below the viewport + fades in. */
+@keyframes toast-in {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-toast-in {
+  animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Sound wave ripple — two expanding rings emanate from the speak button
+   while speech is playing, so kids SEE the audio is on. */
+@keyframes sound-ripple {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+.speak-ring {
+  animation: sound-ripple 1s ease-out infinite;
+}
+.speak-ring-2 {
+  animation: sound-ripple 1s ease-out 0.4s infinite;
 }
