@@ -19,7 +19,7 @@ export default async function LoginPage() {
         <div className="glass-card w-full max-w-[360px] mx-auto text-left p-5">
           <div className="mb-6 flex flex-col items-center">
             <Logo size={64} className="mb-3" />
-            <h2 className="text-xl text-white mb-1 font-display">🔒 Sprout · 单词农场</h2>
+            <h2 className="text-xl text-white mb-1 font-display"><span className="emoji">🔒</span> Sprout · 单词农场</h2>
             <p className="text-sm text-white/65">请登录继续</p>
           </div>
 

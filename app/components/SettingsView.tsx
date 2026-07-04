@@ -139,12 +139,12 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="settings-view">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-white mb-1 font-display">⚙️ 设置</h2>
+        <h2 className="text-xl font-semibold text-white mb-1 font-display"><span className="emoji">⚙️</span> 设置</h2>
         <p className="text-sm text-white/60">备份、恢复和重置</p>
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-white mb-2 font-display">🏷️ 站点名称</h3>
+        <h3 className="text-base font-semibold text-white mb-2 font-display"><span className="emoji">🏷️</span> 站点名称</h3>
         <p className="text-sm text-white/70 mb-4 leading-relaxed">
           自定义你的单词农场名字，会显示在标题和浏览器标签页，所有设备同步。
         </p>
@@ -171,7 +171,7 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-white mb-2 font-display">💾 备份词库和进度</h3>
+        <h3 className="text-base font-semibold text-white mb-2 font-display"><span className="emoji">💾</span> 备份词库和进度</h3>
         <p className="text-sm text-white/70 mb-4 leading-relaxed">
           导出为 flat 格式，每个单词一行：wordInEnglish / wordInChinese / level / next date。
           level 0 表示未学习，文件名自动带日期。
@@ -182,7 +182,7 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-white mb-2 font-display">📂 恢复词库和进度</h3>
+        <h3 className="text-base font-semibold text-white mb-2 font-display"><span className="emoji">📂</span> 恢复词库和进度</h3>
         <p className="text-sm text-white/70 mb-4 leading-relaxed">
           选择 flat 格式或旧版内部格式的 JSON 备份文件进行恢复。
           默认开启增量导入：新增文件里没有的单词；文件里已有的单词会更新中文释义、level 和 next date，不在文件里的单词和进度保持不变。
@@ -212,7 +212,7 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-red-500/80 mb-2 font-display">🗑️ 重置进度</h3>
+        <h3 className="text-base font-semibold text-red-500/80 mb-2 font-display"><span className="emoji">🗑️</span> 重置进度</h3>
         <p className="text-sm text-white/70 mb-4 leading-relaxed">清空所有学习进度（不会删除词库）。此操作不可恢复，建议先导出备份。</p>
         <Button variant="secondary" className="flex-none min-w-[140px]" onClick={onReset}>
           重置所有进度
@@ -220,7 +220,7 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-white mb-2 font-display">🔑 修改密码</h3>
+        <h3 className="text-base font-semibold text-white mb-2 font-display"><span className="emoji">🔑</span> 修改密码</h3>
         <p className="text-sm text-white/70 mb-4 leading-relaxed">
           修改你的登录密码。需要先验证旧密码。
         </p>
@@ -265,7 +265,7 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-white mb-2 font-display">🚪 退出登录</h3>
+        <h3 className="text-base font-semibold text-white mb-2 font-display"><span className="emoji">🚪</span> 退出登录</h3>
         <p className="text-sm text-white/70 mb-4 leading-relaxed">退出当前账号，返回登录页。你的学习进度会保留在这个设备的本账号下。</p>
         <Button variant="secondary" className="flex-none min-w-[140px]" onClick={handleSignOut}>
           退出登录

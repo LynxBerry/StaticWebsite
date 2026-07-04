@@ -36,14 +36,14 @@ function wordItemClass(status: StatusType) {
 
 /** Circular avatar holding the plant icon, tinted by status. */
 function iconClass(status: StatusType) {
-  const base = 'flex items-center justify-center shrink-0 w-10 h-10 rounded-full text-lg backdrop-blur-md';
+  const base = 'emoji flex items-center justify-center shrink-0 w-10 h-10 rounded-full text-lg backdrop-blur-md';
   switch (status) {
     case 'mastered':
-      return `${base} bg-sprout-400/30`;
+      return `${base} bg-white/25`;
     case 'due':
-      return `${base} bg-harvest-400/30`;
+      return `${base} bg-white/25`;
     case 'unlearned':
-      return `${base} bg-white/15`;
+      return `${base} bg-white/10`;
     default:
       return `${base} bg-white/20`;
   }

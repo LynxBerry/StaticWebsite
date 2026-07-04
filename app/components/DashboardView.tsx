@@ -181,7 +181,7 @@ export default function DashboardView({
             const pct = learnedCount === 0 ? 0 : Math.round((count / learnedCount) * 100);
             return (
               <div key={stage} className="flex items-center gap-3">
-                <span className="text-base w-8 text-center shrink-0">{getPlantIcon(stage)}</span>
+                <span className="emoji text-base w-8 text-center shrink-0">{getPlantIcon(stage)}</span>
                 <ProgressBar value={count} max={learnedCount} className="flex-1" />
                 <span className="text-xs text-white/70 w-8 text-right shrink-0">{count}</span>
               </div>
