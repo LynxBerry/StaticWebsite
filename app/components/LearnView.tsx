@@ -91,7 +91,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
       {isDone ? (
         <div className="glass-card mb-6 p-1.5">
           <section className="card aspect-[3/2] cursor-default" aria-label="今日播种完成">
-            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
+            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[20px]">
               <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
                 <h2 className="text-4xl font-bold mb-2 font-display">🌱 今日播种完成</h2>
                 <p className="text-base">
@@ -116,7 +116,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
             className={`card aspect-[3/2] cursor-pointer ${flipped ? 'flipped' : ''}`}
             onClick={() => setFlipped(!flipped)}
           >
-            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
+            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[20px]">
               <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
                 <span className="text-xs uppercase tracking-widest opacity-70 mb-4">新单词 · 点击学习</span>
                 <div className="flex items-center gap-3">
