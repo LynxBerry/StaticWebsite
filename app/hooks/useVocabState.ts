@@ -17,7 +17,9 @@ import {
   resetProgress as dbResetProgress,
   fetchUserTitle,
   updateUserTitle,
-  resetUserTitle
+  resetUserTitle,
+  fetchUserDailyLimit,
+  updateUserDailyLimit
 } from '../lib/supabase-db';
 
 // Re-export types so existing imports from this module keep working.
@@ -37,7 +39,7 @@ function wordsKey(userId: string) {
   return `${WORDS_KEY_BASE}-${userId}`;
 }
 
-export const MAX_NEW_WORDS_PER_DAY = 15;
+const DEFAULT_DAILY_NEW_LIMIT = 15;
 
 export const INTERVALS: Record<number, number> = {
   1: 1,
@@ -162,6 +164,7 @@ export function useVocabState(userId: string, email: string) {
   const [isHydrated, setIsHydrated] = useState(false);
   const [dbSynced, setDbSynced] = useState(false);
   const [siteTitle, setSiteTitle] = useState(() => deriveDefaultTitle(email));
+  const [dailyNewLimit, setDailyNewLimit] = useState(DEFAULT_DAILY_NEW_LIMIT);
   // Tracks whether the user mutated state before the initial DB pull landed.
   // If so, we merge (DB wins for untouched keys, local wins for touched keys)
   // instead of blindly overwriting with DB data.
@@ -187,9 +190,13 @@ export function useVocabState(userId: string, email: string) {
       const supabase = createClient();
       const { data, error } = await fetchUserData(supabase, userId);
 
-      // Title is independent of words/progress; fetch alongside.
-      const dbTitle = await fetchUserTitle(supabase, userId);
+      // Title and daily limit are independent of words/progress; fetch alongside.
+      const [dbTitle, dbDailyLimit] = await Promise.all([
+        fetchUserTitle(supabase, userId),
+        fetchUserDailyLimit(supabase, userId)
+      ]);
       if (!cancelled && dbTitle) setSiteTitle(dbTitle);
+      if (!cancelled && dbDailyLimit) setDailyNewLimit(dbDailyLimit);
 
       if (cancelled || error || !data) {
         if (error) console.error('DB fetch failed, using local cache:', error);
@@ -298,9 +305,9 @@ export function useVocabState(userId: string, email: string) {
     const todayCount = Object.values(progress.wordStates).filter(
       (ws) => ws.firstLearnedDate === today
     ).length;
-    const remaining = Math.max(0, MAX_NEW_WORDS_PER_DAY - todayCount);
+    const remaining = Math.max(0, dailyNewLimit - todayCount);
     return { todayCount, remaining };
-  }, [progress.wordStates]);
+  }, [progress.wordStates, dailyNewLimit]);
 
   const getUnlearnedWords = useCallback(() => {
     return words.filter((word) => !isWordLearned(word.en));
@@ -381,7 +388,7 @@ export function useVocabState(userId: string, email: string) {
       const currentCount = Object.values(prev.wordStates).filter(
         (ws) => ws.firstLearnedDate === today
       ).length;
-      if (currentCount >= MAX_NEW_WORDS_PER_DAY) return prev;
+      if (currentCount >= dailyNewLimit) return prev;
 
       const oldState = prev.wordStates[en];
       const newState: WordState = {
@@ -396,7 +403,7 @@ export function useVocabState(userId: string, email: string) {
         wordStates: { ...prev.wordStates, [en]: newState }
       };
     });
-  }, [userId, syncProgressWithRollback]);
+  }, [userId, syncProgressWithRollback, dailyNewLimit]);
 
   const markKnown = useCallback((en: string) => {
     setProgress((prev) => {
@@ -702,6 +709,14 @@ export function useVocabState(userId: string, email: string) {
     );
   }, [userId, email]);
 
+  const updateDailyNewLimit = useCallback((limit: number) => {
+    const clamped = Math.max(1, Math.min(100, Math.round(limit)));
+    setDailyNewLimit(clamped);
+    updateUserDailyLimit(createClient(), userId, clamped).catch((e) =>
+      console.error('DB sync failed (daily limit):', e)
+    );
+  }, [userId]);
+
   const exportState = useCallback((): FlatWordEntry[] => {
     return words.map((word) => {
       const ws = progress.wordStates[word.en];
@@ -899,6 +914,8 @@ export function useVocabState(userId: string, email: string) {
     decrementWrongRemaining,
     resetWrongQueue,
     siteTitle,
-    updateSiteTitle
+    updateSiteTitle,
+    dailyNewLimit,
+    updateDailyNewLimit
   };
 }

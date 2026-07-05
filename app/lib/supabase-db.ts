@@ -238,3 +238,34 @@ export async function resetUserTitle(
     .eq('user_id', userId);
   return error?.message ?? null;
 }
+
+// Daily new-word limit (1-100, default 15). NULL = use the default.
+export async function fetchUserDailyLimit(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<number | null> {
+  const { data, error } = await supabase
+    .from('user_settings')
+    .select('daily_new_limit')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error) return null;
+  const val = (data as { daily_new_limit?: number | null } | null)?.daily_new_limit;
+  return typeof val === 'number' ? val : null;
+}
+
+export async function updateUserDailyLimit(
+  supabase: SupabaseClient,
+  userId: string,
+  limit: number
+): Promise<string | null> {
+  const { error } = await supabase.from('user_settings').upsert(
+    {
+      user_id: userId,
+      daily_new_limit: limit,
+      updated_at: new Date().toISOString()
+    },
+    { onConflict: 'user_id' }
+  );
+  return error?.message ?? null;
+}

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Word } from '../data/words';
 import { formatDate, getPlantIcon } from '../lib/utils';
-import { MAX_NEW_WORDS_PER_DAY } from '../hooks/useVocabState';
 import EmptyState from './EmptyState';
 import { Button } from './ui/Button';
 import SpeakButton from './ui/SpeakButton';
@@ -14,17 +13,18 @@ interface LearnViewProps {
   totalWords: number;
   todayCount: number;
   remaining: number;
+  dailyNewLimit: number;
   onLearn: (en: string) => void;
   onGoToBank: () => void;
   onGoToSettings: () => void;
 }
 
-export default function LearnView({ unlearnedWords, totalWords, todayCount, remaining, onLearn, onGoToBank, onGoToSettings }: LearnViewProps) {
+export default function LearnView({ unlearnedWords, totalWords, todayCount, remaining, dailyNewLimit, onLearn, onGoToBank, onGoToSettings }: LearnViewProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
   const actualRemaining = Math.min(remaining, unlearnedWords.length);
-  const displayTotal = Math.min(MAX_NEW_WORDS_PER_DAY, unlearnedWords.length + todayCount);
+  const displayTotal = Math.min(dailyNewLimit, unlearnedWords.length + todayCount);
   const availableWords = useMemo(() => unlearnedWords.slice(0, actualRemaining), [unlearnedWords, actualRemaining]);
   const isDone = availableWords.length === 0 || actualRemaining === 0;
 

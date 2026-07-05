@@ -105,7 +105,9 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
     decrementWrongRemaining,
     resetWrongQueue,
     siteTitle,
-    updateSiteTitle
+    updateSiteTitle,
+    dailyNewLimit,
+    updateDailyNewLimit
   } = useVocabState(userId, email);
 
   // Shared site header content (logo + title block). Used by both the
@@ -221,6 +223,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
           totalWords={words.length}
           todayCount={todayCount}
           remaining={remaining}
+          dailyNewLimit={dailyNewLimit}
           onLearn={learnNewWord}
           onGoToBank={() => setCurrentView('bank')}
           onGoToSettings={() => setCurrentView('settings')}
@@ -275,6 +278,8 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
           onReset={reset}
           siteTitle={siteTitle}
           onUpdateSiteTitle={updateSiteTitle}
+          dailyNewLimit={dailyNewLimit}
+          onUpdateDailyNewLimit={updateDailyNewLimit}
         />
       )}
 

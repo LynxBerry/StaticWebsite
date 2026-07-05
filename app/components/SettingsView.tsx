@@ -12,16 +12,20 @@ interface SettingsViewProps {
   onReset: () => void;
   siteTitle: string;
   onUpdateSiteTitle: (title: string) => void;
+  dailyNewLimit: number;
+  onUpdateDailyNewLimit: (limit: number) => void;
 }
 
 const sectionClass = 'text-left p-5 mb-4 glass-card';
 
-export default function SettingsView({ exportState, importState, onReset, siteTitle, onUpdateSiteTitle }: SettingsViewProps) {
+export default function SettingsView({ exportState, importState, onReset, siteTitle, onUpdateSiteTitle, dailyNewLimit, onUpdateDailyNewLimit }: SettingsViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const [mergeImport, setMergeImport] = useState(true);
   const [titleDraft, setTitleDraft] = useState(siteTitle);
   const [titleSaved, setTitleSaved] = useState(false);
+  const [limitDraft, setLimitDraft] = useState(String(dailyNewLimit));
+  const [limitSaved, setLimitSaved] = useState(false);
   const router = useRouter();
 
   // Keep the draft in sync when the loaded title changes (e.g. after DB pull).
@@ -29,12 +33,25 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
     setTitleDraft(siteTitle);
   }, [siteTitle]);
 
+  // Keep the daily-limit draft in sync when the DB value changes.
+  useEffect(() => {
+    setLimitDraft(String(dailyNewLimit));
+  }, [dailyNewLimit]);
+
   const commitTitle = () => {
     const trimmed = titleDraft.trim();
     if (trimmed === siteTitle) return;
     onUpdateSiteTitle(trimmed);
     setTitleSaved(true);
     window.setTimeout(() => setTitleSaved(false), 2000);
+  };
+
+  const commitLimit = () => {
+    const parsed = parseInt(limitDraft, 10);
+    if (Number.isNaN(parsed) || parsed === dailyNewLimit) return;
+    onUpdateDailyNewLimit(parsed);
+    setLimitSaved(true);
+    window.setTimeout(() => setLimitSaved(false), 2000);
   };
 
   const handleSignOut = async () => {
@@ -164,6 +181,33 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
           className="w-full px-4 py-2.5 rounded-lg bg-white/15 backdrop-blur-xl backdrop-saturate-150 text-white text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-white/45 focus:bg-white/25 focus:shadow-[0_0_0_2px_rgba(255,255,255,0.25)]"
         />
         {titleSaved && (
+          <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-white/15 text-sprout-300 border border-white/25">
+            已保存 ✓
+          </p>
+        )}
+      </div>
+
+      <div className={sectionClass}>
+        <h3 className="text-base font-semibold text-white mb-2 font-display">📚 每日新词限额</h3>
+        <p className="text-sm text-white/70 mb-4 leading-relaxed">
+          设置每天最多可以播种几个新单词（1-100），会同步到所有设备。
+        </p>
+        <input
+          type="number"
+          min={1}
+          max={100}
+          value={limitDraft}
+          onChange={(e) => setLimitDraft(e.target.value)}
+          onBlur={commitLimit}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+          className="w-full px-4 py-2.5 rounded-lg bg-white/15 backdrop-blur-xl backdrop-saturate-150 text-white text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-white/45 focus:bg-white/25 focus:shadow-[0_0_0_2px_rgba(255,255,255,0.25)]"
+        />
+        {limitSaved && (
           <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-white/15 text-sprout-300 border border-white/25">
             已保存 ✓
           </p>
