@@ -77,7 +77,7 @@ export default function HomeClient({
     if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
     inactivityTimerRef.current = setTimeout(() => {
       setIndicatorStyle((prev) => ({ ...prev, opacity: 0 }));
-    }, 5000);
+    }, 2000);
   };
 
   const handleNavInteraction = () => {
