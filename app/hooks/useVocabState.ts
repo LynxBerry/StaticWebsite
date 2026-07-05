@@ -29,6 +29,7 @@ export type { Word, WordState, WrongItem, ProgressState };
 // share progress. No legacy migration — a fresh user gets an empty library.
 const PROGRESS_KEY_BASE = 'zeno-vocab-progress-v3';
 const WORDS_KEY_BASE = 'zeno-vocab-words-v1';
+const TITLE_KEY_BASE = 'zeno-vocab-title-v1';
 
 export const DEFAULT_SITE_TITLE = 'Sprout · 单词农场';
 
@@ -37,6 +38,26 @@ function progressKey(userId: string) {
 }
 function wordsKey(userId: string) {
   return `${WORDS_KEY_BASE}-${userId}`;
+}
+function titleKey(userId: string) {
+  return `${TITLE_KEY_BASE}-${userId}`;
+}
+
+function loadSiteTitle(userId: string): string | null {
+  if (typeof window === 'undefined') return null;
+  const raw = localStorage.getItem(titleKey(userId));
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    return typeof parsed === 'string' ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveSiteTitle(userId: string, title: string) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(titleKey(userId), JSON.stringify(title));
 }
 
 const DEFAULT_DAILY_NEW_LIMIT = 15;
@@ -163,7 +184,7 @@ export function useVocabState(userId: string, email: string) {
   const [progress, setProgress] = useState<ProgressState>({ wordStates: {}, wrongQueue: [] });
   const [isHydrated, setIsHydrated] = useState(false);
   const [dbSynced, setDbSynced] = useState(false);
-  const [siteTitle, setSiteTitle] = useState(() => deriveDefaultTitle(email));
+  const [siteTitle, setSiteTitle] = useState(() => loadSiteTitle(userId) ?? deriveDefaultTitle(email));
   const [dailyNewLimit, setDailyNewLimit] = useState(DEFAULT_DAILY_NEW_LIMIT);
   // Tracks whether the user mutated state before the initial DB pull landed.
   // If so, we merge (DB wins for untouched keys, local wins for touched keys)
@@ -195,8 +216,17 @@ export function useVocabState(userId: string, email: string) {
         fetchUserTitle(supabase, userId),
         fetchUserDailyLimit(supabase, userId)
       ]);
-      if (!cancelled && dbTitle) setSiteTitle(dbTitle);
-      if (!cancelled && dbDailyLimit) setDailyNewLimit(dbDailyLimit);
+      if (!cancelled) {
+        if (dbTitle) {
+          setSiteTitle(dbTitle);
+          saveSiteTitle(userId, dbTitle);
+        } else {
+          // No DB title yet: persist the derived default locally so the next
+          // refresh doesn't flash a different casing before the DB fetch lands.
+          saveSiteTitle(userId, deriveDefaultTitle(email));
+        }
+        if (dbDailyLimit) setDailyNewLimit(dbDailyLimit);
+      }
 
       if (cancelled || error || !data) {
         if (error) console.error('DB fetch failed, using local cache:', error);
@@ -698,12 +728,14 @@ export function useVocabState(userId: string, email: string) {
       // so future default-rule changes still apply to this user.
       const fallback = deriveDefaultTitle(email);
       setSiteTitle(fallback);
+      saveSiteTitle(userId, fallback);
       resetUserTitle(createClient(), userId).catch((e) =>
         console.error('DB sync failed (reset title):', e)
       );
       return;
     }
     setSiteTitle(trimmed);
+    saveSiteTitle(userId, trimmed);
     updateUserTitle(createClient(), userId, trimmed).catch((e) =>
       console.error('DB sync failed (title):', e)
     );
