@@ -67,7 +67,6 @@ export default function HomeClient({
   const navRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const updateIndicatorTo = (targetIndex: number) => {
     const container = navRef.current;
@@ -188,11 +187,6 @@ export default function HomeClient({
         <nav
           ref={navRef}
           className="flex justify-center gap-1 overflow-x-auto no-scrollbar p-1.5 relative"
-          onMouseLeave={() => {
-            const activeIndex = tabs.findIndex((t) => t.key === currentView);
-            setHoveredIndex(null);
-            updateIndicatorTo(activeIndex);
-          }}
         >
           <span
             className="absolute top-1.5 bottom-1.5 rounded-2xl pointer-events-none z-0"
@@ -220,10 +214,6 @@ export default function HomeClient({
                     : 'text-white/60 hover:text-white/90'
                 }`}
                 onClick={() => setCurrentView(tab.key as ViewType)}
-                onMouseEnter={() => {
-                  setHoveredIndex(index);
-                  updateIndicatorTo(index);
-                }}
                 title={tab.tooltip}
               >
                 {tab.label}
