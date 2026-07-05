@@ -62,30 +62,6 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className={`${nunito.variable} ${quicksand.variable} ${fredoka.variable} ${zcool.variable}`}>
       <body className="min-h-screen flex items-start justify-center relative p-4 sm:p-6 lg:p-10 pt-20 sm:pt-24 lg:pt-28 font-sans antialiased">
-        <svg className="absolute w-0 h-0" aria-hidden="true">
-          <defs>
-            <filter id="liquid-glass-nav" x="-50%" y="-50%" width="200%" height="200%" colorInterpolationFilters="sRGB">
-              <feTurbulence
-                type="fractalNoise"
-                baseFrequency="0.04 0.02"
-                numOctaves="3"
-                seed="5"
-                result="noise"
-              />
-              <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="40" result="dispRed" />
-              <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red" />
-              
-              <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="35" result="dispGreen" />
-              <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green" />
-              
-              <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="30" result="dispBlue" />
-              <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue" />
-              
-              <feBlend in="red" in2="green" mode="screen" result="rg" />
-              <feBlend in="rg" in2="blue" mode="screen" result="output" />
-            </filter>
-          </defs>
-        </svg>
         {children}
       </body>
     </html>

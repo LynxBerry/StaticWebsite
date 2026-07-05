@@ -76,43 +76,6 @@ body::before {
     box-shadow: 0 8px 32px rgba(0,0,0,0.18), inset 0 1px 1px 0 rgba(255,255,255,0.35);
   }
 
-  /* Liquid-glass navigation: chromatic displacement that warps the mesh
-     gradient behind the top bar. The effect is rendered into a pseudo-element
-     that samples the page background, then blurred and displaced.
-     A subtle surface tint keeps text readable. */
-  .liquid-glass-nav {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-  }
-  .liquid-glass-nav::before {
-    content: '';
-    position: absolute;
-    inset: -50%;
-    z-index: -1;
-    background: fixed;
-    background-image:
-      linear-gradient(135deg, #e85d5d 0%, #e85d5d 18%, transparent 18%, transparent 22%, #5CA85C 22%, #5CA85C 48%, transparent 48%, transparent 52%, #70B070 52%, #70B070 78%, transparent 78%, transparent 82%, #e9a23b 82%, #e9a23b 100%),
-      linear-gradient(45deg, transparent 0%, transparent 25%, #4a90d9 25%, #4a90d9 45%, transparent 45%, transparent 55%, #9b59b6 55%, #9b59b6 75%, transparent 75%, transparent 100%),
-      repeating-linear-gradient(90deg, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 2px, transparent 2px, transparent 50px),
-      repeating-linear-gradient(0deg, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 2px, transparent 2px, transparent 50px),
-      #1a1f14;
-    filter: url(#liquid-glass-nav) blur(10px) saturate(1.6);
-    -webkit-filter: url(#liquid-glass-nav) blur(10px) saturate(1.6);
-    opacity: 0.85;
-    pointer-events: none;
-  }
-  .liquid-glass-nav::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    background: linear-gradient(135deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.08) 100%);
-    box-shadow: inset 0 1px 1px 0 rgba(255,255,255,0.35);
-    pointer-events: none;
-  }
-
   /* Word card front face: the core reading area. Stronger Fresnel gradient
      (more opaque so dark text reads), same saturation boost + depth cues. */
   .word-card-face {
