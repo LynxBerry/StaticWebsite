@@ -25,7 +25,7 @@ export default function StalePrompt({ onRefresh, onDismiss }: StalePromptProps) 
           <Button fullWidth size="lg" onClick={onRefresh}>
             刷新页面
           </Button>
-          <Button variant="secondary" fullWidth onClick={onDismiss} size="md">
+          <Button variant="secondary" fullWidth size="lg" onClick={onDismiss}>
             稍后再说
           </Button>
         </div>
