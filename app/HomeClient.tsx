@@ -222,7 +222,7 @@ export default function HomeClient({
               WebkitBackdropFilter: 'blur(16px) saturate(120%)',
               border: '1px solid rgba(255,255,255,0.18)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.15)',
-              transition: 'all 0.5s cubic-bezier(0.25, 1, 0.33, 1.2)'
+              transition: 'left 0.5s cubic-bezier(0.25, 1, 0.33, 1.2), width 0.5s cubic-bezier(0.25, 1, 0.33, 1.2), opacity 0.8s ease'
             }}
           />
           {tabs.map((tab, index) => {
