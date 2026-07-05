@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Nunito, Quicksand, Fredoka, ZCOOL_KuaiLe } from 'next/font/google';
 import './globals.css';
-import { LiquidGlassFilter } from './components/LiquidGlass';
+import LiquidGlassManager from './components/LiquidGlassManager';
 
 const nunito = Nunito({
   subsets: ['latin'],
@@ -63,7 +63,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className={`${nunito.variable} ${quicksand.variable} ${fredoka.variable} ${zcool.variable}`}>
       <body className="min-h-screen flex items-start justify-center relative p-4 sm:p-6 lg:p-10 pt-20 sm:pt-24 lg:pt-28 font-sans antialiased">
-        <LiquidGlassFilter />
+        <LiquidGlassManager />
         {children}
       </body>
     </html>
