@@ -51,17 +51,7 @@ body::before {
   right: 0;
   bottom: 0;
   z-index: -1;
-  background:
-    /* large headline-like blocks */
-    linear-gradient(135deg, transparent 45%, rgba(0,0,0,0.04) 45%, rgba(0,0,0,0.04) 55%, transparent 55%),
-    /* simulated paragraphs */
-    repeating-linear-gradient(0deg, transparent 0px, transparent 34px, rgba(0,0,0,0.06) 34px, rgba(0,0,0,0.06) 36px),
-    /* simulated bold headings */
-    repeating-linear-gradient(0deg, transparent 0px, transparent 80px, rgba(0,0,0,0.10) 80px, rgba(0,0,0,0.10) 88px),
-    /* grid of "images" */
-    repeating-linear-gradient(90deg, transparent 0px, transparent 180px, rgba(0,0,0,0.03) 180px, rgba(0,0,0,0.03) 260px),
-    /* white base */
-    #ffffff;
+  background: url('/greenfarm.jpg') center/cover no-repeat;
 }
 
 @layer components {
