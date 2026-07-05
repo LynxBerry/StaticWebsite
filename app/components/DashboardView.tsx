@@ -66,10 +66,15 @@ export default function DashboardView({
   const learnedCount = totalCount - unlearnedCount;
   const progressPercent = totalCount === 0 ? 0 : Math.round((masteredCount / totalCount) * 100);
 
-  // Stage distribution (1-5 + mastered)
+  // Stage distribution (1-5 + mastered). Only count LEARNED words —
+  // unlearned words have no real level (getWordState defaults them to 1,
+  // which would falsely inflate stage 1 and confuse the "familiarity"
+  // picture). learnedCount = total - unlearned, matching this filter.
   const stageCounts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
   words.forEach((word) => {
     const ws = getWordState(word.en);
+    // Skip unlearned: they have no firstLearnedDate and aren't really "in" any stage.
+    if (!ws.firstLearnedDate) return;
     const level = Math.min(ws.level, 6);
     stageCounts[level] = (stageCounts[level] || 0) + 1;
   });

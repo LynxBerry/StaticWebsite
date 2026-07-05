@@ -198,45 +198,49 @@ export function useVocabState(userId: string, email: string) {
       }
 
       if (!data.isEmpty) {
-        // DB has data: merge with local. DB is authoritative, but any word the
-        // user already touched during this brief window keeps the local value
-        // (it's newer) and is re-synced to DB below.
+        // DB has data: DB is the source of truth — completely replace local.
+        // The only exception is words the user JUST touched during the brief
+        // window between the initial localStorage paint and the DB fetch
+        // landing (e.g. answered a review in those ~1-2 seconds). Those are
+        // strictly newer than the DB snapshot, so we keep the local value
+        // and re-push it to the DB. Everything else is overwritten by DB.
         const touched = localMutationsRef.current;
-        const mergedWords = data.words.map((w) =>
+
+        // Words: start from DB, override with local for any touched key.
+        const finalWords = data.words.map((w) =>
           touched.has(w.en) ? (localWords.find((lw) => lw.en === w.en) ?? w) : w
         );
-        // Include local-only words (user added during the window) that aren't in DB yet
-        localWords.forEach((lw) => {
-          if (!mergedWords.some((w) => w.en === lw.en)) mergedWords.push(lw);
-        });
 
-        const mergedStates: Record<string, WordState> = { ...data.progress.wordStates };
+        // Progress: start from DB, override with local for any touched key.
+        const finalStates: Record<string, WordState> = { ...data.progress.wordStates };
         touched.forEach((en) => {
           const localWs = localProgress.wordStates[en];
-          if (localWs) mergedStates[en] = localWs;
+          if (localWs) finalStates[en] = localWs;
         });
 
+        // Wrong queue: DB wins entirely for non-touched items.
         const localWrongTouched = localProgress.wrongQueue.filter((i) => touched.has(i.en));
-        const mergedWrong = [...data.progress.wrongQueue];
+        const finalWrong = [...data.progress.wrongQueue];
         localWrongTouched.forEach((i) => {
-          const idx = mergedWrong.findIndex((w) => w.en === i.en);
-          if (idx >= 0) mergedWrong[idx] = i;
-          else mergedWrong.push(i);
+          const idx = finalWrong.findIndex((w) => w.en === i.en);
+          if (idx >= 0) finalWrong[idx] = i;
+          else finalWrong.push(i);
         });
 
-        const mergedProgress = { wordStates: mergedStates, wrongQueue: mergedWrong };
-        setWords(mergedWords);
-        setProgress(mergedProgress);
-        saveWords(userId, mergedWords);
-        saveProgress(userId, mergedProgress);
+        const finalProgress = { wordStates: finalStates, wrongQueue: finalWrong };
+        setWords(finalWords);
+        setProgress(finalProgress);
+        saveWords(userId, finalWords);
+        saveProgress(userId, finalProgress);
 
-        // Push any locally-mutated data back to DB so cloud matches
+        // Re-push only the touched items so the DB reflects the user's very
+        // latest actions (not the stale snapshot).
         const supabaseMut = createClient();
         touched.forEach((en) => {
-          const ws = mergedStates[en];
+          const ws = finalStates[en];
           if (ws) {
             upsertProgress(supabaseMut, userId, en, ws).catch((e) =>
-              console.error('DB re-sync failed (merge):', en, e)
+              console.error('DB re-sync failed (override):', en, e)
             );
           }
         });
