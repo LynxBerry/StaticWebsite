@@ -17,8 +17,11 @@ export function useIdlePrompt(timeoutMs: number) {
 
   const recordActivity = useCallback(() => {
     lastActivityRef.current = Date.now();
-    // If the user comes back and interacts, hide any stale prompt.
-    setShowPrompt(false);
+    // Note: do NOT auto-dismiss the prompt on activity. Once the prompt is
+    // showing, it should stay until the user explicitly picks "refresh" or
+    // "later". Otherwise any stray click hides it and the user never sees
+    // the refresh suggestion. Activity only resets the idle timer so that
+    // after dismissal the prompt won't immediately reappear.
   }, []);
 
   useEffect(() => {
