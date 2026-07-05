@@ -67,6 +67,23 @@ export default function HomeClient({
   const navRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const inactivityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showIndicator = () => {
+    setIndicatorStyle((prev) => ({ ...prev, opacity: 1 }));
+  };
+
+  const hideIndicatorAfterDelay = () => {
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    inactivityTimerRef.current = setTimeout(() => {
+      setIndicatorStyle((prev) => ({ ...prev, opacity: 0 }));
+    }, 5000);
+  };
+
+  const handleNavInteraction = () => {
+    showIndicator();
+    hideIndicatorAfterDelay();
+  };
 
   const updateIndicatorTo = (targetIndex: number) => {
     const container = navRef.current;
@@ -90,7 +107,10 @@ export default function HomeClient({
     if (typeof document !== 'undefined' && document.fonts) {
       document.fonts.ready.then(handleResize);
     }
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    };
   }, [currentView]);
   const {
     isHydrated,
@@ -187,6 +207,9 @@ export default function HomeClient({
         <nav
           ref={navRef}
           className="flex justify-center gap-1 overflow-x-auto no-scrollbar p-1.5 relative"
+          onMouseEnter={handleNavInteraction}
+          onMouseMove={handleNavInteraction}
+          onClick={handleNavInteraction}
         >
           <span
             className="absolute top-1.5 bottom-1.5 rounded-2xl pointer-events-none z-0"
