@@ -38,8 +38,13 @@ body {
   text-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.25);
 }
 
-/* High-contrast geometric background: bold rectangles and grids so the
-   liquid-glass displacement filter has sharp edges to warp. */
+/* Pure-CSS mesh gradient backdrop — no image request, fully controllable.
+   Several large soft radial color blobs over a dark green base, blended by
+   their own transparency into a calm "meadow at dusk" wash. The palette is
+   warm-farm: sage / olive / sprout greens with a sunny-yellow highlight,
+   echoing the brand's sprout + harvest colors. Designed for kids — warm
+   and lively, not cool and corporate. Glass cards' backdrop-blur frosts
+   this layer the same way it frosted a photo. */
 body::before {
   content: '';
   position: fixed;
@@ -49,15 +54,18 @@ body::before {
   bottom: 0;
   z-index: -1;
   background:
-    /* large diagonal color blocks */
-    linear-gradient(135deg, #e85d5d 0%, #e85d5d 18%, transparent 18%, transparent 22%, #5CA85C 22%, #5CA85C 48%, transparent 48%, transparent 52%, #70B070 52%, #70B070 78%, transparent 78%, transparent 82%, #e9a23b 82%, #e9a23b 100%),
-    /* opposing diagonal blocks */
-    linear-gradient(45deg, transparent 0%, transparent 25%, #4a90d9 25%, #4a90d9 45%, transparent 45%, transparent 55%, #9b59b6 55%, #9b59b6 75%, transparent 75%, transparent 100%),
-    /* fine grid */
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 2px, transparent 2px, transparent 50px),
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 2px, transparent 2px, transparent 50px),
-    /* dark base */
-    #1a1f14;
+    /* warm amber glow — upper-left, brighter & warmer than before */
+    radial-gradient(ellipse 50% 40% at 18% 22%, rgba(232, 180, 90, 0.28) 0%, transparent 65%),
+    /* soft peach — center-top, adds overall warmth */
+    radial-gradient(ellipse 45% 38% at 55% 18%, rgba(220, 150, 110, 0.18) 0%, transparent 60%),
+    /* fresh sprout green — right side, the main note */
+    radial-gradient(ellipse 55% 50% at 82% 30%, rgba(82, 138, 83, 0.30) 0%, transparent 60%),
+    /* olive depth — bottom-left */
+    radial-gradient(ellipse 50% 45% at 25% 80%, rgba(54, 99, 57, 0.36) 0%, transparent 60%),
+    /* sage — bottom-right */
+    radial-gradient(ellipse 45% 40% at 78% 78%, rgba(98, 119, 80, 0.26) 0%, transparent 60%),
+    /* base — warm dark green */
+    linear-gradient(160deg, #23291c 0%, #1a1f14 100%);
 }
 
 @layer components {
