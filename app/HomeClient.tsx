@@ -11,6 +11,7 @@ import SettingsView from './components/SettingsView';
 import StalePrompt from './components/StalePrompt';
 import DashboardView from './components/DashboardView';
 import ParallaxBackground from './components/ParallaxBackground';
+import LiquidGlassNav from './components/LiquidGlassNav';
 import Logo from './components/Logo';
 import Toast, { type ToastData } from './components/ui/Toast';
 
@@ -66,29 +67,31 @@ export default function HomeClient({
   const navRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const updateIndicatorTo = (targetIndex: number) => {
+    const container = navRef.current;
+    const targetBtn = buttonRefs.current[targetIndex];
+    if (!container || !targetBtn) return;
+    const cRect = container.getBoundingClientRect();
+    const bRect = targetBtn.getBoundingClientRect();
+    setIndicatorStyle({
+      left: bRect.left - cRect.left + container.scrollLeft,
+      width: bRect.width,
+      opacity: 1
+    });
+  };
 
   useEffect(() => {
-    const updateIndicator = () => {
-      const container = navRef.current;
-      const activeIndex = tabs.findIndex((t) => t.key === currentView);
-      const activeBtn = buttonRefs.current[activeIndex];
-      if (!container || !activeBtn) return;
-      const cRect = container.getBoundingClientRect();
-      const bRect = activeBtn.getBoundingClientRect();
-      // Subtract scrollLeft because the nav scrolls horizontally when tabs overflow.
-      setIndicatorStyle({
-        left: bRect.left - cRect.left + container.scrollLeft,
-        width: bRect.width,
-        opacity: 1
-      });
-    };
-    updateIndicator();
-    window.addEventListener('resize', updateIndicator);
-    // Font load (Nunito→Quicksand swap) changes button widths; re-measure when ready.
+    const activeIndex = tabs.findIndex((t) => t.key === currentView);
+    updateIndicatorTo(activeIndex);
+
+    const handleResize = () => updateIndicatorTo(activeIndex);
+    window.addEventListener('resize', handleResize);
     if (typeof document !== 'undefined' && document.fonts) {
-      document.fonts.ready.then(updateIndicator);
+      document.fonts.ready.then(handleResize);
     }
-    return () => window.removeEventListener('resize', updateIndicator);
+    return () => window.removeEventListener('resize', handleResize);
   }, [currentView]);
   const {
     isHydrated,
@@ -171,8 +174,8 @@ export default function HomeClient({
           so it reads as a single "app bar" instead of two stacked cards.
           The mask fades the top edge into the background so the bar reads
           as emerging from the scene, not pasted on top of it. */}
-      <div
-        className="glass-card w-full mb-6 animate-descend"
+      <LiquidGlassNav
+        className="w-full mb-6 animate-descend rounded-[20px]"
         style={{
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 40px)',
           maskImage: 'linear-gradient(to bottom, transparent 0%, black 40px)'
@@ -182,10 +185,28 @@ export default function HomeClient({
         {/* Divider — fades from transparent to ~12% white and back, so it
             reads as a hairline etched into the glass, not a hard line. */}
         <div className="mx-4 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-        <nav ref={navRef} className="flex justify-center gap-1 overflow-x-auto no-scrollbar p-1.5 relative">
+        <nav
+          ref={navRef}
+          className="flex justify-center gap-1 overflow-x-auto no-scrollbar p-1.5 relative"
+          onMouseLeave={() => {
+            const activeIndex = tabs.findIndex((t) => t.key === currentView);
+            setHoveredIndex(null);
+            updateIndicatorTo(activeIndex);
+          }}
+        >
           <span
-            className="absolute top-1.5 bottom-1.5 rounded-xl bg-white/25 backdrop-blur-md transition-all duration-300 ease-out pointer-events-none"
-            style={indicatorStyle}
+            className="absolute top-1.5 bottom-1.5 rounded-2xl pointer-events-none z-0"
+            style={{
+              left: indicatorStyle.left,
+              width: indicatorStyle.width,
+              opacity: indicatorStyle.opacity,
+              background: 'rgba(255,255,255,0.12)',
+              backdropFilter: 'blur(16px) saturate(120%)',
+              WebkitBackdropFilter: 'blur(16px) saturate(120%)',
+              border: '1px solid rgba(255,255,255,0.18)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.15)',
+              transition: 'all 0.5s cubic-bezier(0.25, 1, 0.33, 1.2)'
+            }}
           />
           {tabs.map((tab, index) => {
             const active = currentView === tab.key;
@@ -193,12 +214,16 @@ export default function HomeClient({
               <button
                 key={tab.key}
                 ref={(el) => { buttonRefs.current[index] = el; }}
-                className={`relative z-10 px-3 py-1.5 text-sm font-medium rounded-xl whitespace-nowrap transition-colors duration-300 ${
+                className={`relative z-10 px-3 py-1.5 text-sm font-medium rounded-2xl whitespace-nowrap transition-colors duration-300 ${
                   active
                     ? 'text-white'
                     : 'text-white/60 hover:text-white/90'
                 }`}
                 onClick={() => setCurrentView(tab.key as ViewType)}
+                onMouseEnter={() => {
+                  setHoveredIndex(index);
+                  updateIndicatorTo(index);
+                }}
                 title={tab.tooltip}
               >
                 {tab.label}
@@ -206,7 +231,7 @@ export default function HomeClient({
             );
           })}
         </nav>
-      </div>
+      </LiquidGlassNav>
 
       {currentView === 'dashboard' && (
         <DashboardView
