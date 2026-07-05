@@ -29,7 +29,6 @@ export type { Word, WordState, WrongItem, ProgressState };
 // share progress. No legacy migration — a fresh user gets an empty library.
 const PROGRESS_KEY_BASE = 'zeno-vocab-progress-v3';
 const WORDS_KEY_BASE = 'zeno-vocab-words-v1';
-const TITLE_KEY_BASE = 'zeno-vocab-title-v1';
 
 export const DEFAULT_SITE_TITLE = 'Sprout · 单词农场';
 
@@ -38,26 +37,6 @@ function progressKey(userId: string) {
 }
 function wordsKey(userId: string) {
   return `${WORDS_KEY_BASE}-${userId}`;
-}
-function titleKey(userId: string) {
-  return `${TITLE_KEY_BASE}-${userId}`;
-}
-
-function loadSiteTitle(userId: string): string | null {
-  if (typeof window === 'undefined') return null;
-  const raw = localStorage.getItem(titleKey(userId));
-  if (!raw) return null;
-  try {
-    const parsed = JSON.parse(raw);
-    return typeof parsed === 'string' ? parsed : null;
-  } catch {
-    return null;
-  }
-}
-
-function saveSiteTitle(userId: string, title: string) {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(titleKey(userId), JSON.stringify(title));
 }
 
 const DEFAULT_DAILY_NEW_LIMIT = 15;
@@ -179,13 +158,21 @@ function deriveDefaultTitle(email: string): string {
   return `${localPart}的单词农场`;
 }
 
-export function useVocabState(userId: string, email: string) {
+export function useVocabState(
+  userId: string,
+  email: string,
+  options: { initialSiteTitle?: string | null; initialDailyNewLimit?: number | null } = {}
+) {
   const [words, setWords] = useState<Word[]>(DEFAULT_WORDS);
   const [progress, setProgress] = useState<ProgressState>({ wordStates: {}, wrongQueue: [] });
   const [isHydrated, setIsHydrated] = useState(false);
   const [dbSynced, setDbSynced] = useState(false);
-  const [siteTitle, setSiteTitle] = useState(() => loadSiteTitle(userId) ?? deriveDefaultTitle(email));
-  const [dailyNewLimit, setDailyNewLimit] = useState(DEFAULT_DAILY_NEW_LIMIT);
+  const [siteTitle, setSiteTitle] = useState(
+    () => options.initialSiteTitle ?? deriveDefaultTitle(email)
+  );
+  const [dailyNewLimit, setDailyNewLimit] = useState(
+    options.initialDailyNewLimit ?? DEFAULT_DAILY_NEW_LIMIT
+  );
   // Tracks whether the user mutated state before the initial DB pull landed.
   // If so, we merge (DB wins for untouched keys, local wins for touched keys)
   // instead of blindly overwriting with DB data.
@@ -217,14 +204,7 @@ export function useVocabState(userId: string, email: string) {
         fetchUserDailyLimit(supabase, userId)
       ]);
       if (!cancelled) {
-        if (dbTitle) {
-          setSiteTitle(dbTitle);
-          saveSiteTitle(userId, dbTitle);
-        } else {
-          // No DB title yet: persist the derived default locally so the next
-          // refresh doesn't flash a different casing before the DB fetch lands.
-          saveSiteTitle(userId, deriveDefaultTitle(email));
-        }
+        if (dbTitle) setSiteTitle(dbTitle);
         if (dbDailyLimit) setDailyNewLimit(dbDailyLimit);
       }
 
@@ -726,16 +706,13 @@ export function useVocabState(userId: string, email: string) {
     if (!trimmed) {
       // Empty input = revert to the email-derived default and drop the DB row
       // so future default-rule changes still apply to this user.
-      const fallback = deriveDefaultTitle(email);
-      setSiteTitle(fallback);
-      saveSiteTitle(userId, fallback);
+      setSiteTitle(deriveDefaultTitle(email));
       resetUserTitle(createClient(), userId).catch((e) =>
         console.error('DB sync failed (reset title):', e)
       );
       return;
     }
     setSiteTitle(trimmed);
-    saveSiteTitle(userId, trimmed);
     updateUserTitle(createClient(), userId, trimmed).catch((e) =>
       console.error('DB sync failed (title):', e)
     );

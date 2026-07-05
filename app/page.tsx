@@ -10,5 +10,18 @@ export default async function Home() {
     redirect('/login');
   }
 
-  return <HomeClient userId={user.id} email={user.email ?? ''} />;
+  const { data: settings } = await supabase
+    .from('user_settings')
+    .select('site_title, daily_new_limit')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  return (
+    <HomeClient
+      userId={user.id}
+      email={user.email ?? ''}
+      initialSiteTitle={(settings as { site_title?: string | null } | null)?.site_title ?? null}
+      initialDailyNewLimit={(settings as { daily_new_limit?: number | null } | null)?.daily_new_limit ?? null}
+    />
+  );
 }

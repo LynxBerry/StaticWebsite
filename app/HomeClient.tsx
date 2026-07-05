@@ -33,7 +33,17 @@ const tabs = [
   { key: 'settings', label: '设置', tooltip: '备份与恢复' }
 ] as const;
 
-export default function HomeClient({ userId, email }: { userId: string; email: string }) {
+export default function HomeClient({
+  userId,
+  email,
+  initialSiteTitle,
+  initialDailyNewLimit
+}: {
+  userId: string;
+  email: string;
+  initialSiteTitle?: string | null;
+  initialDailyNewLimit?: number | null;
+}) {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const { showPrompt: showStalePrompt, dismiss: dismissStalePrompt } = useIdlePrompt(IDLE_TIMEOUT_MS);
   const [toast, setToast] = useState<ToastData | null>(null);
@@ -108,7 +118,7 @@ export default function HomeClient({ userId, email }: { userId: string; email: s
     updateSiteTitle,
     dailyNewLimit,
     updateDailyNewLimit
-  } = useVocabState(userId, email);
+  } = useVocabState(userId, email, { initialSiteTitle, initialDailyNewLimit });
 
   // Shared site header content (logo + title block). Used by both the
   // loading state and the hydrated state. Only difference: the hydrated
