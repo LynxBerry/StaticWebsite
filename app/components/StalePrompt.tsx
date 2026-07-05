@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from './ui/Button';
 
 interface StalePromptProps {
@@ -8,6 +9,14 @@ interface StalePromptProps {
 }
 
 export default function StalePrompt({ onRefresh, onDismiss }: StalePromptProps) {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    onRefresh();
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4"
@@ -22,10 +31,10 @@ export default function StalePrompt({ onRefresh, onDismiss }: StalePromptProps) 
           为了看到其他设备的最新进度，建议刷新一下页面。
         </p>
         <div className="flex flex-col gap-2">
-          <Button fullWidth size="lg" onClick={onRefresh}>
-            刷新页面
+          <Button fullWidth size="lg" onClick={handleRefresh} disabled={isRefreshing}>
+            {isRefreshing ? '刷新中...' : '刷新页面'}
           </Button>
-          <Button variant="secondary" fullWidth size="lg" onClick={onDismiss}>
+          <Button variant="secondary" fullWidth size="lg" onClick={onDismiss} disabled={isRefreshing}>
             稍后再说
           </Button>
         </div>
