@@ -24,7 +24,7 @@ import {
 export type { Word, WordState, WrongItem, ProgressState };
 
 // Keys are scoped per-user so multiple accounts on the same browser don't
-// share progress. Legacy single-user keys are migrated on first login.
+// share progress. No legacy migration — a fresh user gets an empty library.
 const PROGRESS_KEY_BASE = 'zeno-vocab-progress-v3';
 const WORDS_KEY_BASE = 'zeno-vocab-words-v1';
 
@@ -87,68 +87,12 @@ function loadWords(userId: string): Word[] {
       console.error('Failed to parse words', e);
     }
   }
-  // One-time migration from the legacy single-user key
-  if (key !== WORDS_KEY_BASE) {
-    const legacy = localStorage.getItem(WORDS_KEY_BASE);
-    if (legacy) {
-      try {
-        const parsed = JSON.parse(legacy);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          localStorage.setItem(key, legacy);
-          return parsed;
-        }
-      } catch {
-        // ignore malformed legacy data
-      }
-    }
-  }
   return DEFAULT_WORDS;
 }
 
 function saveWords(userId: string, words: Word[]) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(wordsKey(userId), JSON.stringify(words));
-}
-
-function migrateV2Progress(userId: string): ProgressState | null {
-  if (typeof window === 'undefined') return null;
-  // The v2 key is a legacy single-user store; migrate it to this user.
-  const raw = localStorage.getItem('zeno-vocab-progress-v2');
-  if (!raw) return null;
-
-  try {
-    const parsed = JSON.parse(raw);
-    const words = loadWords(userId);
-    const wordStates: Record<string, WordState> = {};
-
-    if (Array.isArray(parsed.mastered)) {
-      // v1 format: { mastered: number[] }
-      words.forEach((word, index) => {
-        const isMastered = parsed.mastered.includes(index);
-        wordStates[word.en] = {
-          level: isMastered ? MASTERED_LEVEL : 1,
-          nextReview: isMastered ? Date.now() + 365 * 24 * 60 * 60 * 1000 : Date.now(),
-          firstLearnedDate: getTodayString()
-        };
-      });
-    } else if (parsed.wordStates) {
-      // v2 format: { wordStates: Record<number, WordState> }
-      Object.entries(parsed.wordStates as Record<number, WordState>).forEach(([key, value]) => {
-        const index = parseInt(key, 10);
-        if (!isNaN(index) && words[index]) {
-          wordStates[words[index].en] = {
-            ...value,
-            firstLearnedDate: value.firstLearnedDate || getTodayString()
-          };
-        }
-      });
-    }
-
-    return { wordStates, wrongQueue: [] };
-  } catch (e) {
-    console.error('Failed to migrate v2 progress', e);
-    return null;
-  }
 }
 
 function parseProgress(raw: string): ProgressState {
@@ -192,23 +136,7 @@ function loadProgress(userId: string): ProgressState {
   }
 
   const key = progressKey(userId);
-  const migrated = migrateV2Progress(userId);
-  if (migrated) {
-    localStorage.setItem(key, JSON.stringify(migrated));
-    return migrated;
-  }
-
   const raw = localStorage.getItem(key);
-
-  // One-time migration from the legacy single-user key
-  if (!raw && key !== PROGRESS_KEY_BASE) {
-    const legacy = localStorage.getItem(PROGRESS_KEY_BASE);
-    if (legacy) {
-      localStorage.setItem(key, legacy);
-      return parseProgress(legacy);
-    }
-  }
-
   if (raw) return parseProgress(raw);
 
   return { wordStates: {}, wrongQueue: [] };
