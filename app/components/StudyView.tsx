@@ -175,7 +175,7 @@ export default function StudyView({
         <div className="glass-card mb-6 p-1.5">
           <section className="card aspect-[3/2] cursor-default animate-spring-in relative" aria-label="今日任务完成">
             <Confetti />
-            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[20px]">
+            <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
               <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
                 <h2 className="text-4xl font-bold mb-2 font-display">🎉 今日任务完成</h2>
                 <p className="text-base">所有错题都已通过，明天再来！</p>

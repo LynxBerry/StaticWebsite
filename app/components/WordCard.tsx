@@ -38,7 +38,7 @@ export default function WordCard({
         className={`card aspect-[3/2] ${feedbackClass} ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''}`}
         onClick={() => !disabled && onFlip()}
       >
-        <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[20px]">
+        <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
           <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
             <span className="text-xs uppercase tracking-widest opacity-70 mb-4">
               {isWrongMode

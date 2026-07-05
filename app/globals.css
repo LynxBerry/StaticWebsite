@@ -87,7 +87,7 @@ body::before {
   /* Word card front face: the core reading area. Stronger Fresnel gradient
      (more opaque so dark text reads), same saturation boost + depth cues. */
   .word-card-face {
-    @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[20px];
+    @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[16px];
     background: linear-gradient(135deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.55) 100%);
     box-shadow: 0 8px 32px rgba(0,0,0,0.18), inset 0 1px 1px 0 rgba(255,255,255,0.6);
   }
@@ -97,7 +97,7 @@ body::before {
      so the mesh still glows through, but the surface reads clearly as
      "green" (celebratory reveal moment when the card flips). */
   .word-card-back {
-    @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[20px] text-white;
+    @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[16px] text-white;
     background: linear-gradient(135deg, rgba(112, 176, 112, 0.78) 0%, rgba(81, 138, 83, 0.72) 100%);
     box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 1px 0 rgba(255,255,255,0.4);
   }
@@ -205,7 +205,7 @@ body::before {
 }
 .animate-pop {
   animation: pop 0.4s ease-out;
-  border-radius: 20px;
+  border-radius: 16px;
 }
 
 /* Wrong answer: subtle two-step shake */
