@@ -21,7 +21,7 @@ export default async function Home() {
       {/* Large background text behind the glass card to test liquid-glass refraction. */}
       <div
         aria-hidden="true"
-        className="fixed left-1/2 top-[15vh] -translate-x-1/2 -z-10 select-none pointer-events-none"
+        className="fixed left-1/2 top-[15vh] -translate-x-1/2 z-0 select-none pointer-events-none"
         style={{
           fontSize: 'clamp(56px, 14vw, 180px)',
           fontWeight: 900,
