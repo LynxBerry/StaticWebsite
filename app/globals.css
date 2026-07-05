@@ -68,6 +68,10 @@ body::before {
     @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[20px];
     background: linear-gradient(135deg, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.12) 100%);
     box-shadow: 0 8px 32px rgba(0,0,0,0.18), inset 0 1px 1px 0 rgba(255,255,255,0.35);
+    /* Apply the shared liquid-glass displacement filter so every card
+       warps the page background behind it. */
+    backdrop-filter: url(#liquid-glass-card) blur(7px) saturate(1.4);
+    -webkit-backdrop-filter: url(#liquid-glass-card) blur(7px) saturate(1.4);
   }
 
   /* Word card front face: the core reading area. Stronger Fresnel gradient
