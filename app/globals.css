@@ -17,10 +17,8 @@ body {
      Padding grows on bigger screens so content isn't crammed to the edge
      of a desktop browser. */
   @apply min-h-screen flex items-start justify-center relative p-4 sm:p-6 lg:p-10 pt-20 sm:pt-24 lg:pt-28 font-sans antialiased;
-  /* Light-on-glass: pale text + a real drop shadow so each glyph is
-     "lifted" off the colored backdrop behind the glass. */
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  /* Dark text on a white background for a clean, high-contrast look. */
+  color: rgba(30, 30, 30, 0.95);
 }
 
 /* Short viewports (phone landscape, ~≤500px tall): shrink the top padding
@@ -53,19 +51,7 @@ body::before {
   right: 0;
   bottom: 0;
   z-index: -1;
-  background:
-    /* warm amber glow — upper-left, brighter & warmer than before */
-    radial-gradient(ellipse 50% 40% at 18% 22%, rgba(232, 180, 90, 0.28) 0%, transparent 65%),
-    /* soft peach — center-top, adds overall warmth */
-    radial-gradient(ellipse 45% 38% at 55% 18%, rgba(220, 150, 110, 0.18) 0%, transparent 60%),
-    /* fresh sprout green — right side, the main note */
-    radial-gradient(ellipse 55% 50% at 82% 30%, rgba(82, 138, 83, 0.30) 0%, transparent 60%),
-    /* olive depth — bottom-left */
-    radial-gradient(ellipse 50% 45% at 25% 80%, rgba(54, 99, 57, 0.36) 0%, transparent 60%),
-    /* sage — bottom-right */
-    radial-gradient(ellipse 45% 40% at 78% 78%, rgba(98, 119, 80, 0.26) 0%, transparent 60%),
-    /* base — warm dark green */
-    linear-gradient(160deg, #23291c 0%, #1a1f14 100%);
+  background: #ffffff;
 }
 
 @layer components {
