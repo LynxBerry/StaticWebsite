@@ -51,7 +51,7 @@ body::before {
   right: 0;
   bottom: 0;
   z-index: -1;
-  background: url('/greenfarm.jpg') center/cover no-repeat;
+  background: url('/dsc03893.png') center/cover no-repeat;
 }
 
 @layer components {
