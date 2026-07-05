@@ -84,7 +84,7 @@ export default function DashboardView({
       {/* Today's action hero — two donuts side by side: review progress + new-word progress.
           Each donut shows its own completion ratio, so the user sees both daily tasks at once. */}
       <div className={`${sectionClass} mb-4`}>
-        <h3 className="text-base font-semibold text-white/95 mb-4 font-display">今日</h3>
+        <h3 className="text-base font-semibold text-black/95 mb-4 font-display">今日</h3>
         {(() => {
           const review = getReviewStats();
           const reviewPct = review.initialDue > 0 ? Math.round((review.done / review.initialDue) * 100) : 100;
@@ -102,7 +102,7 @@ export default function DashboardView({
               <div className="grid grid-cols-2 gap-3 mb-4 relative">
                 {/* Vertical divider between the two donuts — a faint hairline
                     etched into the glass, like the header's horizontal one. */}
-                <div className="absolute top-2 bottom-2 left-1/2 w-px bg-gradient-to-b from-transparent via-white/15 to-transparent pointer-events-none" />
+                <div className="absolute top-2 bottom-2 left-1/2 w-px bg-gradient-to-b from-transparent via-black/15 to-transparent pointer-events-none" />
                 {/* Review donut */}
                 <div className="flex flex-col items-center gap-1.5">
                   <DonutChart
@@ -115,8 +115,8 @@ export default function DashboardView({
                     ariaLabel={`今日复习进度 ${reviewPct}%`}
                   />
                   <div className="text-center">
-                    <div className="text-xs text-white/90 font-semibold">复习</div>
-                    <div className="text-[0.6875rem] text-white/55 tabular-nums">
+                    <div className="text-xs text-black/90 font-semibold">复习</div>
+                    <div className="text-[0.6875rem] text-black/55 tabular-nums">
                       {review.initialDue > 0
                         ? `${review.done} / ${review.initialDue}`
                         : '无到期'}
@@ -135,8 +135,8 @@ export default function DashboardView({
                     ariaLabel={`今日新词进度 ${newPct}%`}
                   />
                   <div className="text-center">
-                    <div className="text-xs text-white/90 font-semibold">新词</div>
-                    <div className="text-[0.6875rem] text-white/55 tabular-nums">
+                    <div className="text-xs text-black/90 font-semibold">新词</div>
+                    <div className="text-[0.6875rem] text-black/55 tabular-nums">
                       {totalNew > 0 ? `${todayCount} / ${totalNew}` : '无配额'}
                     </div>
                   </div>
@@ -168,19 +168,19 @@ export default function DashboardView({
 
       {/* Progress overview */}
       <div className={`${sectionClass} mb-4`}>
-        <h3 className="text-base font-semibold text-white/95 mb-3 font-display">进度</h3>
+        <h3 className="text-base font-semibold text-black/95 mb-3 font-display">进度</h3>
         <div className="flex items-end justify-between mb-2">
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-white">{masteredCount}</span>
-            <span className="text-sm text-white/70">/ {totalCount} 已掌握</span>
+            <span className="text-3xl font-bold text-black">{masteredCount}</span>
+            <span className="text-sm text-black/70">/ {totalCount} 已掌握</span>
           </div>
-          <span className="text-lg font-bold text-white">{progressPercent}%</span>
+          <span className="text-lg font-bold text-black">{progressPercent}%</span>
         </div>
         <ProgressBar value={masteredCount} max={totalCount} className="mb-3" />
-        <div className="flex gap-4 text-xs text-white/70">
-          <span>已学 <strong className="text-white">{learnedCount}</strong></span>
-          <span>待播种 <strong className="text-white">{unlearnedCount}</strong></span>
-          <button className="ml-auto text-white/70 hover:text-white hover:underline" onClick={onGoToFarm}>
+        <div className="flex gap-4 text-xs text-black/70">
+          <span>已学 <strong className="text-black">{learnedCount}</strong></span>
+          <span>待播种 <strong className="text-black">{unlearnedCount}</strong></span>
+          <button className="ml-auto text-black/70 hover:text-black hover:underline" onClick={onGoToFarm}>
             查看农场 →
           </button>
         </div>
@@ -188,7 +188,7 @@ export default function DashboardView({
 
       {/* Stage distribution */}
       <div className={`${sectionClass} mb-4`}>
-        <h3 className="text-base font-semibold text-white/95 mb-3 font-display">熟悉度分布</h3>
+        <h3 className="text-base font-semibold text-black/95 mb-3 font-display">熟悉度分布</h3>
         <div className="space-y-1.5">
           {[1, 2, 3, 4, 5, 6].map((stage) => {
             const count = stageCounts[stage] || 0;
@@ -197,13 +197,13 @@ export default function DashboardView({
               <div key={stage} className="flex items-center gap-3">
                 <span className="text-base w-8 text-center shrink-0">{getPlantIcon(stage)}</span>
                 <ProgressBar value={count} max={learnedCount} className="flex-1" />
-                <span className="text-xs text-white/70 w-8 text-right shrink-0">{count}</span>
+                <span className="text-xs text-black/70 w-8 text-right shrink-0">{count}</span>
               </div>
             );
           })}
         </div>
         {learnedCount === 0 && (
-          <p className="text-xs text-white/55 mt-3 text-center">
+          <p className="text-xs text-black/55 mt-3 text-center">
             还没有开始学习，去播种你的第一个单词吧
           </p>
         )}

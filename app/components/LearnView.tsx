@@ -82,7 +82,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="learn-view">
       <section className="mb-6">
-        <span className="block text-sm text-white/80 mb-2">
+        <span className="block text-sm text-black/80 mb-2">
           今日新学 {todayCount} / {displayTotal}
         </span>
         <ProgressBar value={todayCount} max={displayTotal} />
@@ -103,7 +103,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
             </div>
           </section>
           <div className="px-5 pb-5 pt-3">
-            <p className="text-sm text-white/70 mb-4 text-center">没有可学的新单词了</p>
+            <p className="text-sm text-black/70 mb-4 text-center">没有可学的新单词了</p>
             <div className="flex gap-3">
               <Button variant="secondary" size="lg" className="flex-1" disabled>跳过</Button>
               <Button size="lg" className="flex-1" disabled>播种</Button>
@@ -135,7 +135,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
           </section>
 
           <div className="px-5 pb-5 pt-3">
-            <p className="text-sm text-white/70 mb-4 text-center">点击卡片查看释义</p>
+            <p className="text-sm text-black/70 mb-4 text-center">点击卡片查看释义</p>
             <div className="flex gap-3">
               <Button variant="secondary" size="lg" className="flex-1" onClick={handleSkip}>
                 跳过

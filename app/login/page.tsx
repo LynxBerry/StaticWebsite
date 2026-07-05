@@ -19,11 +19,11 @@ export default async function LoginPage() {
         <div className="glass-card w-full max-w-[360px] mx-auto text-left p-5">
           <div className="mb-6 flex flex-col items-center">
             <Logo size={64} className="mb-3" />
-            <h2 className="text-xl text-white mb-1 font-display">🔒 Sprout · 单词农场</h2>
-            <p className="text-sm text-white/65">请登录继续</p>
+            <h2 className="text-xl text-black mb-1 font-display">🔒 Sprout · 单词农场</h2>
+            <p className="text-sm text-black/65">请登录继续</p>
           </div>
 
-          <Suspense fallback={<p className="text-center text-white/70">加载中...</p>}>
+          <Suspense fallback={<p className="text-center text-black/70">加载中...</p>}>
             <LoginForm />
           </Suspense>
         </div>

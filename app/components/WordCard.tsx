@@ -60,7 +60,7 @@ export default function WordCard({
       </section>
 
       <div className="px-5 pb-5 pt-3">
-        <p className="text-sm text-white/70 mb-4 text-center">
+        <p className="text-sm text-black/70 mb-4 text-center">
           {disabled
             ? '全部复习完成'
             : isWrongMode

@@ -149,10 +149,10 @@ export default function HomeClient({
     <div className={`px-5 pt-12 pb-4 flex items-center justify-center gap-3${animate ? ' animate-fade-up' : ''}`}>
       <Logo size={40} />
       <div className="flex flex-col items-center">
-        <h1 className="text-3xl font-semibold text-white" style={{ fontFamily: titleFont }}>
+        <h1 className="text-3xl font-semibold text-black" style={{ fontFamily: titleFont }}>
           {siteTitle}
         </h1>
-        <p className="text-white/70 italic tracking-wide text-sm mt-0.5">One seed, one harvest</p>
+        <p className="text-black/70 italic tracking-wide text-sm mt-0.5">One seed, one harvest</p>
       </div>
     </div>
   );
@@ -174,7 +174,7 @@ export default function HomeClient({
         >
           {renderHeaderContent(false)}
         </div>
-        <p className="text-center text-white/70">加载中...</p>
+        <p className="text-center text-black/70">加载中...</p>
       </main>
     );
   }
@@ -203,7 +203,7 @@ export default function HomeClient({
         {renderHeaderContent(true)}
         {/* Divider — fades from transparent to ~12% white and back, so it
             reads as a hairline etched into the glass, not a hard line. */}
-        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-black/15 to-transparent" />
         <nav
           ref={navRef}
           className="flex justify-center gap-1 overflow-x-auto no-scrollbar p-1.5 relative"
@@ -217,11 +217,11 @@ export default function HomeClient({
               left: indicatorStyle.left,
               width: indicatorStyle.width,
               opacity: indicatorStyle.opacity,
-              background: 'rgba(255,255,255,0.12)',
+              background: 'rgba(0,0,0,0.08)',
               backdropFilter: 'blur(16px) saturate(120%)',
               WebkitBackdropFilter: 'blur(16px) saturate(120%)',
-              border: '1px solid rgba(255,255,255,0.18)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.15)',
+              border: '1px solid rgba(0,0,0,0.10)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.08), inset 0 1px 1px rgba(255,255,255,0.35)',
               transition: 'left 0.5s cubic-bezier(0.25, 1, 0.33, 1.2), width 0.5s cubic-bezier(0.25, 1, 0.33, 1.2), opacity 0.8s ease'
             }}
           />
@@ -233,8 +233,8 @@ export default function HomeClient({
                 ref={(el) => { buttonRefs.current[index] = el; }}
                 className={`relative z-10 px-3 py-1.5 text-sm font-medium rounded-2xl whitespace-nowrap transition-colors duration-300 ${
                   active
-                    ? 'text-white'
-                    : 'text-white/60 hover:text-white/90'
+                    ? 'text-black'
+                    : 'text-black/60 hover:text-black/90'
                 }`}
                 onClick={() => setCurrentView(tab.key as ViewType)}
                 title={tab.tooltip}

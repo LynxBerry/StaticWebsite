@@ -11,14 +11,21 @@
   display: none; /* Chrome/Safari */
 }
 
+:root {
+  --ink: rgba(30, 30, 30, 0.95);
+  --ink-soft: rgba(30, 30, 30, 0.70);
+  --ink-mute: rgba(30, 30, 30, 0.55);
+  --ink-faint: rgba(30, 30, 30, 0.45);
+}
+
 body {
   /* items-start (not center) so tall pages don't get pushed up by the
      vertical centering when switching tabs of different heights.
      Padding grows on bigger screens so content isn't crammed to the edge
      of a desktop browser. */
   @apply min-h-screen flex items-start justify-center relative p-4 sm:p-6 lg:p-10 pt-20 sm:pt-24 lg:pt-28 font-sans antialiased;
-  /* Dark text on a white background for a clean, high-contrast look. */
-  color: rgba(30, 30, 30, 0.95);
+  /* Dark text for the light photo background. */
+  color: var(--ink);
 }
 
 /* Short viewports (phone landscape, ~≤500px tall): shrink the top padding
@@ -33,7 +40,12 @@ body {
    combo badges): invert the carve so white text gets dimension without
    going muddy. Apply via the .text-engrave-dark utility class. */
 .text-engrave-dark {
-  text-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.25);
+  text-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* Dark text on light glass surfaces: subtle light shadow for carved effect. */
+.text-engrave-light {
+  text-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.8);
 }
 
 /* Pure-CSS mesh gradient backdrop — no image request, fully controllable.
@@ -75,7 +87,7 @@ body::before {
      (more opaque so dark text reads), same saturation boost + depth cues. */
   .word-card-face {
     @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[16px];
-    background: linear-gradient(135deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.55) 100%);
+    background: linear-gradient(135deg, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.68) 100%);
     box-shadow: 0 8px 32px rgba(0,0,0,0.18), inset 0 1px 1px 0 rgba(255,255,255,0.6);
   }
 
@@ -84,7 +96,7 @@ body::before {
      so the mesh still glows through, but the surface reads clearly as
      "green" (celebratory reveal moment when the card flips). */
   .word-card-back {
-    @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[16px] text-white;
+    @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[16px];
     background: linear-gradient(135deg, rgba(112, 176, 112, 0.78) 0%, rgba(81, 138, 83, 0.72) 100%);
     box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 1px 0 rgba(255,255,255,0.4);
   }
@@ -93,7 +105,7 @@ body::before {
      body's light-text + dark-shadow back to dark-text + light-shadow. */
   .text-engrave-light {
     color: #3D2F1F; /* farm-text */
-    text-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.6);
+    text-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.8);
   }
 }
 

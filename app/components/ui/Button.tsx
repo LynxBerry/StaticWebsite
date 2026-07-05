@@ -25,9 +25,9 @@ const primaryVariant =
   'enabled:active:scale-[0.98]';
 
 const secondaryVariant =
-  'bg-white/20 text-white backdrop-blur-md border border-white/25 ' +
-  'enabled:hover:bg-white/30 ' +
-  'enabled:active:bg-white/15 ' +
+  'bg-black/10 text-black backdrop-blur-md border border-black/15 ' +
+  'enabled:hover:bg-black/15 ' +
+  'enabled:active:bg-black/10 ' +
   'enabled:active:scale-[0.98]';
 
 // Larger tap targets for kids (Apple HIG / WCAG recommend ≥44px for the
