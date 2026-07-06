@@ -124,13 +124,13 @@ export default function HomeClient({
   // loading state and the hydrated state. Only difference: the hydrated
   // version fades up on mount.
   const renderHeaderContent = (animate: boolean) => (
-    <div className={`px-5 pt-12 pb-4 flex items-center justify-center gap-3${animate ? ' animate-fade-up' : ''}`}>
+    <div className={`px-5 pt-0 pb-4 flex items-center justify-center gap-3${animate ? ' animate-fade-up' : ''}`}>
       <Logo size={40} />
       <div className="flex flex-col items-center">
-        <h1 className="text-3xl font-semibold text-white" style={{ fontFamily: titleFont }}>
+        <h1 className="text-3xl font-semibold text-farm-text" style={{ fontFamily: titleFont }}>
           {siteTitle}
         </h1>
-        <p className="text-white/70 italic tracking-wide text-sm mt-0.5">One seed, one harvest</p>
+        <p className="text-farm-textSecondary italic tracking-wide text-sm mt-0.5">One seed, one harvest</p>
       </div>
     </div>
   );
@@ -143,16 +143,21 @@ export default function HomeClient({
   if (!isHydrated) {
     return (
       <main className="w-full max-w-[420px] sm:max-w-[480px] lg:max-w-[540px] min-h-[90vh] text-center flex flex-col mx-auto">
-        <div
-          className="glass-card w-full mb-6 animate-descend"
-          style={{
-            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 40px)',
-            maskImage: 'linear-gradient(to bottom, transparent 0%, black 40px)'
-          }}
-        >
-          {renderHeaderContent(false)}
+        {renderHeaderContent(false)}
+        <div className="nav-card w-full mb-6 animate-descend p-4">
+          <nav className="flex justify-center gap-1 overflow-x-auto no-scrollbar p-1.5 relative">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                className="px-3 py-1.5 text-sm font-medium rounded-xl whitespace-nowrap text-farm-muted"
+                disabled
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
         </div>
-        <p className="text-center text-white/70">加载中...</p>
+        <p className="text-center text-farm-muted">加载中...</p>
       </main>
     );
   }
@@ -166,25 +171,13 @@ export default function HomeClient({
     <main className="w-full max-w-[420px] min-h-[90vh] text-center flex flex-col">
       <ParallaxBackground />
 
-      {/* Unified top bar: header + nav merged into one glass container.
-          A faint gradient divider separates the brand block from the tabs,
-          so it reads as a single "app bar" instead of two stacked cards.
-          The mask fades the top edge into the background so the bar reads
-          as emerging from the scene, not pasted on top of it. */}
-      <div
-        className="glass-card w-full mb-6 animate-descend"
-        style={{
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 40px)',
-          maskImage: 'linear-gradient(to bottom, transparent 0%, black 40px)'
-        }}
-      >
-        {renderHeaderContent(true)}
-        {/* Divider — fades from transparent to ~12% white and back, so it
-            reads as a hairline etched into the glass, not a hard line. */}
-        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+      {renderHeaderContent(true)}
+
+      {/* Tab navigation sits in its own flat card below the site title. */}
+      <div className="nav-card w-full mb-6 animate-descend">
         <nav ref={navRef} className="flex justify-center gap-1 overflow-x-auto no-scrollbar p-1.5 relative">
           <span
-            className="absolute top-1.5 bottom-1.5 rounded-xl bg-white/25 backdrop-blur-md transition-all duration-300 ease-out pointer-events-none"
+            className="absolute top-1.5 bottom-1.5 rounded-xl bg-[#e0f7c8] transition-all duration-300 ease-out pointer-events-none"
             style={indicatorStyle}
           />
           {tabs.map((tab, index) => {
@@ -195,8 +188,8 @@ export default function HomeClient({
                 ref={(el) => { buttonRefs.current[index] = el; }}
                 className={`relative z-10 px-3 py-1.5 text-sm font-medium rounded-xl whitespace-nowrap transition-colors duration-300 ${
                   active
-                    ? 'text-white'
-                    : 'text-white/60 hover:text-white/90'
+                    ? 'text-farm-text'
+                    : 'text-farm-muted after:absolute after:bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:h-0.5 after:w-0 after:bg-[#39ff14] after:rounded-full after:transition-all after:duration-300 hover:after:w-3/5'
                 }`}
                 onClick={() => setCurrentView(tab.key as ViewType)}
                 title={tab.tooltip}

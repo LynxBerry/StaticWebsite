@@ -17,10 +17,9 @@ body {
      Padding grows on bigger screens so content isn't crammed to the edge
      of a desktop browser. */
   @apply min-h-screen flex items-start justify-center relative p-4 sm:p-6 lg:p-10 pt-20 sm:pt-24 lg:pt-28 font-sans antialiased;
-  /* Light-on-glass: pale text + a real drop shadow so each glyph is
-     "lifted" off the colored backdrop behind the glass. */
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  /* Flat light theme: solid warm light-gray background with dark text. */
+  background-color: #efefeb;
+  color: #3D2F1F;
 }
 
 /* Short viewports (phone landscape, ~≤500px tall): shrink the top padding
@@ -32,81 +31,55 @@ body {
 }
 
 /* White text on dark/colored surfaces (card backs, primary buttons,
-   combo badges): invert the carve so white text gets dimension without
-   going muddy. Apply via the .text-engrave-dark utility class. */
+   combo badges): keep the color bright but remove the engraved shadow
+   so the flat theme stays clean. */
 .text-engrave-dark {
-  text-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.95);
 }
 
-/* Pure-CSS mesh gradient backdrop — no image request, fully controllable.
-   Several large soft radial color blobs over a dark green base, blended by
-   their own transparency into a calm "meadow at dusk" wash. The palette is
-   warm-farm: sage / olive / sprout greens with a sunny-yellow highlight,
-   echoing the brand's sprout + harvest colors. Designed for kids — warm
-   and lively, not cool and corporate. Glass cards' backdrop-blur frosts
-   this layer the same way it frosted a photo. */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -1;
-  background:
-    /* warm amber glow — upper-left, brighter & warmer than before */
-    radial-gradient(ellipse 50% 40% at 18% 22%, rgba(232, 180, 90, 0.28) 0%, transparent 65%),
-    /* soft peach — center-top, adds overall warmth */
-    radial-gradient(ellipse 45% 38% at 55% 18%, rgba(220, 150, 110, 0.18) 0%, transparent 60%),
-    /* fresh sprout green — right side, the main note */
-    radial-gradient(ellipse 55% 50% at 82% 30%, rgba(82, 138, 83, 0.30) 0%, transparent 60%),
-    /* olive depth — bottom-left */
-    radial-gradient(ellipse 50% 45% at 25% 80%, rgba(54, 99, 57, 0.36) 0%, transparent 60%),
-    /* sage — bottom-right */
-    radial-gradient(ellipse 45% 40% at 78% 78%, rgba(98, 119, 80, 0.26) 0%, transparent 60%),
-    /* base — warm dark green */
-    linear-gradient(160deg, #23291c 0%, #1a1f14 100%);
-}
+/* Removed the dark mesh-gradient backdrop. The body now uses a solid
+   light background (#f4f4f0) for a clean flat design. */
 
 @layer components {
-  /* Translucent frosted sheet over a SHARP photo. Real glass has a front
-     and back surface — we fake that depth with three cues:
-     1. Diagonal white gradient (135deg, brighter top-left → dimmer
-        bottom-right) mimics the Fresnel effect: light reflects more at
-        grazing angles, so the surface isn't uniformly lit.
-     2. backdrop-saturate-180 boosts the colors transmitted through the
-        glass, simulating chromatic dispersion of refracted light.
-     3. Layered shadows: outer drop (sheet floats above the scene) +
-        inset 1px edge highlight (front-surface reflection at the rim). */
+  /* Flat card with a whisper of frost: mostly opaque white with a tiny
+     backdrop blur so it lifts just above the page background and buttons. */
+  .flat-card {
+    @apply rounded-[20px] bg-white/95 backdrop-blur-sm;
+    border: 1px solid #e0e0e0;
+  }
+
+  /* Nav card stays fully flat (no blur) so it doesn't compete with content. */
+  .nav-card {
+    @apply rounded-[20px];
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+  }
+
+  /* Backwards-compatible alias so existing .glass-card references keep
+     working while switching the visual style to flat. */
   .glass-card {
-    @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[20px];
-    background: linear-gradient(135deg, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.12) 100%);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18), inset 0 1px 1px 0 rgba(255,255,255,0.35);
+    @apply flat-card;
   }
 
-  /* Word card front face: the core reading area. Stronger Fresnel gradient
-     (more opaque so dark text reads), same saturation boost + depth cues. */
+  /* Word card front face: very pale mint surface so it lifts slightly
+     above the frosted white wrapper card behind it. */
   .word-card-face {
-    @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[16px];
-    background: linear-gradient(135deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.55) 100%);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18), inset 0 1px 1px 0 rgba(255,255,255,0.6);
+    @apply rounded-[16px];
+    background-color: #f5f9f4;
+    border: 1px solid #e0e0e0;
   }
 
-  /* Word card back face: a LIVELY green-tinted glass — not the murky
-     dark-green that read as grey. Bright sprout green at moderate opacity
-     so the mesh still glows through, but the surface reads clearly as
-     "green" (celebratory reveal moment when the card flips). */
+  /* Word card back face: solid sprout green reveal with white text. */
   .word-card-back {
-    @apply backdrop-blur-xl backdrop-saturate-[1.8] rounded-[16px] text-white;
-    background: linear-gradient(135deg, rgba(112, 176, 112, 0.78) 0%, rgba(81, 138, 83, 0.72) 100%);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 1px 0 rgba(255,255,255,0.4);
+    @apply rounded-[16px];
+    color: rgba(255, 255, 255, 0.95);
+    background-color: #70B070;
+    border: 1px solid #e0e0e0;
   }
 
-  /* Word card & input fields keep dark text on light surface — flip the
-     body's light-text + dark-shadow back to dark-text + light-shadow. */
+  /* Dark farm text on light surfaces — no engraved shadow in flat mode. */
   .text-engrave-light {
     color: #3D2F1F; /* farm-text */
-    text-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.6);
   }
 }
 
@@ -125,10 +98,6 @@ body::before {
 .card-front,
 .card-back {
   backface-visibility: hidden;
-}
-
-.card.wrong .card-inner {
-  box-shadow: 0 0 24px rgba(239, 68, 68, 0.35), 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .card.wrong .card-front {
@@ -191,16 +160,14 @@ body::before {
   animation: fade-up 0.3s ease-out both;
 }
 
-/* Correct answer: green ring hugging the card's rounded edge. Uses a
-   combination of outer spread (0 0 0 Npx, tracks border-radius) and a
-   matching inset so the ring sits flush against the card surface with no
-   visible gap. Applied on the .card section which wraps the rounded inner. */
+/* Correct answer: green ring hugging the card's rounded edge. Flat,
+   no outer drop shadow — just the ring color tracking border-radius. */
 @keyframes pop {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0), inset 0 0 0 0 rgba(34, 197, 94, 0);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.7), inset 0 0 0 2px rgba(34, 197, 94, 0.5);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.55);
   }
 }
 .animate-pop {

@@ -25,7 +25,7 @@ interface DashboardViewProps {
   onGoToSettings: () => void;
 }
 
-const sectionClass = 'text-left p-5 glass-card';
+const sectionClass = 'text-left p-5 flat-card';
 
 export default function DashboardView({
   words,
@@ -84,7 +84,7 @@ export default function DashboardView({
       {/* Today's action hero — two donuts side by side: review progress + new-word progress.
           Each donut shows its own completion ratio, so the user sees both daily tasks at once. */}
       <div className={`${sectionClass} mb-4`}>
-        <h3 className="text-base font-semibold text-white/95 mb-4 font-display">今日</h3>
+        <h3 className="w-fit text-base font-semibold text-farm-text mb-3 pb-0.5 px-0.5 border-b border-farm-borderSecondary font-display">今日任务</h3>
         {(() => {
           const review = getReviewStats();
           const reviewPct = review.initialDue > 0 ? Math.round((review.done / review.initialDue) * 100) : 100;
@@ -102,21 +102,20 @@ export default function DashboardView({
               <div className="grid grid-cols-2 gap-3 mb-4 relative">
                 {/* Vertical divider between the two donuts — a faint hairline
                     etched into the glass, like the header's horizontal one. */}
-                <div className="absolute top-2 bottom-2 left-1/2 w-px bg-gradient-to-b from-transparent via-white/15 to-transparent pointer-events-none" />
+                <div className="absolute top-2 bottom-2 left-1/2 w-px bg-farm-border pointer-events-none" />
                 {/* Review donut */}
                 <div className="flex flex-col items-center gap-1.5">
                   <DonutChart
-                    value={review.done}
+                    value={review.initialDue > 0 ? review.done : 1}
                     max={review.initialDue || 1}
                     size={72}
                     stroke={7}
                     label={`${reviewPct}%`}
-                    sublabel="复习"
                     ariaLabel={`今日复习进度 ${reviewPct}%`}
                   />
                   <div className="text-center">
-                    <div className="text-xs text-white/90 font-semibold">复习</div>
-                    <div className="text-[0.6875rem] text-white/55 tabular-nums">
+                    <div className="text-xs text-farm-text font-semibold">复习</div>
+                    <div className="text-[0.6875rem] text-farm-textSecondary tabular-nums">
                       {review.initialDue > 0
                         ? `${review.done} / ${review.initialDue}`
                         : '无到期'}
@@ -126,17 +125,16 @@ export default function DashboardView({
                 {/* New-word donut */}
                 <div className="flex flex-col items-center gap-1.5">
                   <DonutChart
-                    value={todayCount}
+                    value={totalNew > 0 ? todayCount : 1}
                     max={totalNew || 1}
                     size={72}
                     stroke={7}
                     label={`${newPct}%`}
-                    sublabel="新词"
                     ariaLabel={`今日新词进度 ${newPct}%`}
                   />
                   <div className="text-center">
-                    <div className="text-xs text-white/90 font-semibold">新词</div>
-                    <div className="text-[0.6875rem] text-white/55 tabular-nums">
+                    <div className="text-xs text-farm-text font-semibold">新词</div>
+                    <div className="text-[0.6875rem] text-farm-textSecondary tabular-nums">
                       {totalNew > 0 ? `${todayCount} / ${totalNew}` : '无配额'}
                     </div>
                   </div>
@@ -168,27 +166,34 @@ export default function DashboardView({
 
       {/* Progress overview */}
       <div className={`${sectionClass} mb-4`}>
-        <h3 className="text-base font-semibold text-white/95 mb-3 font-display">进度</h3>
+        <h3 className="w-fit text-base font-semibold text-farm-text mb-3 pb-0.5 px-0.5 border-b border-farm-borderSecondary font-display">当前进度</h3>
         <div className="flex items-end justify-between mb-2">
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-white">{masteredCount}</span>
-            <span className="text-sm text-white/70">/ {totalCount} 已掌握</span>
+            <span className="text-3xl font-bold text-farm-text">{masteredCount}</span>
+            <span className="text-sm text-farm-muted">/ {totalCount} 已掌握</span>
           </div>
-          <span className="text-lg font-bold text-white">{progressPercent}%</span>
+          <span className="text-lg font-bold text-farm-text">{progressPercent}%</span>
         </div>
         <ProgressBar value={masteredCount} max={totalCount} className="mb-3" />
-        <div className="flex gap-4 text-xs text-white/70">
-          <span>已学 <strong className="text-white">{learnedCount}</strong></span>
-          <span>待播种 <strong className="text-white">{unlearnedCount}</strong></span>
-          <button className="ml-auto text-white/70 hover:text-white hover:underline" onClick={onGoToFarm}>
-            查看农场 →
+        <div className="flex gap-4 text-xs text-farm-muted">
+          <span>已学 <strong className="text-farm-text">{learnedCount}</strong></span>
+          <span>待播种 <strong className="text-farm-text">{unlearnedCount}</strong></span>
+          <button
+            className="ml-auto inline-flex items-center gap-2 pl-5 pr-3 py-1.5 rounded-full bg-white border border-farm-borderSecondary text-xs font-medium text-farm-text hover:bg-farm-bg transition-colors"
+            onClick={onGoToFarm}
+          >
+            查看农场
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 17L17 7" />
+              <path d="M7 7h10v10" />
+            </svg>
           </button>
         </div>
       </div>
 
       {/* Stage distribution */}
       <div className={`${sectionClass} mb-4`}>
-        <h3 className="text-base font-semibold text-white/95 mb-3 font-display">熟悉度分布</h3>
+        <h3 className="w-fit text-base font-semibold text-farm-text mb-3 pb-0.5 px-0.5 border-b border-farm-borderSecondary font-display">单词成长阶段</h3>
         <div className="space-y-1.5">
           {[1, 2, 3, 4, 5, 6].map((stage) => {
             const count = stageCounts[stage] || 0;
@@ -197,13 +202,13 @@ export default function DashboardView({
               <div key={stage} className="flex items-center gap-3">
                 <span className="text-base w-8 text-center shrink-0">{getPlantIcon(stage)}</span>
                 <ProgressBar value={count} max={learnedCount} className="flex-1" />
-                <span className="text-xs text-white/70 w-8 text-right shrink-0">{count}</span>
+                <span className="text-xs text-farm-muted w-8 text-right shrink-0">{count}</span>
               </div>
             );
           })}
         </div>
         {learnedCount === 0 && (
-          <p className="text-xs text-white/55 mt-3 text-center">
+          <p className="text-xs text-farm-textSecondary mt-3 text-center">
             还没有开始学习，去播种你的第一个单词吧
           </p>
         )}

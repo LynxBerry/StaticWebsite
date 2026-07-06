@@ -16,7 +16,7 @@ interface SettingsViewProps {
   onUpdateDailyNewLimit: (limit: number) => void;
 }
 
-const sectionClass = 'text-left p-5 mb-4 glass-card';
+const sectionClass = 'text-left p-5 mb-4 flat-card';
 
 export default function SettingsView({ exportState, importState, onReset, siteTitle, onUpdateSiteTitle, dailyNewLimit, onUpdateDailyNewLimit }: SettingsViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -156,13 +156,13 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="settings-view">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-white mb-1 font-display">⚙️ 设置</h2>
-        <p className="text-sm text-white/60">备份、恢复和重置</p>
+        <h2 className="text-xl font-semibold text-farm-text mb-1 font-display">⚙️ 设置</h2>
+        <p className="text-sm text-farm-muted">备份、恢复和重置</p>
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-white mb-2 font-display">🏷️ 站点名称</h3>
-        <p className="text-sm text-white/70 mb-4 leading-relaxed">
+        <h3 className="text-base font-semibold text-farm-text mb-2 font-display">🏷️ 站点名称</h3>
+        <p className="text-sm text-farm-muted mb-4 leading-relaxed">
           自定义你的单词农场名字，会显示在标题和浏览器标签页，所有设备同步。
         </p>
         <input
@@ -178,18 +178,18 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
           }}
           placeholder="Sprout · 单词农场"
           maxLength={30}
-          className="w-full px-4 py-2.5 rounded-lg bg-white/15 backdrop-blur-xl backdrop-saturate-150 text-white text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-white/45 focus:bg-white/25 focus:shadow-[0_0_0_2px_rgba(255,255,255,0.25)]"
+          className="w-full px-4 py-2.5 rounded-lg bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
         />
         {titleSaved && (
-          <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-white/15 text-sprout-300 border border-white/25">
+          <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-farm-bg text-sprout-600 border border-farm-border">
             已保存 ✓
           </p>
         )}
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-white mb-2 font-display">📚 每日新词限额</h3>
-        <p className="text-sm text-white/70 mb-4 leading-relaxed">
+        <h3 className="text-base font-semibold text-farm-text mb-2 font-display">📚 每日新词限额</h3>
+        <p className="text-sm text-farm-muted mb-4 leading-relaxed">
           设置每天最多可以播种几个新单词（1-100），会同步到所有设备。
         </p>
         <input
@@ -205,18 +205,18 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
               (e.target as HTMLInputElement).blur();
             }
           }}
-          className="w-full px-4 py-2.5 rounded-lg bg-white/15 backdrop-blur-xl backdrop-saturate-150 text-white text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-white/45 focus:bg-white/25 focus:shadow-[0_0_0_2px_rgba(255,255,255,0.25)]"
+          className="w-full px-4 py-2.5 rounded-lg bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
         />
         {limitSaved && (
-          <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-white/15 text-sprout-300 border border-white/25">
+          <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-farm-bg text-sprout-600 border border-farm-border">
             已保存 ✓
           </p>
         )}
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-white mb-2 font-display">💾 备份词库和进度</h3>
-        <p className="text-sm text-white/70 mb-4 leading-relaxed">
+        <h3 className="text-base font-semibold text-farm-text mb-2 font-display">💾 备份词库和进度</h3>
+        <p className="text-sm text-farm-muted mb-4 leading-relaxed">
           导出你的全部单词和学习进度为 JSON 文件，方便备份或迁移到其他设备。
         </p>
         <Button className="flex-none min-w-[140px]" onClick={handleExport}>
@@ -225,11 +225,11 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-white mb-2 font-display">📂 恢复备份</h3>
-        <p className="text-sm text-white/70 mb-4 leading-relaxed">
+        <h3 className="text-base font-semibold text-farm-text mb-2 font-display">📂 恢复备份</h3>
+        <p className="text-sm text-farm-muted mb-4 leading-relaxed">
           选择之前导出的备份文件，恢复你的词库和学习进度。适用于换设备或重装后找回数据。
         </p>
-        <label className="flex items-center gap-2 mb-4 text-sm text-white/90 cursor-pointer select-none">
+        <label className="flex items-center gap-2 mb-4 text-sm text-farm-text cursor-pointer select-none">
           <input
             type="checkbox"
             className="w-[1.125rem] h-[1.125rem] accent-green-500 cursor-pointer"
@@ -250,20 +250,20 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
         <Button variant="secondary" className="flex-none min-w-[140px]" onClick={() => fileInputRef.current?.click()}>
           选择备份文件
         </Button>
-        {importMessage && <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-white/15 text-sprout-300 border border-white/25">{importMessage}</p>}
+        {importMessage && <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-farm-bg text-sprout-600 border border-farm-border">{importMessage}</p>}
       </div>
 
       <div className={sectionClass}>
         <h3 className="text-base font-semibold text-red-500/80 mb-2 font-display">🗑️ 重置进度</h3>
-        <p className="text-sm text-white/70 mb-4 leading-relaxed">清空所有学习进度（不会删除词库）。此操作不可恢复，建议先导出备份。</p>
+        <p className="text-sm text-farm-muted mb-4 leading-relaxed">清空所有学习进度（不会删除词库）。此操作不可恢复，建议先导出备份。</p>
         <Button variant="secondary" className="flex-none min-w-[140px]" onClick={onReset}>
           重置所有进度
         </Button>
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-white mb-2 font-display">🔑 修改密码</h3>
-        <p className="text-sm text-white/70 mb-4 leading-relaxed">
+        <h3 className="text-base font-semibold text-farm-text mb-2 font-display">🔑 修改密码</h3>
+        <p className="text-sm text-farm-muted mb-4 leading-relaxed">
           修改你的登录密码。需要先验证旧密码。
         </p>
         <div className="space-y-3">
@@ -273,7 +273,7 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
             onChange={(e) => setOldPassword(e.target.value)}
             placeholder="旧密码"
             autoComplete="current-password"
-            className="w-full px-4 py-2.5 rounded-lg bg-white/15 backdrop-blur-xl backdrop-saturate-150 text-white text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-white/45 focus:bg-white/25 focus:shadow-[0_0_0_2px_rgba(255,255,255,0.25)]"
+            className="w-full px-4 py-2.5 rounded-lg bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
           />
           <input
             type="password"
@@ -281,7 +281,7 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="新密码（至少 6 位）"
             autoComplete="new-password"
-            className="w-full px-4 py-2.5 rounded-lg bg-white/15 backdrop-blur-xl backdrop-saturate-150 text-white text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-white/45 focus:bg-white/25 focus:shadow-[0_0_0_2px_rgba(255,255,255,0.25)]"
+            className="w-full px-4 py-2.5 rounded-lg bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
           />
           <input
             type="password"
@@ -289,10 +289,10 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="确认新密码"
             autoComplete="new-password"
-            className="w-full px-4 py-2.5 rounded-lg bg-white/15 backdrop-blur-xl backdrop-saturate-150 text-white text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-white/45 focus:bg-white/25 focus:shadow-[0_0_0_2px_rgba(255,255,255,0.25)]"
+            className="w-full px-4 py-2.5 rounded-lg bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
           />
           {passwordMessage && (
-            <p className={`text-sm ${passwordMessage.type === 'success' ? 'text-sprout-300' : 'text-red-400'}`}>
+            <p className={`text-sm ${passwordMessage.type === 'success' ? 'text-sprout-600' : 'text-red-500'}`}>
               {passwordMessage.text}
             </p>
           )}
@@ -307,8 +307,8 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-white mb-2 font-display">🚪 退出登录</h3>
-        <p className="text-sm text-white/70 mb-4 leading-relaxed">退出当前账号，返回登录页。你的学习进度会保留在这个设备的本账号下。</p>
+        <h3 className="text-base font-semibold text-farm-text mb-2 font-display">🚪 退出登录</h3>
+        <p className="text-sm text-farm-muted mb-4 leading-relaxed">退出当前账号，返回登录页。你的学习进度会保留在这个设备的本账号下。</p>
         <Button variant="secondary" className="flex-none min-w-[140px]" onClick={handleSignOut}>
           退出登录
         </Button>

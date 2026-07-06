@@ -13,7 +13,7 @@ export default function Logo({ size = 40, className = '', glow = false }: LogoPr
     <span
       role="img"
       aria-label="Sprout"
-      className={`${glow ? 'drop-shadow-[0_0_12px_rgba(112,176,112,0.5)]' : ''} ${className}`}
+      className={`${className}`}
       style={{ fontSize: size, lineHeight: 1, display: 'inline-block' }}
     >
       🌳

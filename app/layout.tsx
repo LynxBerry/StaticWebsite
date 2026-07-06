@@ -51,7 +51,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: '#1e2a1f'
+  themeColor: '#f4f4f0'
 };
 
 export default function RootLayout({
@@ -61,7 +61,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN" className={`${nunito.variable} ${quicksand.variable} ${fredoka.variable} ${zcool.variable}`}>
-      <body className="min-h-screen flex items-start justify-center relative p-4 sm:p-6 lg:p-10 pt-20 sm:pt-24 lg:pt-28 font-sans antialiased">
+      <body className="min-h-screen flex items-start justify-center relative p-4 sm:p-6 lg:p-10 pt-6 sm:pt-8 lg:pt-10 font-sans antialiased bg-farm-bg text-farm-text">
         {children}
       </body>
     </html>

@@ -22,11 +22,11 @@ const config: Config = {
       colors: {
         farm: {
           layout: '#edece8',
-          bg: '#f4f4f0',
+          bg: '#efefeb',
           card: '#ffffff',
-          border: 'rgba(112, 176, 112, 0.22)',
+          border: '#e0e0e0',
           borderLight: 'rgba(112, 176, 112, 0.45)',
-          borderSecondary: '#e9e8e3',
+          borderSecondary: '#e8e8e8',
           fillQuaternary: '#f0f0ec',
           text: '#3D2F1F',
           muted: '#5C5045',
@@ -67,10 +67,11 @@ const config: Config = {
         }
       },
       boxShadow: {
-        glass: '0 4px 20px rgba(0, 0, 0, 0.06)',
-        'glass-sm': '0 2px 12px rgba(0, 0, 0, 0.05)',
-        'sprout': '0 2px 8px rgba(112, 176, 112, 0.25)',
-        'sprout-hover': '0 4px 12px rgba(112, 176, 112, 0.35)'
+        /* Flat, barely-there shadows for cards and buttons. */
+        glass: '0 1px 3px rgba(0, 0, 0, 0.04)',
+        'glass-sm': '0 1px 2px rgba(0, 0, 0, 0.03)',
+        'sprout': '0 1px 2px rgba(112, 176, 112, 0.15)',
+        'sprout-hover': '0 2px 4px rgba(112, 176, 112, 0.2)'
       },
       transitionTimingFunction: {
         // Brand standard easing from the design system

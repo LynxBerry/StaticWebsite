@@ -16,18 +16,18 @@ const base =
   'font-semibold leading-none no-underline ' +
   'rounded-full transition-all duration-sprout-mid ease-sprout-in-out ' +
   'disabled:opacity-40 disabled:cursor-not-allowed ' +
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#70B070]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-farm-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-farm-bg';
 
 const primaryVariant =
-  'text-white text-engrave-dark bg-sprout-500 shadow-sprout ' +
-  'enabled:hover:bg-sprout-600 enabled:hover:shadow-sprout-hover ' +
-  'enabled:active:bg-sprout-700 ' +
+  'text-white bg-sprout-500 ' +
+  'enabled:hover:bg-sprout-400 ' +
+  'enabled:active:bg-sprout-600 ' +
   'enabled:active:scale-[0.98]';
 
 const secondaryVariant =
-  'bg-white/20 text-white backdrop-blur-md border border-white/25 ' +
-  'enabled:hover:bg-white/30 ' +
-  'enabled:active:bg-white/15 ' +
+  'bg-white text-farm-text border border-farm-border ' +
+  'enabled:hover:bg-farm-bg ' +
+  'enabled:active:bg-farm-fillQuaternary ' +
   'enabled:active:scale-[0.98]';
 
 // Larger tap targets for kids (Apple HIG / WCAG recommend ≥44px for the

@@ -18,13 +18,11 @@ interface DonutChartProps {
 }
 
 /**
- * Minimal SVG donut chart — no chart library, no deps.
+ * Minimal donut chart rendered with CSS conic-gradient.
  *
- * Two concentric arcs: a translucent track and a grey-white fill, matching
- * the ProgressBar palette (neutral grey-white, low saturation). Animate the
- * fill arc on mount so the chart "draws" itself.
- *
- * Used in the Dashboard "今日" card to show the day's completion ratio.
+ * The fill follows the arc from 12 o'clock clockwise, with a subtle
+ * light-to-dark green gradient that travels along the progress direction.
+ * The inner disc is white so it blends into the card surface.
  */
 export default function DonutChart({
   value,
@@ -35,79 +33,82 @@ export default function DonutChart({
   sublabel,
   ariaLabel
 }: DonutChartProps) {
+  const pct = max === 0 ? 0 : Math.min(100, Math.max(0, (value / max) * 100));
   const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const pct = max === 0 ? 0 : Math.min(1, Math.max(0, value / max));
-  // A tiny gap so a 0% ring still shows a faint full track.
-  const dashOffset = circumference * (1 - pct);
+  const endAngleDeg = pct * 3.6;
+  const endAngleRad = (endAngleDeg - 90) * (Math.PI / 180);
+  const endX = size / 2 + radius * Math.cos(endAngleRad);
+  const endY = size / 2 + radius * Math.sin(endAngleRad);
 
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
+    <div
+      className="relative shrink-0 rounded-full"
+      style={{ width: size, height: size }}
       role="img"
-      aria-label={ariaLabel ?? `${Math.round(pct * 100)}%`}
-      className="shrink-0"
+      aria-label={ariaLabel ?? `${Math.round(pct)}%`}
     >
-      {/* Track: translucent white ring */}
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="rgba(255,255,255,0.15)"
-        strokeWidth={stroke}
-      />
-      {/* Fill: grey-white arc, rotated so it starts at 12 o'clock */}
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="url(#donut-fill)"
-        strokeWidth={stroke}
-        strokeLinecap="round"
-        strokeDasharray={circumference}
-        strokeDashoffset={dashOffset}
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+      {/* Track ring: grey stroke on transparent center. */}
+      <div
+        className="absolute inset-0 rounded-full"
         style={{
-          transition: 'stroke-dashoffset 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
+          background: `radial-gradient(circle, transparent ${radius - stroke / 2}px, #e5e7eb ${radius - stroke / 2}px, #e5e7eb ${radius + stroke / 2}px, transparent ${radius + stroke / 2}px)`
         }}
       />
-      {/* Shared gradient def — grey-white, same family as ProgressBar fill */}
-      <defs>
-        <linearGradient id="donut-fill" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#f5f5f5" />
-          <stop offset="100%" stopColor="#d4d4d4" />
-        </linearGradient>
-      </defs>
-      {/* Optional center label */}
-      {label && (
-        <text
-          x="50%"
-          y={sublabel ? '46%' : '54%'}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fill="rgba(255,255,255,0.95)"
-          fontSize={size * 0.22}
-          fontWeight="700"
-        >
-          {label}
-        </text>
+      {/* Fill ring: conic gradient follows the progress arc. */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: `conic-gradient(from 0deg, #c8e0c7 0%, #70b070 ${pct}%, transparent ${pct}%)`
+        }}
+      />
+      {/* Rounded cap at the start of the arc (12 o'clock). */}
+      {pct > 0 && pct < 100 && (
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: stroke,
+            height: stroke,
+            backgroundColor: '#c8e0c7',
+            left: size / 2 - stroke / 2,
+            top: 0
+          }}
+        />
       )}
-      {sublabel && (
-        <text
-          x="50%"
-          y="66%"
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fill="rgba(255,255,255,0.55)"
-          fontSize={size * 0.14}
-        >
-          {sublabel}
-        </text>
+      {/* Rounded cap at the end of the progress arc. */}
+      {pct > 0 && pct < 100 && (
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: stroke,
+            height: stroke,
+            backgroundColor: '#70b070',
+            left: endX - stroke / 2,
+            top: endY - stroke / 2
+          }}
+        />
       )}
-    </svg>
+      {/* Inner disc: white to match the card background. */}
+      <div
+        className="absolute rounded-full bg-white flex flex-col items-center justify-center"
+        style={{ top: stroke, right: stroke, bottom: stroke, left: stroke }}
+      >
+        {label && (
+          <span
+            className="font-bold text-farm-text leading-none"
+            style={{ fontSize: size * 0.22 }}
+          >
+            {label}
+          </span>
+        )}
+        {sublabel && (
+          <span
+            className="text-farm-muted leading-none mt-0.5"
+            style={{ fontSize: size * 0.14 }}
+          >
+            {sublabel}
+          </span>
+        )}
+      </div>
+    </div>
   );
 }

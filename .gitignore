@@ -31,3 +31,6 @@ out/
 
 # Local data files
 local/
+
+# Prototype designs (screenshot-based mockups)
+prototypes/

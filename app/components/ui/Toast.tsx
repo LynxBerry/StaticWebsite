@@ -46,16 +46,16 @@ export default function Toast({ toast, onDismiss }: ToastProps) {
       <div
         role="status"
         aria-live="polite"
-        className="glass-card animate-toast-in pointer-events-auto flex items-center gap-3 px-5 py-3 max-w-full"
+        className="flat-card animate-toast-in pointer-events-auto flex items-center gap-3 px-5 py-3 max-w-full"
       >
-        <span className="text-sm text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+        <span className="text-sm text-farm-text">
           {toast.message}
         </span>
         {toast.action && (
           <button
             type="button"
             onClick={handleAction}
-            className="text-sm font-semibold text-sprout-300 hover:text-sprout-200 transition-colors duration-200 px-2 py-1 -my-1 rounded-full hover:bg-white/10"
+            className="text-sm font-semibold text-farm-accent hover:text-sprout-600 transition-colors duration-200 px-2 py-1 -my-1 rounded-full hover:bg-farm-bg"
           >
             {toast.action.label}
           </button>

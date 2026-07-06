@@ -21,18 +21,18 @@ export default function ProgressBar({
   // translucent track.
   // Light green-tinted fill — neutral enough to stay calm, but carries a
   // hint of the brand sprout green so it ties into the warm-farm palette.
-  const fillClass = 'bg-gradient-to-r from-[#e8f0d8] to-[#a8c890]';
+  const fillClass = 'bg-gradient-to-r from-[#c8e0c7] to-sprout-500';
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      <div className="flex-1 h-2.5 rounded-full bg-white/15">
+      <div className="flex-1 h-2.5 rounded-full bg-farm-borderSecondary">
         <div
           className={`h-[calc(100%-4px)] my-[2px] ml-[2px] rounded-full ${fillClass} transition-all duration-sprout-slow ease-sprout-out`}
           style={{ width: `calc(${percent}% - 4px)` }}
         />
       </div>
       {showLabel && (
-        <span className="flex-none text-sm text-white/80 tabular-nums">
+        <span className="flex-none text-sm text-farm-muted tabular-nums">
           {percent}%
         </span>
       )}

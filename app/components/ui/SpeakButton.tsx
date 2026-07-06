@@ -71,13 +71,8 @@ export default function SpeakButton({
         speak(text);
       }}
       aria-label={ariaLabel ?? `朗读 ${text}`}
-      className={`relative shrink-0 flex items-center justify-center rounded-full text-white transition-all duration-200 ${sizeClass} ${className}`}
-      style={{
-        background: speaking
-          ? 'linear-gradient(135deg, #518a53, #366339)'
-          : 'linear-gradient(135deg, #70b070, #518a53)',
-        boxShadow: '0 2px 8px rgba(112, 176, 112, 0.4)'
-      }}
+      className={`relative shrink-0 flex items-center justify-center rounded-full text-farm-text border border-farm-border bg-white transition-all duration-200 ${sizeClass} ${className}`}
+      style={{ boxShadow: 'none' }}
     >
       {/* Sound-wave ripple rings while speaking. */}
       {speaking && (

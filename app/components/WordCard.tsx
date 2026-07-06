@@ -33,7 +33,7 @@ export default function WordCard({
 }: WordCardProps) {
   const feedbackClass = feedback === 'correct' ? 'animate-pop' : feedback === 'wrong' ? 'animate-shake' : '';
   return (
-    <div className="glass-card mb-6 p-1.5">
+    <div className="flat-card mb-6 p-1.5">
       <section
         className={`card aspect-[3/2] ${feedbackClass} ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''}`}
         onClick={() => !disabled && onFlip()}
@@ -60,7 +60,7 @@ export default function WordCard({
       </section>
 
       <div className="px-5 pb-5 pt-3">
-        <p className="text-sm text-white/70 mb-4 text-center">
+        <p className="text-sm text-farm-muted mb-4 text-center">
           {disabled
             ? '全部复习完成'
             : isWrongMode
