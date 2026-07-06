@@ -2,7 +2,8 @@
 
 import { Word } from '../data/words';
 import { WordState } from '../hooks/useVocabState';
-import { formatDate, getPlantIcon } from '../lib/utils';
+import { formatDate } from '../lib/utils';
+import { PlantIcon } from './PlantIcon';
 import { Button } from './ui/Button';
 import SpeakButton from './ui/SpeakButton';
 
@@ -41,9 +42,15 @@ export default function WordCard({
         <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
           <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
             <span className="text-xs uppercase tracking-widest opacity-70 mb-4">
-              {isWrongMode
-                ? `错题复习 · ${getPlantIcon(wordState.level)} 阶段 ${wordState.level} · 还需答对 ${remaining} 次`
-                : `英文 · ${getPlantIcon(wordState.level)} 阶段 ${wordState.level} · 下次复习 ${formatDate(wordState.nextReview)}`}
+              {isWrongMode ? (
+                <>
+                  错题复习 · <PlantIcon level={wordState.level} className="inline-block w-4 h-4 align-middle" /> 阶段 {wordState.level} · 还需答对 {remaining} 次
+                </>
+              ) : (
+                <>
+                  英文 · <PlantIcon level={wordState.level} className="inline-block w-4 h-4 align-middle" /> 阶段 {wordState.level} · 下次复习 {formatDate(wordState.nextReview)}
+                </>
+              )}
             </span>
             <div className="flex items-center gap-3">
               <h2 className="text-4xl font-bold">{word.en}</h2>

@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Word } from '../data/words';
-import { formatDate, getPlantIcon } from '../lib/utils';
+import { formatDate } from '../lib/utils';
 import EmptyState from './EmptyState';
+import { PlantIcon } from './PlantIcon';
 import { Button } from './ui/Button';
 import SpeakButton from './ui/SpeakButton';
 import ProgressBar from './ui/ProgressBar';
@@ -128,7 +129,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
                 <span className="text-xs uppercase tracking-widest opacity-80 mb-4">中文 · 明天开始复习</span>
                 <p className="text-2xl font-semibold mb-4">{currentWord.cn}</p>
                 <span className="text-xs uppercase tracking-widest opacity-80">
-                  {getPlantIcon(1)} 阶段 1 · 下次复习 {formatDate(Date.now() + 24 * 60 * 60 * 1000)}
+                  <PlantIcon level={1} className="inline-block w-4 h-4 align-middle" /> 阶段 1 · 下次复习 {formatDate(Date.now() + 24 * 60 * 60 * 1000)}
                 </span>
               </div>
             </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Word } from '../data/words';
-import { getPlantIcon } from '../lib/utils';
+import { PlantIcon } from './PlantIcon';
 import Legend from './Legend';
 import EmptyState from './EmptyState';
 
@@ -73,7 +73,7 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
                 {status === 'unlearned' ? (
                   <span className="w-5 h-5 rounded-full border border-dashed border-farm-textSecondary" />
                 ) : (
-                  <span className="text-[1.75rem] leading-none">{getPlantIcon(ws.level)}</span>
+                  <PlantIcon level={ws.level} className="w-7 h-7" />
                 )}
                 {status !== 'unlearned' && (
                   <span className="text-[0.75rem] font-semibold text-farm-text text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap">

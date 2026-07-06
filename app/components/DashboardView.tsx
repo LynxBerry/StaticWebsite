@@ -6,7 +6,7 @@ import { Button } from './ui/Button';
 import ProgressBar from './ui/ProgressBar';
 import DonutChart from './ui/DonutChart';
 import EmptyState from './EmptyState';
-import { getPlantIcon } from '../lib/utils';
+import { PlantIcon } from './PlantIcon';
 
 interface DashboardViewProps {
   words: Word[];
@@ -200,7 +200,7 @@ export default function DashboardView({
             const pct = learnedCount === 0 ? 0 : Math.round((count / learnedCount) * 100);
             return (
               <div key={stage} className="flex items-center gap-3">
-                <span className="text-base w-8 text-center shrink-0">{getPlantIcon(stage)}</span>
+                <PlantIcon level={stage} className="w-6 h-6 shrink-0" />
                 <ProgressBar value={count} max={learnedCount} className="flex-1" />
                 <span className="text-xs text-farm-muted w-8 text-right shrink-0">{count}</span>
               </div>

@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { Word } from '../data/words';
-import { formatDate, getPlantIcon } from '../lib/utils';
+import { formatDate } from '../lib/utils';
 import EmptyState from './EmptyState';
+import { PlantIcon } from './PlantIcon';
 import { Button } from './ui/Button';
 import SpeakButton from './ui/SpeakButton';
 
@@ -377,7 +378,7 @@ export default function BankView({
               ) : (
                 <>
                   <span className={iconClass(status)}>
-                    {status === 'unlearned' ? getPlantIcon(1) : getPlantIcon(ws.level)}
+                    <PlantIcon level={status === 'unlearned' ? 1 : ws.level} className="w-6 h-6" />
                   </span>
                   <div className="flex flex-col gap-1 min-w-0 flex-1">
                     <div className="flex items-center gap-2 min-w-0">
