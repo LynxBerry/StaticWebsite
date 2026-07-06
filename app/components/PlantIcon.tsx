@@ -1,8 +1,8 @@
 import { MASTERED_LEVEL } from '../hooks/useVocabState';
 import { BeanIcon } from './icons/BeanIcon';
+import { SproutIcon } from './icons/SproutIcon';
 
 const EMOJI_ICONS: Record<number, string> = {
-  2: '🌱',
   3: '🌿',
   4: '🪴',
   5: '🌳',
@@ -22,5 +22,9 @@ export function PlantIcon({ level, className = '' }: PlantIconProps) {
     return <BeanIcon className={className} />;
   }
 
-  return <span className={className}>{EMOJI_ICONS[level] || EMOJI_ICONS[2]}</span>;
+  if (level === 2) {
+    return <SproutIcon className={className} />;
+  }
+
+  return <span className={className}>{EMOJI_ICONS[level] || EMOJI_ICONS[3]}</span>;
 }
