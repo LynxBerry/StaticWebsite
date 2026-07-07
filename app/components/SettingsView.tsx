@@ -9,6 +9,7 @@ import { SettingsIcon } from './icons/SettingsIcon';
 import { TagIcon } from './icons/TagIcon';
 import { TurtleIcon } from './icons/TurtleIcon';
 import { SaveIcon } from './icons/SaveIcon';
+import { ArchiveRestoreIcon } from './icons/ArchiveRestoreIcon';
 
 interface SettingsViewProps {
   exportState: () => FlatWordEntry[];
@@ -237,7 +238,9 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-farm-text mb-2 font-display">📂 恢复备份</h3>
+        <h3 className="text-base font-semibold text-farm-text mb-2 font-display flex items-center gap-2">
+          <ArchiveRestoreIcon className="w-5 h-5" /> 恢复备份
+        </h3>
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">
           选择之前导出的备份文件，恢复你的词库和学习进度。适用于换设备或重装后找回数据。
         </p>
