@@ -208,7 +208,7 @@ export default function DashboardView({
             };
             return (
               <div key={stage} className="flex items-center gap-3">
-                <div className={`w-8 h-8 flex items-center justify-center shrink-0 rounded-full ${heatColors[stage]} border border-farm-borderSecondary shadow-sm`}>
+                <div className={`w-8 h-8 flex items-center justify-center shrink-0 rounded-full ${heatColors[stage]} shadow-sm`}>
                   <PlantIcon level={stage} className="w-5 h-5" />
                 </div>
                 <ProgressBar value={count} max={learnedCount} className="flex-1" />
