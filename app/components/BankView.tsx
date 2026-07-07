@@ -11,6 +11,7 @@ import { CategoriesIcon } from './icons/CategoriesIcon';
 import { ArrowBigDownDashIcon } from './icons/ArrowBigDownDashIcon';
 import { DropletsIcon } from './icons/DropletsIcon';
 import { PencilIcon } from './icons/PencilIcon';
+import { TrashIcon } from './icons/TrashIcon';
 import { ScrollFadeHint } from './ScrollFadeHint';
 import { Button } from './ui/Button';
 import SpeakButton from './ui/SpeakButton';
@@ -419,10 +420,10 @@ export default function BankView({
                         type="button"
                         onClick={() => handleDelete(word)}
                         aria-label={`删除 ${word.en}`}
-                        className="w-7 h-7 flex items-center justify-center rounded-full bg-farm-bg border border-farm-borderSecondary text-[0.625rem] hover:bg-red-50 transition-colors"
+                        className="w-7 h-7 flex items-center justify-center rounded-full bg-farm-bg border border-farm-borderSecondary text-farm-textSecondary hover:bg-red-50 hover:text-red-500 transition-colors"
                         title="删除"
                       >
-                        🗑️
+                        <TrashIcon className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
