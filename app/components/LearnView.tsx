@@ -5,6 +5,7 @@ import { Word } from '../data/words';
 import { formatDate } from '../lib/utils';
 import EmptyState from './EmptyState';
 import { PlantIcon } from './PlantIcon';
+import { SproutIcon } from './icons/SproutIcon';
 import { Button } from './ui/Button';
 import SpeakButton from './ui/SpeakButton';
 import ProgressBar from './ui/ProgressBar';
@@ -94,7 +95,9 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
           <section className="card aspect-[3/2] cursor-default" aria-label="今日播种完成">
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
               <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
-                <h2 className="text-4xl font-bold mb-2 font-display">🌱 今日播种完成</h2>
+                <h2 className="text-4xl font-bold mb-2 font-display flex items-center gap-3">
+                  <SproutIcon className="w-10 h-10" /> 今日播种完成
+                </h2>
                 <p className="text-base">
                   {actualRemaining === 0 && unlearnedWords.length > 0
                     ? `今天已经学了 ${todayCount} 个新单词，明天再来吧！`
