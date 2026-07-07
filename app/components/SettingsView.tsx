@@ -247,13 +247,25 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">
           选择之前导出的备份文件，恢复你的词库和学习进度。适用于换设备或重装后找回数据。
         </p>
-        <label className="flex items-center gap-2 mb-4 text-sm text-farm-text cursor-pointer select-none">
+        <label className="relative flex items-center gap-3 mb-4 text-sm text-farm-text cursor-pointer select-none">
           <input
             type="checkbox"
-            className="w-[1.125rem] h-[1.125rem] accent-green-500 cursor-pointer"
+            className="peer sr-only"
             checked={mergeImport}
             onChange={(e) => setMergeImport(e.target.checked)}
           />
+          <div className="w-5 h-5 rounded border-2 border-farm-borderSecondary bg-white peer-checked:bg-sprout-500 peer-checked:border-sprout-500 transition-colors" />
+          <svg
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-5 h-5 p-1 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M5 12l5 5L20 7" />
+          </svg>
           合并恢复（保留现有数据）
         </label>
         {/* Hidden native file input — triggered by the styled Button below
