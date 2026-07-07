@@ -8,6 +8,7 @@ import { Button } from './ui/Button';
 import { SettingsIcon } from './icons/SettingsIcon';
 import { TagIcon } from './icons/TagIcon';
 import { TurtleIcon } from './icons/TurtleIcon';
+import { SaveIcon } from './icons/SaveIcon';
 
 interface SettingsViewProps {
   exportState: () => FlatWordEntry[];
@@ -224,7 +225,9 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-farm-text mb-2 font-display">💾 备份词库和进度</h3>
+        <h3 className="text-base font-semibold text-farm-text mb-2 font-display flex items-center gap-2">
+          <SaveIcon className="w-5 h-5" /> 备份词库和进度
+        </h3>
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">
           导出你的全部单词和学习进度为 JSON 文件，方便备份或迁移到其他设备。
         </p>
