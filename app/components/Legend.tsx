@@ -1,6 +1,7 @@
 'use client';
 
 import { PlantIcon } from './PlantIcon';
+import { MoveRightIcon } from './icons/MoveRightIcon';
 
 export default function Legend() {
   const steps = [
@@ -35,7 +36,7 @@ export default function Legend() {
               <span className="text-[0.75rem] font-bold text-farm-text">{step.box}</span>
               <span className="text-[0.6875rem] text-farm-muted whitespace-nowrap">{step.desc}</span>
             </div>
-            {index < steps.length - 1 && <div className="text-farm-textSecondary text-xs font-bold opacity-80 shrink-0">→</div>}
+            {index < steps.length - 1 && <MoveRightIcon className="w-4 h-4 text-farm-textSecondary opacity-80 shrink-0" />}
           </div>
         ))}
       </div>
