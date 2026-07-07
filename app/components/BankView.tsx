@@ -77,7 +77,7 @@ function statusTextClass(status: StatusType) {
 }
 
 const inputBaseClass =
-  'flex-1 min-w-0 px-4 h-11 rounded-lg bg-white border border-farm-borderSecondary text-farm-text text-sm outline-none ' +
+  'flex-1 min-w-0 px-4 h-14 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-sm outline-none ' +
   'transition-all duration-sprout-mid placeholder:text-farm-textSecondary ' +
   'focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20';
 
@@ -155,7 +155,7 @@ export default function BankView({
               每行一个单词，格式：<span className="text-farm-text font-semibold">英文,中文</span>（逗号分隔，支持中文逗号）
             </p>
             <textarea
-              className="w-full px-3 py-2 mb-3 rounded-xl bg-white border border-farm-borderSecondary text-farm-text text-sm outline-none transition-all duration-sprout-mid placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20 min-h-[120px] resize-y"
+              className="w-full px-3 py-3 mb-3 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-sm outline-none transition-all duration-sprout-mid placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20 min-h-[140px] resize-y"
               placeholder={'apple,苹果\nbanana,香蕉\ncat,猫'}
               value={batchText}
               onChange={(e) => setBatchText(e.target.value)}
@@ -273,7 +273,7 @@ export default function BankView({
               每行一个单词，格式：<span className="text-farm-text font-semibold">英文,中文</span>（逗号分隔，支持中文逗号）
             </p>
             <textarea
-              className="w-full px-3 py-2 mb-3 rounded-xl bg-white border border-farm-borderSecondary text-farm-text text-sm outline-none transition-all duration-sprout-mid placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20 min-h-[120px] resize-y"
+              className="w-full px-3 py-3 mb-3 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-sm outline-none transition-all duration-sprout-mid placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20 min-h-[140px] resize-y"
               placeholder={'apple,苹果\nbanana,香蕉\ncat,猫'}
               value={batchText}
               onChange={(e) => setBatchText(e.target.value)}
@@ -321,7 +321,7 @@ export default function BankView({
 
         <input
           type="text"
-          className="w-full mb-4 px-4 h-11 rounded-lg bg-white border border-farm-borderSecondary text-farm-text text-sm outline-none transition-all duration-sprout-mid placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
+          className="w-full mb-4 px-4 h-14 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-sm outline-none transition-all duration-sprout-mid placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
           placeholder="搜索英文或中文..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
