@@ -29,20 +29,20 @@ export default function Legend() {
         <div className="flex items-center">
           {steps.map((step, index) => (
             <div key={`icon-${step.box}`} className="flex items-center">
-              <div className="flex flex-col items-center min-w-[3.5rem]">
+              <div className="flex flex-col items-center min-w-[3rem]">
                 <div className={`w-8 h-8 flex items-center justify-center rounded-full ${heatColors[step.level]}`}>
                   <PlantIcon level={step.level} className="w-5 h-5" />
                 </div>
               </div>
               {index < steps.length - 1 && (
-                <span className="text-farm-textSecondary text-xs font-bold opacity-80 shrink-0 mx-0.5">→</span>
+                <span className="text-farm-textSecondary text-xs font-bold opacity-80 shrink-0">→</span>
               )}
             </div>
           ))}
         </div>
         <div className="flex items-start mt-1">
           {steps.map((step) => (
-            <div key={`label-${step.box}`} className="flex flex-col items-center min-w-[3.5rem] px-0.5">
+            <div key={`label-${step.box}`} className="flex flex-col items-center min-w-[3rem] px-0.5">
               <span className="text-[0.75rem] font-bold text-farm-text">{step.box}</span>
               <span className="text-[0.6875rem] text-farm-muted whitespace-nowrap">{step.desc}</span>
             </div>
