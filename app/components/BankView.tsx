@@ -39,10 +39,10 @@ function wordItemClass(status: StatusType) {
     'transition-colors duration-200 hover:bg-farm-fillQuaternary';
   switch (status) {
     case 'due':
-      return `${base} ring-1 ring-harvest-200`;
+      return base;
     case 'unlearned':
       // Don't dim the whole row — that hides the action buttons too. The
-      // icon's muted fill + the muted plant 🌰 already convey "unlearned".
+      // icon's muted fill + the muted plant icon already convey "unlearned".
       return `${base} bg-farm-fillQuaternary`;
     default:
       return base;
