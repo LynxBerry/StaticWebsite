@@ -18,7 +18,7 @@ export default async function LoginPage() {
       <section className="flex-1 flex flex-col min-h-screen justify-center">
         <div className="glass-card w-full max-w-[360px] mx-auto text-left p-5">
           <div className="mb-6 flex flex-col items-center">
-            <Logo size={64} className="mb-3" />
+            <Logo size={72} className="mb-3" />
             <h2 className="text-xl text-farm-text mb-1 font-display">🔒 Sprout · 单词农场</h2>
             <p className="text-sm text-farm-muted">请登录继续</p>
           </div>

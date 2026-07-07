@@ -125,7 +125,7 @@ export default function HomeClient({
   // version fades up on mount.
   const renderHeaderContent = (animate: boolean) => (
     <div className={`px-5 pt-0 pb-4 flex items-center justify-center gap-3${animate ? ' animate-fade-up' : ''}`}>
-      <Logo size={40} />
+      <Logo size={48} />
       <div className="flex flex-col items-center">
         <h1 className="text-3xl font-semibold text-farm-text" style={{ fontFamily: titleFont }}>
           {siteTitle}
