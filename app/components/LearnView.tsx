@@ -96,7 +96,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
               <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
                 <h2 className="text-4xl font-bold mb-2 font-display flex items-center gap-3">
-                  <SproutIcon className="w-10 h-10" /> 今日播种完成
+                  <SproutIcon className="w-10 h-10 text-sprout-600" /> 今日播种完成
                 </h2>
                 <p className="text-base">
                   {actualRemaining === 0 && unlearnedWords.length > 0
