@@ -126,8 +126,12 @@ export default function HomeClient({
   const renderHeaderContent = (animate: boolean) => (
     <div className={`px-5 pt-0 pb-4 flex items-center justify-center gap-3${animate ? ' animate-fade-up' : ''}`}>
       <Logo size={48} />
-      <div className="flex flex-col items-center">
-        <h1 className="text-3xl font-semibold text-farm-text" style={{ fontFamily: titleFont }}>
+      <div className="flex flex-col items-center text-center w-64 sm:w-72">
+        <h1
+          className="text-3xl font-semibold text-farm-text truncate w-full"
+          style={{ fontFamily: titleFont }}
+          title={siteTitle}
+        >
           {siteTitle}
         </h1>
         <p className="text-farm-textSecondary italic tracking-wide text-sm mt-0.5">One seed, one harvest</p>
