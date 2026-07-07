@@ -1,6 +1,6 @@
 export function ScrollFadeHint() {
   return (
-    <div className="absolute bottom-3 left-3 right-3 h-12 bg-gradient-to-t from-white/95 to-transparent pointer-events-none rounded-b-[16px] flex flex-col items-center justify-end pb-2">
+    <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white/95 to-transparent pointer-events-none rounded-b-[20px] flex flex-col items-center justify-end pb-2">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="14"
