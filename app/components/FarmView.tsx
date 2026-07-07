@@ -22,7 +22,7 @@ function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned', level: 
   // Heatmap-style backgrounds: seed stage starts pale yellow and deepens
   // through greens as mastery grows. Unlearned slots stay dimmed.
   const base =
-    'relative flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-[16px] ' +
+    'group relative flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-[16px] ' +
     'transition-all duration-200 cursor-default ' +
     'border border-farm-border ' +
     'hover:-translate-y-0.5';
@@ -81,8 +81,14 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
                 <div
                   key={word.en}
                   className={tileClass(status, ws.level)}
-                  title={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : status === 'due' ? '阶段 ' + ws.level + ' · 需要浇水 💧' : `阶段 ${ws.level}`}`}
+                  aria-label={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : status === 'due' ? '阶段 ' + ws.level + ' · 需要浇水' : `阶段 ${ws.level}`}`}
                 >
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-2.5 py-1.5 rounded-lg bg-farm-text text-white text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-sm">
+                    {word.en} · {word.cn}
+                    <span className="text-farm-muted ml-1">
+                      {status === 'unlearned' ? '待播种' : status === 'due' ? `阶段 ${ws.level} · 需要浇水 💧` : `阶段 ${ws.level}`}
+                    </span>
+                  </div>
                   {status === 'due' && (
                     <div className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center rounded-full bg-white/90 text-blue-500 shadow-sm border border-blue-100">
                       <DropletsIcon className="w-3 h-3" />
