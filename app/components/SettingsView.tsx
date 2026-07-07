@@ -10,6 +10,7 @@ import { TagIcon } from './icons/TagIcon';
 import { TurtleIcon } from './icons/TurtleIcon';
 import { SaveIcon } from './icons/SaveIcon';
 import { ArchiveRestoreIcon } from './icons/ArchiveRestoreIcon';
+import { TrashIcon } from './icons/TrashIcon';
 
 interface SettingsViewProps {
   exportState: () => FlatWordEntry[];
@@ -269,7 +270,9 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-red-500/80 mb-2 font-display">🗑️ 重置进度</h3>
+        <h3 className="text-base font-semibold text-red-500/80 mb-2 font-display flex items-center gap-2">
+          <TrashIcon className="w-5 h-5" /> 重置进度
+        </h3>
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">清空所有学习进度（不会删除词库）。此操作不可恢复，建议先导出备份。</p>
         <Button variant="secondary" className="flex-none min-w-[140px]" onClick={onReset}>
           重置所有进度
