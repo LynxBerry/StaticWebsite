@@ -195,12 +195,20 @@ export default function DashboardView({
       <div className={`${sectionClass} mb-4`}>
         <h3 className="w-fit text-base font-semibold text-farm-text mb-3 pb-0.5 px-0.5 border-b border-farm-borderSecondary font-display">单词成长阶段</h3>
         <div className="space-y-1.5">
-          {[1, 2, 3, 4, 5, 6].map((stage) => {
+          {([1, 2, 3, 4, 5, 6] as const).map((stage) => {
             const count = stageCounts[stage] || 0;
             const pct = learnedCount === 0 ? 0 : Math.round((count / learnedCount) * 100);
+            const heatColors: Record<number, string> = {
+              1: 'bg-yellow-50',
+              2: 'bg-green-50',
+              3: 'bg-green-100',
+              4: 'bg-green-200',
+              5: 'bg-green-300',
+              6: 'bg-green-400'
+            };
             return (
               <div key={stage} className="flex items-center gap-3">
-                <div className="w-8 h-8 flex items-center justify-center shrink-0 rounded-full bg-[#f5f9f4] border border-farm-borderSecondary shadow-sm">
+                <div className={`w-8 h-8 flex items-center justify-center shrink-0 rounded-full ${heatColors[stage]} border border-farm-borderSecondary shadow-sm`}>
                   <PlantIcon level={stage} className="w-5 h-5" />
                 </div>
                 <ProgressBar value={count} max={learnedCount} className="flex-1" />
