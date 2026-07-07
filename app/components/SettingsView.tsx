@@ -11,6 +11,7 @@ import { TurtleIcon } from './icons/TurtleIcon';
 import { SaveIcon } from './icons/SaveIcon';
 import { ArchiveRestoreIcon } from './icons/ArchiveRestoreIcon';
 import { TrashIcon } from './icons/TrashIcon';
+import { KeyRoundIcon } from './icons/KeyRoundIcon';
 
 interface SettingsViewProps {
   exportState: () => FlatWordEntry[];
@@ -280,7 +281,9 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-farm-text mb-2 font-display">🔑 修改密码</h3>
+        <h3 className="text-base font-semibold text-farm-text mb-2 font-display flex items-center gap-2">
+          <KeyRoundIcon className="w-5 h-5" /> 修改密码
+        </h3>
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">
           修改你的登录密码。需要先验证旧密码。
         </p>
