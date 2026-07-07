@@ -10,6 +10,7 @@ import { PlantIcon } from './PlantIcon';
 import { CategoriesIcon } from './icons/CategoriesIcon';
 import { ArrowBigDownDashIcon } from './icons/ArrowBigDownDashIcon';
 import { DropletsIcon } from './icons/DropletsIcon';
+import { PencilIcon } from './icons/PencilIcon';
 import { ScrollFadeHint } from './ScrollFadeHint';
 import { Button } from './ui/Button';
 import SpeakButton from './ui/SpeakButton';
@@ -409,10 +410,10 @@ export default function BankView({
                         type="button"
                         onClick={() => startEdit(word)}
                         aria-label={`编辑 ${word.en}`}
-                        className="w-7 h-7 flex items-center justify-center rounded-full bg-farm-bg border border-farm-borderSecondary text-[0.625rem] hover:bg-farm-fillQuaternary transition-colors"
+                        className="w-7 h-7 flex items-center justify-center rounded-full bg-farm-bg border border-farm-borderSecondary text-farm-textSecondary hover:bg-farm-fillQuaternary hover:text-farm-text transition-colors"
                         title="编辑"
                       >
-                        ✏️
+                        <PencilIcon className="w-4 h-4" />
                       </button>
                       <button
                         type="button"
