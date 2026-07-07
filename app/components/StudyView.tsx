@@ -7,6 +7,7 @@ import ComboBadge from './ComboBadge';
 import Confetti from './Confetti';
 import { QuestionMarkIcon } from './icons/QuestionMarkIcon';
 import { ThumbsUpIcon } from './icons/ThumbsUpIcon';
+import { PartyPopperIcon } from './icons/PartyPopperIcon';
 import { Button } from './ui/Button';
 import ProgressBar from './ui/ProgressBar';
 import { Word } from '../data/words';
@@ -182,7 +183,9 @@ export default function StudyView({
             <Confetti />
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
               <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
-                <h2 className="text-4xl font-bold mb-2 font-display">🎉 今日任务完成</h2>
+                <h2 className="text-4xl font-bold mb-2 font-display flex items-center gap-3">
+                  <PartyPopperIcon className="w-10 h-10" /> 今日任务完成
+                </h2>
                 <p className="text-base">所有错题都已通过，明天再来！</p>
               </div>
             </div>
