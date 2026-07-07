@@ -37,7 +37,7 @@ function wordItemClass(status: StatusType) {
   // whole <ul>, so rows just need a light fill and subtle border.
   const base =
     'flex items-center gap-3 px-3 py-3 mb-2 rounded-[14px] ' +
-    'bg-white border border-farm-borderSecondary ' +
+    'bg-[#f7f7f5] border border-farm-borderSecondary ' +
     'transition-colors duration-200 hover:bg-farm-fillQuaternary';
   switch (status) {
     case 'due':
