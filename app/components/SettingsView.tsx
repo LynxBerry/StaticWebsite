@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { FlatWordEntry } from '../hooks/useVocabState';
 import { Button } from './ui/Button';
 import { SettingsIcon } from './icons/SettingsIcon';
+import { TagIcon } from './icons/TagIcon';
 
 interface SettingsViewProps {
   exportState: () => FlatWordEntry[];
@@ -164,7 +165,9 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-farm-text mb-2 font-display">🏷️ 站点名称</h3>
+        <h3 className="text-base font-semibold text-farm-text mb-2 font-display flex items-center gap-2">
+          <TagIcon className="w-5 h-5" /> 站点名称
+        </h3>
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">
           自定义你的单词农场名字，会显示在标题和浏览器标签页，所有设备同步。
         </p>
