@@ -7,6 +7,7 @@ import { PlantIcon } from './PlantIcon';
 import { DropletsIcon } from './icons/DropletsIcon';
 import { ScrollFadeHint } from './ScrollFadeHint';
 import { useOverflow } from '../hooks/useOverflow';
+import { STAGE_HEAT_COLORS } from '../lib/stageColors';
 import { GrapeIcon } from './icons/GrapeIcon';
 import Legend from './Legend';
 import EmptyState from './EmptyState';
@@ -32,16 +33,7 @@ function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned', level: 
     return `${base} bg-white opacity-40`;
   }
 
-  const heatColors: Record<number, string> = {
-    1: 'bg-yellow-50',
-    2: 'bg-green-50',
-    3: 'bg-green-100',
-    4: 'bg-green-200',
-    5: 'bg-green-300',
-    6: 'bg-green-400'
-  };
-
-  return `${base} ${heatColors[level] || heatColors[6]}`;
+  return `${base} ${STAGE_HEAT_COLORS[level] || STAGE_HEAT_COLORS[6]}`;
 }
 
 export default function FarmView({ words, getStatus, getWordState, onGoToBank, onGoToSettings }: FarmViewProps) {

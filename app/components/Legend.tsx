@@ -1,6 +1,7 @@
 'use client';
 
 import { PlantIcon } from './PlantIcon';
+import { STAGE_HEAT_COLORS } from '../lib/stageColors';
 
 export default function Legend() {
   const steps = [
@@ -12,15 +13,6 @@ export default function Legend() {
     { level: 6, box: '阶段 6', desc: '完全掌握' }
   ];
 
-  const heatColors: Record<number, string> = {
-    1: 'bg-yellow-50',
-    2: 'bg-green-50',
-    3: 'bg-green-100',
-    4: 'bg-green-200',
-    5: 'bg-green-300',
-    6: 'bg-green-400'
-  };
-
   return (
     <section className="mb-6 p-4 glass-card">
       <div className="text-sm text-farm-text mb-1 font-semibold">熟悉度成长图</div>
@@ -29,7 +21,7 @@ export default function Legend() {
         {steps.map((step, index) => (
           <div key={step.box} className="flex items-start shrink-0">
             <div className="flex flex-col items-center min-w-[3rem] px-0.5 py-1">
-              <div className={`w-8 h-8 flex items-center justify-center rounded-full ${heatColors[step.level]}`}>
+              <div className={`w-8 h-8 flex items-center justify-center rounded-full ${STAGE_HEAT_COLORS[step.level]}`}>
                 <PlantIcon level={step.level} className="w-5 h-5" />
               </div>
               <span className="text-[0.75rem] font-bold text-farm-text mt-1">{step.box}</span>

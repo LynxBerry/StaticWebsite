@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { Word } from '../data/words';
 import { formatDate } from '../lib/utils';
 import { useOverflow } from '../hooks/useOverflow';
+import { STAGE_HEAT_COLORS } from '../lib/stageColors';
 import EmptyState from './EmptyState';
 import { PlantIcon } from './PlantIcon';
 import { CategoriesIcon } from './icons/CategoriesIcon';
@@ -56,15 +57,7 @@ function iconClass(status: StatusType, level: number) {
   if (status === 'unlearned') {
     return `${base} bg-farm-fillQuaternary`;
   }
-  const heatColors: Record<number, string> = {
-    1: 'bg-yellow-50',
-    2: 'bg-green-50',
-    3: 'bg-green-100',
-    4: 'bg-green-200',
-    5: 'bg-green-300',
-    6: 'bg-green-400'
-  };
-  return `${base} ${heatColors[level] || heatColors[6]}`;
+  return `${base} ${STAGE_HEAT_COLORS[level] || STAGE_HEAT_COLORS[6]}`;
 }
 
 function statusTextClass(status: StatusType) {
