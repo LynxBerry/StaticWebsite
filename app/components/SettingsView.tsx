@@ -7,6 +7,7 @@ import { FlatWordEntry } from '../hooks/useVocabState';
 import { Button } from './ui/Button';
 import { SettingsIcon } from './icons/SettingsIcon';
 import { TagIcon } from './icons/TagIcon';
+import { TurtleIcon } from './icons/TurtleIcon';
 
 interface SettingsViewProps {
   exportState: () => FlatWordEntry[];
@@ -194,7 +195,9 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-farm-text mb-2 font-display">📚 每日新词限额</h3>
+        <h3 className="text-base font-semibold text-farm-text mb-2 font-display flex items-center gap-2">
+          <TurtleIcon className="w-5 h-5" /> 每日新词限额
+        </h3>
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">
           设置每天最多可以播种几个新单词（1-100），会同步到所有设备。
         </p>
