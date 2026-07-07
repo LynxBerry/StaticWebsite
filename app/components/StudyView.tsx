@@ -5,6 +5,7 @@ import WordCard from './WordCard';
 import EmptyState from './EmptyState';
 import ComboBadge from './ComboBadge';
 import Confetti from './Confetti';
+import { QuestionMarkIcon } from './icons/QuestionMarkIcon';
 import { ThumbsUpIcon } from './icons/ThumbsUpIcon';
 import { Button } from './ui/Button';
 import ProgressBar from './ui/ProgressBar';
@@ -190,8 +191,8 @@ export default function StudyView({
           <div className="px-5 pb-5 pt-3">
             <p className="text-sm text-farm-muted mb-4 text-center">全部复习完成</p>
             <div className="flex gap-3">
-              <Button variant="secondary" size="lg" className="flex-1" disabled>
-                😅 不认识
+              <Button variant="secondary" size="lg" className="flex-1 gap-2" disabled>
+                <QuestionMarkIcon className="w-5 h-5" /> 不认识
               </Button>
               <Button size="lg" className="flex-1 gap-2" disabled>
                 <ThumbsUpIcon className="w-5 h-5" /> 认识

@@ -5,6 +5,7 @@ import { WordState } from '../hooks/useVocabState';
 import { formatDate } from '../lib/utils';
 import { PlantIcon } from './PlantIcon';
 import { Button } from './ui/Button';
+import { QuestionMarkIcon } from './icons/QuestionMarkIcon';
 import { ThumbsUpIcon } from './icons/ThumbsUpIcon';
 import SpeakButton from './ui/SpeakButton';
 
@@ -79,8 +80,8 @@ export default function WordCard({
         </p>
 
         <div className="flex gap-3">
-          <Button variant="secondary" size="lg" className="flex-1" onClick={onAgain} disabled={disabled}>
-            😅 不认识
+          <Button variant="secondary" size="lg" className="flex-1 gap-2" onClick={onAgain} disabled={disabled}>
+            <QuestionMarkIcon className="w-5 h-5" /> 不认识
           </Button>
           <Button
             size="lg"
