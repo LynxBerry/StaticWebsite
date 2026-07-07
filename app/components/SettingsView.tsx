@@ -12,6 +12,7 @@ import { SaveIcon } from './icons/SaveIcon';
 import { ArchiveRestoreIcon } from './icons/ArchiveRestoreIcon';
 import { TrashIcon } from './icons/TrashIcon';
 import { KeyRoundIcon } from './icons/KeyRoundIcon';
+import { DoorOpenIcon } from './icons/DoorOpenIcon';
 
 interface SettingsViewProps {
   exportState: () => FlatWordEntry[];
@@ -328,7 +329,9 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
       </div>
 
       <div className={sectionClass}>
-        <h3 className="text-base font-semibold text-farm-text mb-2 font-display">🚪 退出登录</h3>
+        <h3 className="text-base font-semibold text-farm-text mb-2 font-display flex items-center gap-2">
+          <DoorOpenIcon className="w-5 h-5" /> 退出登录
+        </h3>
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">退出当前账号，返回登录页。你的学习进度会保留在这个设备的本账号下。</p>
         <Button variant="secondary" className="flex-none min-w-[140px]" onClick={handleSignOut}>
           退出登录
