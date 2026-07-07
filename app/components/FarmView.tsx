@@ -1,8 +1,10 @@
 'use client';
 
 import { Word } from '../data/words';
+import { useRef } from 'react';
 import { PlantIcon } from './PlantIcon';
 import { ScrollFadeHint } from './ScrollFadeHint';
+import { useOverflow } from '../hooks/useOverflow';
 import { GrapeIcon } from './icons/GrapeIcon';
 import Legend from './Legend';
 import EmptyState from './EmptyState';
@@ -38,6 +40,9 @@ function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned') {
 }
 
 export default function FarmView({ words, getStatus, getWordState, onGoToBank, onGoToSettings }: FarmViewProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const hasOverflow = useOverflow(scrollRef);
+
   if (words.length === 0) {
     return (
       <section className="flex-1 flex flex-col min-h-[60vh]" id="farm-view">
@@ -63,7 +68,7 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
       <Legend />
 
       <div className="flat-card p-3 relative">
-        <div className="max-h-[58vh] overflow-y-auto no-scrollbar">
+        <div ref={scrollRef} className="max-h-[58vh] overflow-y-auto no-scrollbar">
           <div className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-2.5">
             {words.map((word) => {
               const status = getStatus(word.en);
@@ -89,7 +94,7 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
             })}
           </div>
         </div>
-        <ScrollFadeHint />
+        {hasOverflow && <ScrollFadeHint />}
       </div>
     </section>
   );

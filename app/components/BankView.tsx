@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Word } from '../data/words';
 import { formatDate } from '../lib/utils';
+import { useOverflow } from '../hooks/useOverflow';
 import EmptyState from './EmptyState';
 import { PlantIcon } from './PlantIcon';
 import { CategoriesIcon } from './icons/CategoriesIcon';
@@ -101,6 +102,8 @@ export default function BankView({
   const [editingEn, setEditingEn] = useState<string | null>(null);
   const [editEn, setEditEn] = useState('');
   const [editCn, setEditCn] = useState('');
+  const listRef = useRef<HTMLUListElement>(null);
+  const hasOverflow = useOverflow(listRef);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   // Batch add: parse a textarea of "英文,中文" lines (one per line) and
@@ -346,7 +349,7 @@ export default function BankView({
         )}
       </div>
       <div className="flat-card p-3 relative">
-        <ul className="list-none max-h-[55vh] overflow-y-auto no-scrollbar text-left">
+        <ul ref={listRef} className="list-none max-h-[55vh] overflow-y-auto no-scrollbar text-left">
         {items.length === 0 ? (
           <li className="flex items-center justify-center px-4 py-3.5 mb-2 rounded-xl text-farm-muted">
             没有符合条件的单词
@@ -421,7 +424,7 @@ export default function BankView({
           ))
         )}
         </ul>
-        <ScrollFadeHint />
+        {hasOverflow && <ScrollFadeHint />}
       </div>
     </section>
   );
