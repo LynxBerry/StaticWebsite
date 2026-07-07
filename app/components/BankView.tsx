@@ -8,6 +8,7 @@ import EmptyState from './EmptyState';
 import { PlantIcon } from './PlantIcon';
 import { CategoriesIcon } from './icons/CategoriesIcon';
 import { ArrowBigDownDashIcon } from './icons/ArrowBigDownDashIcon';
+import { DropletsIcon } from './icons/DropletsIcon';
 import { ScrollFadeHint } from './ScrollFadeHint';
 import { Button } from './ui/Button';
 import SpeakButton from './ui/SpeakButton';
@@ -405,7 +406,10 @@ export default function BankView({
                     <span className="text-sm text-farm-muted truncate">{word.cn}</span>
                   </div>
                   <div className="flex flex-col items-end gap-1 text-xs shrink-0">
-                    <span className="text-farm-textSecondary">{status === 'unlearned' ? '阶段 1' : `阶段 ${ws.level}`}</span>
+                    <span className="text-farm-textSecondary flex items-center gap-1">
+                      {status === 'unlearned' ? '阶段 1' : `阶段 ${ws.level}`}
+                      {status === 'due' && <DropletsIcon className="w-3.5 h-3.5 text-blue-500" />}
+                    </span>
                     <span className={`font-semibold ${statusTextClass(status)}`}>{getStatusText(status, ws)}</span>
                     <div className="flex gap-1 mt-1">
                       <button
