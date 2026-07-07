@@ -3,10 +3,9 @@ import { BeanIcon } from './icons/BeanIcon';
 import { FlowerIcon } from './icons/FlowerIcon';
 import { LeafIcon } from './icons/LeafIcon';
 import { SproutIcon } from './icons/SproutIcon';
+import { TreeIcon } from './icons/TreeIcon';
 
-const EMOJI_ICONS: Record<number, string> = {
-  5: '🌳',
-};
+const EMOJI_ICONS: Record<number, string> = {};
 
 interface PlantIconProps {
   level: number;
@@ -34,5 +33,9 @@ export function PlantIcon({ level, className = '' }: PlantIconProps) {
     return <FlowerIcon className={className} />;
   }
 
-  return <span className={className}>{EMOJI_ICONS[level] || EMOJI_ICONS[5]}</span>;
+  if (level === 5) {
+    return <TreeIcon className={className} />;
+  }
+
+  return <span className={className}>{EMOJI_ICONS[level] || '🌳'}</span>;
 }
