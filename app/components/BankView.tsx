@@ -49,19 +49,21 @@ function wordItemClass(status: StatusType) {
   }
 }
 
-/** Circular avatar holding the plant icon, tinted by status. */
-function iconClass(status: StatusType) {
+/** Circular avatar holding the plant icon, tinted by growth stage. */
+function iconClass(status: StatusType, level: number) {
   const base = 'flex items-center justify-center shrink-0 w-10 h-10 rounded-full text-lg';
-  switch (status) {
-    case 'mastered':
-      return `${base} bg-sprout-100`;
-    case 'due':
-      return `${base} bg-harvest-100`;
-    case 'unlearned':
-      return `${base} bg-farm-fillQuaternary`;
-    default:
-      return `${base} bg-farm-bg`;
+  if (status === 'unlearned') {
+    return `${base} bg-farm-fillQuaternary`;
   }
+  const heatColors: Record<number, string> = {
+    1: 'bg-yellow-50',
+    2: 'bg-green-50',
+    3: 'bg-green-100',
+    4: 'bg-green-200',
+    5: 'bg-green-300',
+    6: 'bg-green-400'
+  };
+  return `${base} ${heatColors[level] || heatColors[6]}`;
 }
 
 function statusTextClass(status: StatusType) {
@@ -392,7 +394,7 @@ export default function BankView({
                 </div>
               ) : (
                 <>
-                  <span className={iconClass(status)}>
+                  <span className={iconClass(status, ws.level)}>
                     <PlantIcon level={status === 'unlearned' ? 1 : ws.level} className="w-6 h-6" />
                   </span>
                   <div className="flex flex-col gap-1 min-w-0 flex-1">
