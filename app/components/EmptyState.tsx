@@ -1,10 +1,11 @@
 'use client';
 
+import { ReactNode } from 'react';
 import { Button } from './ui/Button';
 
 interface EmptyStateProps {
-  /** 主图标/emoji */
-  icon?: string;
+  /** 主图标/emoji/React 节点 */
+  icon?: ReactNode;
   /** 标题 */
   title: string;
   /** 描述文字 */
@@ -32,7 +33,7 @@ export default function EmptyState({
   const hasSecondary = secondaryLabel && onSecondary;
   return (
     <div className="flex-1 flex flex-col items-center justify-center min-h-[50vh] text-center px-6">
-      <div className="text-6xl mb-4 opacity-90">{icon}</div>
+      <div className="mb-4 opacity-90">{icon}</div>
       <h2 className="text-xl font-bold text-farm-text mb-2 font-display">{title}</h2>
       <p className="text-sm text-farm-muted mb-6 max-w-[280px] leading-relaxed">{message}</p>
       {(hasPrimary || hasSecondary) && (

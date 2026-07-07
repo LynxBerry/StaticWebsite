@@ -41,7 +41,7 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
     return (
       <section className="flex-1 flex flex-col min-h-[60vh]" id="farm-view">
         <EmptyState
-          icon="🌾"
+          icon={<GrapeIcon className="w-16 h-16" />}
           title="农场还是荒地"
           message="去词库添加单词，种下第一颗种子吧。"
           actionLabel="去添加单词"
