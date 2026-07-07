@@ -344,7 +344,7 @@ export default function BankView({
           <p className="text-xs text-farm-muted text-center mb-2 animate-toast-in">{feedback}</p>
         )}
       </div>
-      <div className="flat-card p-3">
+      <div className="flat-card p-3 relative">
         <ul className="list-none max-h-[55vh] overflow-y-auto no-scrollbar text-left">
         {items.length === 0 ? (
           <li className="flex items-center justify-center px-4 py-3.5 mb-2 rounded-xl text-farm-muted">
@@ -420,6 +420,7 @@ export default function BankView({
           ))
         )}
         </ul>
+        <div className="absolute bottom-3 left-3 right-3 h-10 bg-gradient-to-t from-white/95 to-transparent pointer-events-none rounded-b-[16px]" />
       </div>
     </section>
   );
