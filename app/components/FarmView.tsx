@@ -57,7 +57,6 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
         <h2 className="text-xl font-semibold font-display text-farm-text mb-1 flex items-center gap-2">
           <GrapeIcon className="w-6 h-6" /> 收成
         </h2>
-        <p className="text-sm text-farm-muted">每棵植物代表一个单词，成长阶段反映熟悉度</p>
       </div>
 
       <Legend />

@@ -14,7 +14,8 @@ export default function Legend() {
 
   return (
     <section className="mb-6 p-4 glass-card">
-      <div className="text-sm text-farm-text mb-4 font-semibold">熟悉度成长图</div>
+      <div className="text-sm text-farm-text mb-1 font-semibold">熟悉度成长图</div>
+      <p className="text-xs text-farm-muted mb-4">每棵植物代表一个单词，成长阶段反映熟悉度</p>
       <div className="flex items-center justify-start gap-0.5 overflow-x-auto pb-2 -mb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {steps.map((step, index) => (
           <div key={step.box} className="flex items-center gap-0.5 shrink-0">
