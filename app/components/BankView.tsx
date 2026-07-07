@@ -5,6 +5,7 @@ import { Word } from '../data/words';
 import { formatDate } from '../lib/utils';
 import EmptyState from './EmptyState';
 import { PlantIcon } from './PlantIcon';
+import { CategoriesIcon } from './icons/CategoriesIcon';
 import { Button } from './ui/Button';
 import SpeakButton from './ui/SpeakButton';
 
@@ -252,7 +253,9 @@ export default function BankView({
     <section className="flex-1 flex flex-col min-h-[60vh]" id="bank-view">
       <div className="mb-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold font-display text-farm-text">词库</h2>
+          <h2 className="text-xl font-semibold font-display text-farm-text flex items-center gap-2">
+            <CategoriesIcon className="w-6 h-6" /> 词库
+          </h2>
           <div className="flex gap-2">
             <Button size="sm" variant="secondary" onClick={() => { setShowBatchForm((v) => !v); setShowAddForm(false); }}>批量</Button>
             <Button size="sm" onClick={() => { setShowAddForm((v) => !v); setShowBatchForm(false); }}>+ 添加</Button>
