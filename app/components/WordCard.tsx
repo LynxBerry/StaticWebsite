@@ -5,6 +5,7 @@ import { WordState } from '../hooks/useVocabState';
 import { formatDate } from '../lib/utils';
 import { PlantIcon } from './PlantIcon';
 import { Button } from './ui/Button';
+import { ThumbsUpIcon } from './icons/ThumbsUpIcon';
 import SpeakButton from './ui/SpeakButton';
 
 interface WordCardProps {
@@ -83,11 +84,11 @@ export default function WordCard({
           </Button>
           <Button
             size="lg"
-            className="flex-1"
+            className="flex-1 gap-2"
             onClick={onKnown}
             disabled={disabled || (!isWrongMode && flipped)}
           >
-            😎 认识
+            <ThumbsUpIcon className="w-5 h-5" /> 认识
           </Button>
         </div>
       </div>

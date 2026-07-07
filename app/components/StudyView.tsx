@@ -5,6 +5,7 @@ import WordCard from './WordCard';
 import EmptyState from './EmptyState';
 import ComboBadge from './ComboBadge';
 import Confetti from './Confetti';
+import { ThumbsUpIcon } from './icons/ThumbsUpIcon';
 import { Button } from './ui/Button';
 import ProgressBar from './ui/ProgressBar';
 import { Word } from '../data/words';
@@ -192,8 +193,8 @@ export default function StudyView({
               <Button variant="secondary" size="lg" className="flex-1" disabled>
                 😅 不认识
               </Button>
-              <Button size="lg" className="flex-1" disabled>
-                😎 认识
+              <Button size="lg" className="flex-1 gap-2" disabled>
+                <ThumbsUpIcon className="w-5 h-5" /> 认识
               </Button>
             </div>
           </div>
