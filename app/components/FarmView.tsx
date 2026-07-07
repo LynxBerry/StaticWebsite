@@ -61,30 +61,32 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
 
       <Legend />
 
-      <div className="flat-card p-3 relative max-h-[58vh] overflow-y-auto no-scrollbar">
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-2.5">
-          {words.map((word) => {
-            const status = getStatus(word.en);
-            const ws = getWordState(word.en);
-            return (
-              <div
-                key={word.en}
-                className={tileClass(status)}
-                title={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : `阶段 ${ws.level}`}`}
-              >
-                {status === 'unlearned' ? (
-                  <span className="w-5 h-5 rounded-full border border-dashed border-farm-textSecondary" />
-                ) : (
-                  <PlantIcon level={ws.level} className="w-7 h-7" />
-                )}
-                {status !== 'unlearned' && (
-                  <span className="text-[0.75rem] font-semibold text-farm-text text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
-                    {word.en}
-                  </span>
-                )}
-              </div>
-            );
-          })}
+      <div className="flat-card p-3 relative">
+        <div className="max-h-[58vh] overflow-y-auto no-scrollbar">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-2.5">
+            {words.map((word) => {
+              const status = getStatus(word.en);
+              const ws = getWordState(word.en);
+              return (
+                <div
+                  key={word.en}
+                  className={tileClass(status)}
+                  title={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : `阶段 ${ws.level}`}`}
+                >
+                  {status === 'unlearned' ? (
+                    <span className="w-5 h-5 rounded-full border border-dashed border-farm-textSecondary" />
+                  ) : (
+                    <PlantIcon level={ws.level} className="w-7 h-7" />
+                  )}
+                  {status !== 'unlearned' && (
+                    <span className="text-[0.75rem] font-semibold text-farm-text text-center max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
+                      {word.en}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
         <div className="absolute bottom-3 left-3 right-3 h-10 bg-gradient-to-t from-white/95 to-transparent pointer-events-none rounded-b-[16px]" />
       </div>
