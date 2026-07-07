@@ -7,6 +7,7 @@ import { useOverflow } from '../hooks/useOverflow';
 import EmptyState from './EmptyState';
 import { PlantIcon } from './PlantIcon';
 import { CategoriesIcon } from './icons/CategoriesIcon';
+import { ArrowBigDownDashIcon } from './icons/ArrowBigDownDashIcon';
 import { ScrollFadeHint } from './ScrollFadeHint';
 import { Button } from './ui/Button';
 import SpeakButton from './ui/SpeakButton';
@@ -266,7 +267,9 @@ export default function BankView({
             <CategoriesIcon className="w-6 h-6" /> 词库
           </h2>
           <div className="flex gap-2">
-            <Button size="sm" variant="secondary" onClick={() => { setShowBatchForm((v) => !v); setShowAddForm(false); }}>批量</Button>
+            <Button size="sm" variant="secondary" className="gap-1.5" onClick={() => { setShowBatchForm((v) => !v); setShowAddForm(false); }}>
+              <ArrowBigDownDashIcon className="w-4 h-4" /> 批量
+            </Button>
             <Button size="sm" onClick={() => { setShowAddForm((v) => !v); setShowBatchForm(false); }}>+ 添加</Button>
           </div>
         </div>
