@@ -17,26 +17,30 @@ interface FarmViewProps {
   onGoToSettings: () => void;
 }
 
-function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned') {
-  // Flat tile on a light background. Status is conveyed by the plant icon
-  // itself (growth stage) plus opacity for unlearned slots — no extra color
-  // bars, keep it clean.
+function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned', level: number) {
+  // Heatmap-style backgrounds: seed stage starts pale yellow and deepens
+  // through greens as mastery grows. Unlearned slots stay dimmed.
   const base =
     'flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-[16px] ' +
     'transition-all duration-200 cursor-default ' +
-    'bg-white border border-farm-border ' +
-    'hover:-translate-y-0.5 hover:bg-farm-bg';
-  switch (status) {
-    case 'due':
-      // Subtle warm tint to flag attention, no glow.
-      return `${base} bg-harvest-50`;
-    case 'mastered':
-    case 'pending':
-      return base;
-    default:
-      // Unlearned: dim to read as an empty slot.
-      return `${base} opacity-40`;
+    'border border-farm-border ' +
+    'hover:-translate-y-0.5';
+
+  if (status === 'unlearned') {
+    return `${base} bg-white opacity-40`;
   }
+
+  const heatColors: Record<number, string> = {
+    1: 'bg-yellow-50',
+    2: 'bg-green-50',
+    3: 'bg-green-100',
+    4: 'bg-green-200',
+    5: 'bg-green-300',
+    6: 'bg-green-400'
+  };
+
+  const dueRing = status === 'due' ? ' ring-2 ring-harvest-200' : '';
+  return `${base} ${heatColors[level] || heatColors[6]}${dueRing}`;
 }
 
 export default function FarmView({ words, getStatus, getWordState, onGoToBank, onGoToSettings }: FarmViewProps) {
@@ -76,7 +80,7 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
               return (
                 <div
                   key={word.en}
-                  className={tileClass(status)}
+                  className={tileClass(status, ws.level)}
                   title={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : `阶段 ${ws.level}`}`}
                 >
                   {status === 'unlearned' ? (
