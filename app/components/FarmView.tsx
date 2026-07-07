@@ -1,7 +1,8 @@
 'use client';
 
 import { Word } from '../data/words';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { PlantIcon } from './PlantIcon';
 import { DropletsIcon } from './icons/DropletsIcon';
 import { ScrollFadeHint } from './ScrollFadeHint';
@@ -46,6 +47,32 @@ function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned', level: 
 export default function FarmView({ words, getStatus, getWordState, onGoToBank, onGoToSettings }: FarmViewProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasOverflow = useOverflow(scrollRef);
+  const [tooltip, setTooltip] = useState<{
+    word: Word;
+    status: 'mastered' | 'due' | 'pending' | 'unlearned';
+    level: number;
+    left: number;
+    top: number;
+  } | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const showTooltip = (word: Word, status: 'mastered' | 'due' | 'pending' | 'unlearned', level: number) =>
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      setTooltip({
+        word,
+        status,
+        level,
+        left: rect.left + rect.width / 2,
+        top: rect.top - 8
+      });
+    };
+
+  const hideTooltip = () => setTooltip(null);
 
   if (words.length === 0) {
     return (
@@ -81,13 +108,9 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
                 <div
                   key={word.en}
                   className={tileClass(status, ws.level)}
-                  aria-label={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : status === 'due' ? '阶段 ' + ws.level + ' · 需要浇水' : `阶段 ${ws.level}`}`}
+                  onMouseEnter={showTooltip(word, status, ws.level)}
+                  onMouseLeave={hideTooltip}
                 >
-                  <div className="absolute inset-0 flex items-center justify-center p-1.5 rounded-[16px] bg-white/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                    <span className="text-[0.65rem] text-farm-text text-center leading-tight">
-                      {word.en}<br />{word.cn}
-                    </span>
-                  </div>
                   {status === 'due' && (
                     <div className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center rounded-full bg-white/90 text-blue-500 shadow-sm border border-blue-100">
                       <DropletsIcon className="w-3 h-3" />
@@ -110,6 +133,23 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
         </div>
         {hasOverflow && <ScrollFadeHint />}
       </div>
+
+      {mounted && tooltip && createPortal(
+        <div
+          className="fixed z-50 px-2.5 py-1.5 rounded-xl bg-white text-farm-text text-xs whitespace-nowrap shadow-md border border-farm-border pointer-events-none"
+          style={{
+            left: tooltip.left,
+            top: tooltip.top,
+            transform: 'translate(-50%, -100%)'
+          }}
+        >
+          {tooltip.word.en} · {tooltip.word.cn}
+          <span className="text-farm-muted ml-1">
+            {tooltip.status === 'unlearned' ? '待播种' : tooltip.status === 'due' ? `阶段 ${tooltip.level} · 需要浇水 💧` : `阶段 ${tooltip.level}`}
+          </span>
+        </div>,
+        document.body
+      )}
     </section>
   );
 }
