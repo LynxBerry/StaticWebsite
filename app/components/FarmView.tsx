@@ -3,6 +3,7 @@
 import { Word } from '../data/words';
 import { useRef } from 'react';
 import { PlantIcon } from './PlantIcon';
+import { DropletsIcon } from './icons/DropletsIcon';
 import { ScrollFadeHint } from './ScrollFadeHint';
 import { useOverflow } from '../hooks/useOverflow';
 import { GrapeIcon } from './icons/GrapeIcon';
@@ -21,7 +22,7 @@ function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned', level: 
   // Heatmap-style backgrounds: seed stage starts pale yellow and deepens
   // through greens as mastery grows. Unlearned slots stay dimmed.
   const base =
-    'flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-[16px] ' +
+    'relative flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-[16px] ' +
     'transition-all duration-200 cursor-default ' +
     'border border-farm-border ' +
     'hover:-translate-y-0.5';
@@ -39,8 +40,7 @@ function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned', level: 
     6: 'bg-green-400'
   };
 
-  const dueRing = status === 'due' ? ' ring-2 ring-harvest-200' : '';
-  return `${base} ${heatColors[level] || heatColors[6]}${dueRing}`;
+  return `${base} ${heatColors[level] || heatColors[6]}`;
 }
 
 export default function FarmView({ words, getStatus, getWordState, onGoToBank, onGoToSettings }: FarmViewProps) {
@@ -83,6 +83,11 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
                   className={tileClass(status, ws.level)}
                   title={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : `阶段 ${ws.level}`}`}
                 >
+                  {status === 'due' && (
+                    <div className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center rounded-full bg-white/90 text-harvest-500 shadow-sm border border-harvest-100">
+                      <DropletsIcon className="w-3 h-3" />
+                    </div>
+                  )}
                   {status === 'unlearned' ? (
                     <span className="w-5 h-5 rounded-full border border-dashed border-farm-textSecondary" />
                   ) : (
