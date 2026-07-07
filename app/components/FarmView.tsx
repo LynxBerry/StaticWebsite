@@ -81,7 +81,7 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
                 <div
                   key={word.en}
                   className={tileClass(status, ws.level)}
-                  title={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : `阶段 ${ws.level}`}`}
+                  title={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : status === 'due' ? '阶段 ' + ws.level + ' · 需要浇水 💧' : `阶段 ${ws.level}`}`}
                 >
                   {status === 'due' && (
                     <div className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center rounded-full bg-white/90 text-blue-500 shadow-sm border border-blue-100">
