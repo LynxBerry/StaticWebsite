@@ -83,10 +83,9 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
                   className={tileClass(status, ws.level)}
                   aria-label={`${word.en} · ${word.cn} · ${status === 'unlearned' ? '待播种' : status === 'due' ? '阶段 ' + ws.level + ' · 需要浇水' : `阶段 ${ws.level}`}`}
                 >
-                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2.5 py-1.5 rounded-xl bg-white text-farm-text text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-md border border-farm-border">
-                    {word.en} · {word.cn}
-                    <span className="text-farm-muted ml-1">
-                      {status === 'unlearned' ? '待播种' : status === 'due' ? `阶段 ${ws.level} · 需要浇水 💧` : `阶段 ${ws.level}`}
+                  <div className="absolute inset-0 flex items-center justify-center p-1.5 rounded-[16px] bg-white/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <span className="text-[0.65rem] text-farm-text text-center leading-tight">
+                      {word.en}<br />{word.cn}
                     </span>
                   </div>
                   {status === 'due' && (
