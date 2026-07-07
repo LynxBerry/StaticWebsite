@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { FlatWordEntry } from '../hooks/useVocabState';
 import { Button } from './ui/Button';
+import { SettingsIcon } from './icons/SettingsIcon';
 
 interface SettingsViewProps {
   exportState: () => FlatWordEntry[];
@@ -156,7 +157,9 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="settings-view">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-farm-text mb-1 font-display">⚙️ 设置</h2>
+        <h2 className="text-xl font-semibold text-farm-text mb-1 font-display flex items-center gap-2">
+          <SettingsIcon className="w-6 h-6" /> 设置
+        </h2>
         <p className="text-sm text-farm-muted">备份、恢复和重置</p>
       </div>
 
