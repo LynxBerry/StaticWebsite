@@ -77,7 +77,7 @@ function statusTextClass(status: StatusType) {
 }
 
 const inputBaseClass =
-  'flex-1 min-w-0 px-4 h-14 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-sm outline-none ' +
+  'flex-1 min-w-0 px-4 h-16 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-base outline-none ' +
   'transition-all duration-sprout-mid placeholder:text-farm-textSecondary ' +
   'focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20';
 
@@ -291,7 +291,7 @@ export default function BankView({
         {/* Inline add-word form */}
         {showAddForm && (
           <div className="flat-card mb-4 p-3 animate-toast-in">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               <input
                 type="text"
                 className={inputBaseClass}
