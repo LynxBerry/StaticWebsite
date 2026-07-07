@@ -25,29 +25,21 @@ export default function Legend() {
     <section className="mb-6 p-4 glass-card">
       <div className="text-sm text-farm-text mb-1 font-semibold">熟悉度成长图</div>
       <p className="text-xs text-farm-muted mb-4">每棵植物代表一个单词，成长阶段反映熟悉度</p>
-      <div className="flex flex-col items-center overflow-x-auto pb-2 -mb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex items-center">
-          {steps.map((step, index) => (
-            <div key={`icon-${step.box}`} className="flex items-center">
-              <div className="flex flex-col items-center min-w-[3rem]">
-                <div className={`w-8 h-8 flex items-center justify-center rounded-full ${heatColors[step.level]}`}>
-                  <PlantIcon level={step.level} className="w-5 h-5" />
-                </div>
+      <div className="flex items-start justify-start gap-0.5 overflow-x-auto pb-2 -mb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {steps.map((step, index) => (
+          <div key={step.box} className="flex items-start shrink-0">
+            <div className="flex flex-col items-center min-w-[3rem] px-0.5 py-1">
+              <div className={`w-8 h-8 flex items-center justify-center rounded-full ${heatColors[step.level]}`}>
+                <PlantIcon level={step.level} className="w-5 h-5" />
               </div>
-              {index < steps.length - 1 && (
-                <span className="text-farm-textSecondary text-xs font-bold opacity-80 shrink-0">→</span>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="flex items-start mt-1">
-          {steps.map((step) => (
-            <div key={`label-${step.box}`} className="flex flex-col items-center min-w-[3rem] px-0.5">
-              <span className="text-[0.75rem] font-bold text-farm-text">{step.box}</span>
+              <span className="text-[0.75rem] font-bold text-farm-text mt-1">{step.box}</span>
               <span className="text-[0.6875rem] text-farm-muted whitespace-nowrap">{step.desc}</span>
             </div>
-          ))}
-        </div>
+            {index < steps.length - 1 && (
+              <span className="text-farm-textSecondary text-xs font-bold opacity-80 shrink-0 mt-2.5">→</span>
+            )}
+          </div>
+        ))}
       </div>
     </section>
   );
