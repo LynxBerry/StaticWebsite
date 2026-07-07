@@ -6,6 +6,7 @@ import { formatDate } from '../lib/utils';
 import EmptyState from './EmptyState';
 import { PlantIcon } from './PlantIcon';
 import { CategoriesIcon } from './icons/CategoriesIcon';
+import { ScrollFadeHint } from './ScrollFadeHint';
 import { Button } from './ui/Button';
 import SpeakButton from './ui/SpeakButton';
 
@@ -420,7 +421,7 @@ export default function BankView({
           ))
         )}
         </ul>
-        <div className="absolute bottom-3 left-3 right-3 h-10 bg-gradient-to-t from-white/95 to-transparent pointer-events-none rounded-b-[16px]" />
+        <ScrollFadeHint />
       </div>
     </section>
   );

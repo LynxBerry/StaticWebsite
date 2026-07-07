@@ -2,6 +2,7 @@
 
 import { Word } from '../data/words';
 import { PlantIcon } from './PlantIcon';
+import { ScrollFadeHint } from './ScrollFadeHint';
 import { GrapeIcon } from './icons/GrapeIcon';
 import Legend from './Legend';
 import EmptyState from './EmptyState';
@@ -88,7 +89,7 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
             })}
           </div>
         </div>
-        <div className="absolute bottom-3 left-3 right-3 h-10 bg-gradient-to-t from-white/95 to-transparent pointer-events-none rounded-b-[16px]" />
+        <ScrollFadeHint />
       </div>
     </section>
   );
