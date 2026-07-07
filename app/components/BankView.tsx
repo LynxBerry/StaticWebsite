@@ -82,7 +82,7 @@ const inputBaseClass =
   'focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20';
 
 const addInputClass =
-  'flex-1 min-w-0 px-4 h-32 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-base outline-none ' +
+  'w-full px-4 h-32 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-base outline-none ' +
   'transition-all duration-sprout-mid placeholder:text-farm-textSecondary ' +
   'focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20';
 
