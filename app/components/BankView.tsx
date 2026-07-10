@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo, useDeferredValue } from 'react';
 import { Word } from '../data/words';
 import { formatDate } from '../lib/utils';
 import { useOverflow } from '../hooks/useOverflow';
@@ -182,19 +182,27 @@ export default function BankView({
     );
   }
 
-  const term = searchTerm.trim().toLowerCase();
+  // #12: defer the search term so typing stays responsive while the heavy
+  // per-word getStatus/getWordWord pass runs on the deferred value, and memo
+  // the filtered list so it isn't recomputed on every unrelated re-render.
+  const deferredSearch = useDeferredValue(searchTerm);
+  const term = deferredSearch.trim().toLowerCase();
 
-  const items = words
-    .map((word) => ({
-      word,
-      status: getStatus(word.en),
-      ws: getWordState(word.en)
-    }))
-    .filter(({ status }) => (filter === 'all' ? true : status === filter))
-    .filter(({ word }) => {
-      if (!term) return true;
-      return word.en.toLowerCase().includes(term) || word.cn.includes(term);
-    });
+  const items = useMemo(
+    () =>
+      words
+        .map((word) => ({
+          word,
+          status: getStatus(word.en),
+          ws: getWordState(word.en)
+        }))
+        .filter(({ status }) => (filter === 'all' ? true : status === filter))
+        .filter(({ word }) => {
+          if (!term) return true;
+          return word.en.toLowerCase().includes(term) || word.cn.includes(term);
+        }),
+    [words, filter, term, getStatus, getWordState]
+  );
 
   const getStatusText = (status: StatusType, ws: { nextReview: number }) => {
     if (status === 'unlearned') return '待播种';
@@ -304,7 +312,7 @@ export default function BankView({
                 placeholder="英文 (如 apple)"
                 value={addEn}
                 onChange={(e) => setAddEn(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') addCn.trim() ? handleAddSubmit() : undefined; }}
+                onKeyDown={(e) => { if (e.key === 'Enter') { if (addCn.trim()) handleAddSubmit(); else setFeedback('请输入中文释义'); window.setTimeout(() => setFeedback(null), 2500); } }}
                 autoFocus
               />
               <input
@@ -338,6 +346,7 @@ export default function BankView({
             return (
               <button
                 key={f}
+                aria-pressed={active}
                 className={`inline-flex items-center h-9 px-3 text-xs rounded-full transition-all duration-sprout-mid ${
                   active
                     ? 'bg-farm-accent/10 text-farm-text font-semibold border border-farm-border'

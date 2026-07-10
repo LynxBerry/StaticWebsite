@@ -100,23 +100,20 @@ export default function DashboardView({
 
           return (
             <>
-              <div className="grid grid-cols-2 gap-3 mb-4 relative">
-                {/* Vertical divider between the two donuts — a faint hairline
-                    etched into the glass, like the header's horizontal one. */}
-                <div className="absolute top-2 bottom-2 left-1/2 w-px bg-farm-border pointer-events-none" />
+              <div className="grid grid-cols-2 gap-5 mb-5">
                 {/* Review donut */}
-                <div className="flex flex-col items-center gap-1.5">
+                <div className="flex flex-col items-center gap-2">
                   <DonutChart
                     value={review.initialDue > 0 ? review.done : 1}
                     max={review.initialDue || 1}
-                    size={72}
-                    stroke={7}
+                    size={80}
+                    stroke={8}
                     label={`${reviewPct}%`}
                     ariaLabel={`今日复习进度 ${reviewPct}%`}
                   />
                   <div className="text-center">
-                    <div className="text-xs text-farm-text font-semibold">复习</div>
-                    <div className="text-[0.6875rem] text-farm-textSecondary tabular-nums">
+                    <div className="text-sm text-farm-text font-semibold">复习</div>
+                    <div className="text-xs text-farm-textSecondary tabular-nums mt-0.5">
                       {review.initialDue > 0
                         ? `${review.done} / ${review.initialDue}`
                         : '无到期'}
@@ -124,18 +121,18 @@ export default function DashboardView({
                   </div>
                 </div>
                 {/* New-word donut */}
-                <div className="flex flex-col items-center gap-1.5">
+                <div className="flex flex-col items-center gap-2">
                   <DonutChart
                     value={totalNew > 0 ? todayCount : 1}
                     max={totalNew || 1}
-                    size={72}
-                    stroke={7}
+                    size={80}
+                    stroke={8}
                     label={`${newPct}%`}
                     ariaLabel={`今日新词进度 ${newPct}%`}
                   />
                   <div className="text-center">
-                    <div className="text-xs text-farm-text font-semibold">新词</div>
-                    <div className="text-[0.6875rem] text-farm-textSecondary tabular-nums">
+                    <div className="text-sm text-farm-text font-semibold">新词</div>
+                    <div className="text-xs text-farm-textSecondary tabular-nums mt-0.5">
                       {totalNew > 0 ? `${todayCount} / ${totalNew}` : '无配额'}
                     </div>
                   </div>

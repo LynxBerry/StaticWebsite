@@ -21,6 +21,11 @@ build/
 out/
 *.tsbuildinfo
 
+# Next.js generates this on dev/build; committing it causes churn between
+# dev (./.next/dev/types/...) and build (./.next/types/...) variants, and the
+# referenced path is gitignored. Let Next regenerate it locally instead.
+next-env.d.ts
+
 # Environment variables
 .env
 .env.local

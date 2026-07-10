@@ -8,6 +8,7 @@ import { Button } from './ui/Button';
 import { QuestionMarkIcon } from './icons/QuestionMarkIcon';
 import { ThumbsUpIcon } from './icons/ThumbsUpIcon';
 import SpeakButton from './ui/SpeakButton';
+import ComboBadge from './ComboBadge';
 
 interface WordCardProps {
   word: Word;
@@ -20,6 +21,8 @@ interface WordCardProps {
   isWrongMode?: boolean;
   remaining?: number;
   disabled: boolean;
+  /** 连击数（≥2 时在卡片中央浮现奖励徽章）。仅 StudyView 传入。 */
+  combo?: number;
 }
 
 export default function WordCard({
@@ -32,15 +35,17 @@ export default function WordCard({
   onAgain,
   isWrongMode = false,
   remaining,
-  disabled
+  disabled,
+  combo = 0
 }: WordCardProps) {
   const feedbackClass = feedback === 'correct' ? 'animate-pop' : feedback === 'wrong' ? 'animate-shake' : '';
   return (
     <div className="flat-card mb-6 p-1.5">
       <section
-        className={`card aspect-[3/2] ${feedbackClass} ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''}`}
+        className={`card aspect-[3/2] ${feedbackClass} ${disabled ? 'cursor-default' : 'cursor-pointer'} ${flipped ? 'flipped' : ''} ${isWrongMode ? 'wrong' : ''} relative`}
         onClick={() => !disabled && onFlip()}
       >
+        {combo >= 2 && <ComboBadge count={combo} />}
         <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">
           <div className="card-front word-card-face text-engrave-light absolute inset-0 flex flex-col items-center justify-center p-6">
             <span className="text-xs uppercase tracking-widest opacity-70 mb-4">

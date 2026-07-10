@@ -5,9 +5,9 @@ import { type NextRequest, NextResponse } from 'next/server';
  * Refreshes the Supabase auth session on every matched request.
  *
  * This does NOT enforce authentication here — route protection lives in
- * app/layout.tsx (Server Component) to avoid the known Next.js 16 proxy
- * redirect issue. We only refresh the session cookies so downstream
- * Server Components see a valid session.
+ * app/page.tsx (Server Component, via supabase.auth.getUser() + redirect)
+ * to avoid the known Next.js 16 proxy redirect issue. We only refresh the
+ * session cookies so downstream Server Components see a valid session.
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });

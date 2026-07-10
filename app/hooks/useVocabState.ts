@@ -21,9 +21,38 @@ import {
   fetchUserDailyLimit,
   updateUserDailyLimit
 } from '../lib/supabase-db';
+import {
+  INTERVALS,
+  MASTERED_LEVEL,
+  REQUIRED_CORRECT,
+  DEFAULT_DAILY_NEW_LIMIT,
+  getTodayString,
+  parseProgress,
+  isWordLearned,
+  getWordState as getWordStatePure,
+  getDueWords as getDueWordsPure,
+  getStatus as getStatusPure,
+  getMasteredCount as getMasteredCountPure,
+  getNewWordsStats as getNewWordsStatsPure,
+  countDueWords,
+  computeLearnNewWord,
+  computeMarkKnown,
+  computeMarkAgain,
+  addToWrongQueuePure,
+  resetWrongRemainingPure,
+  decrementWrongRemainingPure,
+  exportToFlat,
+  importToState
+} from '../lib/algorithm';
+import type { FlatWordEntry } from '../lib/algorithm';
 
-// Re-export types so existing imports from this module keep working.
+// Re-export types and constants so existing imports from this module keep
+// working (PlantIcon imports MASTERED_LEVEL, SettingsView imports FlatWordEntry,
+// WordCard imports WordState). The canonical home is now app/lib/algorithm.ts
+// / app/lib/types.ts.
 export type { Word, WordState, WrongItem, ProgressState };
+export { INTERVALS, MASTERED_LEVEL, REQUIRED_CORRECT };
+export type { FlatWordEntry } from '../lib/algorithm';
 
 // Keys are scoped per-user so multiple accounts on the same browser don't
 // share progress. No legacy migration — a fresh user gets an empty library.
@@ -37,44 +66,6 @@ function progressKey(userId: string) {
 }
 function wordsKey(userId: string) {
   return `${WORDS_KEY_BASE}-${userId}`;
-}
-
-const DEFAULT_DAILY_NEW_LIMIT = 15;
-
-export const INTERVALS: Record<number, number> = {
-  1: 1,
-  2: 2,
-  3: 4,
-  4: 7,
-  5: 14
-};
-
-export const MASTERED_LEVEL = 6;
-
-export interface FlatWordEntry {
-  wordInEnglish: string;
-  wordInChinese: string;
-  level: number;
-  'next date': string | null;
-}
-
-function formatLocalDateString(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function getTodayString(): string {
-  return formatLocalDateString(new Date());
-}
-
-function getDateStringFromTimestamp(timestamp: number): string {
-  return formatLocalDateString(new Date(timestamp));
-}
-
-function parseLocalDate(dateStr: string): Date {
-  return new Date(`${dateStr}T00:00:00`);
 }
 
 function loadWords(userId: string): Word[] {
@@ -97,50 +88,13 @@ function saveWords(userId: string, words: Word[]) {
   localStorage.setItem(wordsKey(userId), JSON.stringify(words));
 }
 
-function parseProgress(raw: string): ProgressState {
-  try {
-    const parsed = JSON.parse(raw);
-    const wordStates: Record<string, WordState> = {};
-    Object.entries(parsed.wordStates || {}).forEach(([key, value]) => {
-      if (
-        value &&
-        typeof value === 'object' &&
-        'level' in value &&
-        'nextReview' in value
-      ) {
-        wordStates[key] = value as WordState;
-      }
-    });
-
-    const wrongQueue: WrongItem[] = Array.isArray(parsed.wrongQueue)
-      ? parsed.wrongQueue.filter((item: unknown) => {
-          return (
-            item &&
-            typeof item === 'object' &&
-            'en' in (item as WrongItem) &&
-            'remaining' in (item as WrongItem) &&
-            typeof (item as WrongItem).en === 'string' &&
-            typeof (item as WrongItem).remaining === 'number'
-          );
-        })
-      : [];
-
-    return { wordStates, wrongQueue };
-  } catch (e) {
-    console.error('Failed to parse progress', e);
-    return { wordStates: {}, wrongQueue: [] };
-  }
-}
-
 function loadProgress(userId: string): ProgressState {
   if (typeof window === 'undefined') {
     return { wordStates: {}, wrongQueue: [] };
   }
-
   const key = progressKey(userId);
   const raw = localStorage.getItem(key);
   if (raw) return parseProgress(raw);
-
   return { wordStates: {}, wrongQueue: [] };
 }
 
@@ -163,8 +117,8 @@ export function useVocabState(
   email: string,
   options: { initialSiteTitle?: string | null; initialDailyNewLimit?: number | null } = {}
 ) {
-  const [words, setWords] = useState<Word[]>(DEFAULT_WORDS);
-  const [progress, setProgress] = useState<ProgressState>({ wordStates: {}, wrongQueue: [] });
+  const [words, setWordsState] = useState<Word[]>(DEFAULT_WORDS);
+  const [progress, setProgressState] = useState<ProgressState>({ wordStates: {}, wrongQueue: [] });
   const [isHydrated, setIsHydrated] = useState(false);
   const [dbSynced, setDbSynced] = useState(false);
   const [siteTitle, setSiteTitle] = useState(
@@ -173,13 +127,33 @@ export function useVocabState(
   const [dailyNewLimit, setDailyNewLimit] = useState(
     options.initialDailyNewLimit ?? DEFAULT_DAILY_NEW_LIMIT
   );
+
+  // Ref mirrors of the two big state slices. The algorithm reads/writes
+  // synchronously against these (not via setState updaters), so batch loops
+  // (e.g. BankView batch-add) and same-tick dedup/rollback work without
+  // depending on React's eager-updater evaluation. The effects below keep
+  // them in sync whenever state changes from any source (DB pull, import…).
+  const wordsRef = useRef<Word[]>(DEFAULT_WORDS);
+  const progressRef = useRef<ProgressState>({ wordStates: {}, wrongQueue: [] });
+
   // Tracks whether the user mutated state before the initial DB pull landed.
   // If so, we merge (DB wins for untouched keys, local wins for touched keys)
   // instead of blindly overwriting with DB data.
   const localMutationsRef = useRef<Set<string>>(new Set());
   // Tracks today's initial due count so we can show review *progress*
-  // (sown = initial - current), not just the remaining count. Reset daily.
-  const todayInitialDueRef = useRef<{ date: string; count: number } | null>(null);
+  // (done = initial - current), not just the remaining count. Reset daily.
+  // Updated in an effect (NOT during render) to avoid render-phase writes.
+  const todayDueSnapshotRef = useRef<{ date: string; count: number } | null>(null);
+
+  // Helpers that update both the ref and the state atomically.
+  const setWords = useCallback((next: Word[]) => {
+    wordsRef.current = next;
+    setWordsState(next);
+  }, []);
+  const setProgress = useCallback((next: ProgressState) => {
+    progressRef.current = next;
+    setProgressState(next);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -218,24 +192,21 @@ export function useVocabState(
         // DB has data: DB is the source of truth — completely replace local.
         // The only exception is words the user JUST touched during the brief
         // window between the initial localStorage paint and the DB fetch
-        // landing (e.g. answered a review in those ~1-2 seconds). Those are
-        // strictly newer than the DB snapshot, so we keep the local value
-        // and re-push it to the DB. Everything else is overwritten by DB.
+        // landing. Those are strictly newer than the DB snapshot, so we keep
+        // the local value and re-push it to the DB. Everything else is
+        // overwritten by DB.
         const touched = localMutationsRef.current;
 
-        // Words: start from DB, override with local for any touched key.
         const finalWords = data.words.map((w) =>
           touched.has(w.en) ? (localWords.find((lw) => lw.en === w.en) ?? w) : w
         );
 
-        // Progress: start from DB, override with local for any touched key.
         const finalStates: Record<string, WordState> = { ...data.progress.wordStates };
         touched.forEach((en) => {
           const localWs = localProgress.wordStates[en];
           if (localWs) finalStates[en] = localWs;
         });
 
-        // Wrong queue: DB wins entirely for non-touched items.
         const localWrongTouched = localProgress.wrongQueue.filter((i) => touched.has(i.en));
         const finalWrong = [...data.progress.wrongQueue];
         localWrongTouched.forEach((i) => {
@@ -278,7 +249,7 @@ export function useVocabState(
     return () => {
       cancelled = true;
     };
-  }, [userId]);
+  }, [userId, setWords, setProgress]);
 
   useEffect(() => {
     if (isHydrated) saveWords(userId, words);
@@ -288,92 +259,77 @@ export function useVocabState(
     if (isHydrated) saveProgress(userId, progress);
   }, [progress, isHydrated, userId]);
 
+  // Keep ref mirrors in sync if state ever changes from a path that bypasses
+  // the setWords/setProgress helpers above (defensive — all mutations now go
+  // through them, but this guards against future drift and the initial
+  // setWordsState/setProgressState defaults).
+  useEffect(() => { wordsRef.current = words; }, [words]);
+  useEffect(() => { progressRef.current = progress; }, [progress]);
+
+  // Review-progress snapshot: capture today's due count and bump the
+  // baseline when new words become due mid-day. Done in an effect (after
+  // render) so we never write a ref during render — the previous version
+  // mutated todayInitialDueRef inside getReviewStats() called from render.
+  useEffect(() => {
+    const today = getTodayString();
+    const currentDue = countDueWords(words, progress.wordStates, today);
+    const stored = todayDueSnapshotRef.current;
+    if (!stored || stored.date !== today) {
+      todayDueSnapshotRef.current = { date: today, count: currentDue };
+      return;
+    }
+    if (currentDue > stored.count) {
+      todayDueSnapshotRef.current = { date: today, count: currentDue };
+    }
+  }, [words, progress]);
+
   // Prune wrong queue entries that no longer exist in the word list
   useEffect(() => {
     if (!isHydrated) return;
     const validEns = new Set(words.map((w) => w.en));
-    setProgress((prev) => {
-      const filtered = prev.wrongQueue.filter((item) => validEns.has(item.en));
-      if (filtered.length === prev.wrongQueue.length) return prev;
-      return { ...prev, wrongQueue: filtered };
-    });
-  }, [words, isHydrated]);
+    const filtered = progress.wrongQueue.filter((item) => validEns.has(item.en));
+    if (filtered.length !== progress.wrongQueue.length) {
+      setProgress({ ...progress, wrongQueue: filtered });
+    }
+  }, [words, isHydrated, progress, setProgress]);
 
-  const isWordLearned = useCallback((en: string): boolean => {
-    return en in progress.wordStates;
+  const isWordLearnedCb = useCallback((en: string): boolean => {
+    return isWordLearned(progress.wordStates, en);
   }, [progress.wordStates]);
 
   const getWordState = useCallback((en: string): WordState => {
-    if (!progress.wordStates[en]) {
-      return { level: 1, nextReview: Date.now() };
-    }
-    return progress.wordStates[en];
+    return getWordStatePure(progress.wordStates, en);
   }, [progress.wordStates]);
 
   const getNewWordsStats = useCallback(() => {
-    const today = getTodayString();
-    const todayCount = Object.values(progress.wordStates).filter(
-      (ws) => ws.firstLearnedDate === today
-    ).length;
-    const remaining = Math.max(0, dailyNewLimit - todayCount);
-    return { todayCount, remaining };
+    return getNewWordsStatsPure(progress.wordStates, getTodayString(), dailyNewLimit);
   }, [progress.wordStates, dailyNewLimit]);
 
   const getUnlearnedWords = useCallback(() => {
-    return words.filter((word) => !isWordLearned(word.en));
-  }, [words, isWordLearned]);
+    return words.filter((word) => !isWordLearned(progress.wordStates, word.en));
+  }, [words, progress.wordStates]);
 
-  const getDueWords = useCallback(() => {
-    const today = getTodayString();
-    return words.filter((word) => {
-      if (!isWordLearned(word.en)) return false;
-      const ws = getWordState(word.en);
-      return ws.level < MASTERED_LEVEL && getDateStringFromTimestamp(ws.nextReview) <= today;
-    });
-  }, [words, getWordState, isWordLearned]);
+  const getDueWords = useCallback((): Word[] => {
+    return getDueWordsPure(words, progress.wordStates, getTodayString());
+  }, [words, progress.wordStates]);
 
-  // Review stats: tracks today's initial due count so the dashboard can show
-  // real review PROGRESS (done / total), not just the remaining count.
-  // Lazily snapshots the current due count on first call each day; if the
-  // count later grows (because a new word becomes due mid-day), we keep the
-  // max so the denominator never shrinks below what we've already shown.
+  // Pure read of the snapshot — no ref writes here (see the snapshot effect).
   const getReviewStats = useCallback(() => {
     const today = getTodayString();
-    const currentDue = words.filter((word) => {
-      if (!isWordLearned(word.en)) return false;
-      const ws = getWordState(word.en);
-      return ws.level < MASTERED_LEVEL && getDateStringFromTimestamp(ws.nextReview) <= today;
-    }).length;
-
-    const stored = todayInitialDueRef.current;
-    if (!stored || stored.date !== today) {
-      // First call today (or day rolled over): snapshot the current count.
-      todayInitialDueRef.current = { date: today, count: currentDue };
-      return { initialDue: currentDue, currentDue, done: 0 };
-    }
-    // Denominator = max of stored and current (so it never shrinks below
-    // what was already shown, and accommodates new words becoming due).
-    const initialDue = Math.max(stored.count, currentDue);
-    if (currentDue > stored.count) {
-      // New words became due; bump the stored baseline.
-      todayInitialDueRef.current = { date: today, count: currentDue };
-    }
+    const currentDue = countDueWords(words, progress.wordStates, today);
+    const stored = todayDueSnapshotRef.current;
+    const initialDue = stored && stored.date === today ? Math.max(stored.count, currentDue) : currentDue;
     const done = Math.max(0, initialDue - currentDue);
     return { initialDue, currentDue, done };
-  }, [words, getWordState, isWordLearned]);
+  }, [words, progress.wordStates]);
 
-  const getMasteredCount = useCallback(() => {
-    return Object.values(progress.wordStates).filter((ws) => ws.level >= MASTERED_LEVEL).length;
+  const getMasteredCountCb = useCallback(() => {
+    return getMasteredCountPure(progress.wordStates);
   }, [progress.wordStates]);
 
   const getStatus = useCallback((en: string): 'mastered' | 'due' | 'pending' | 'unlearned' => {
-    if (!isWordLearned(en)) return 'unlearned';
-    const ws = getWordState(en);
-    const today = getTodayString();
-    if (ws.level >= MASTERED_LEVEL) return 'mastered';
-    if (getDateStringFromTimestamp(ws.nextReview) <= today) return 'due';
-    return 'pending';
-  }, [getWordState, isWordLearned]);
+    return getStatusPure(progress.wordStates, en, getTodayString());
+  }, [progress.wordStates]);
 
   // Helper: upsert progress to DB, rolling back the UI on failure so the
   // visible state never diverges from what's actually persisted.
@@ -381,78 +337,47 @@ export function useVocabState(
     (en: string, newState: WordState, oldState: WordState | undefined) => {
       upsertProgress(createClient(), userId, en, newState).catch((e) => {
         console.error('DB sync failed, rolling back UI:', en, e);
-        setProgress((prev) => {
-          const next = { ...prev.wordStates };
-          if (oldState) next[en] = oldState;
-          else delete next[en];
-          return { ...prev, wordStates: next };
-        });
+        const prev = progressRef.current;
+        const nextStates = { ...prev.wordStates };
+        if (oldState) nextStates[en] = oldState;
+        else delete nextStates[en];
+        setProgress({ ...prev, wordStates: nextStates });
       });
     },
-    [userId]
+    [userId, setProgress]
   );
 
   const learnNewWord = useCallback((en: string) => {
     const today = getTodayString();
-    setProgress((prev) => {
-      const currentCount = Object.values(prev.wordStates).filter(
-        (ws) => ws.firstLearnedDate === today
-      ).length;
-      if (currentCount >= dailyNewLimit) return prev;
-
-      const oldState = prev.wordStates[en];
-      const newState: WordState = {
-        level: 1,
-        nextReview: Date.now() + INTERVALS[1] * 24 * 60 * 60 * 1000,
-        firstLearnedDate: today
-      };
-      localMutationsRef.current.add(en);
-      syncProgressWithRollback(en, newState, oldState);
-      return {
-        ...prev,
-        wordStates: { ...prev.wordStates, [en]: newState }
-      };
-    });
-  }, [userId, syncProgressWithRollback, dailyNewLimit]);
+    const now = Date.now();
+    const prev = progressRef.current;
+    const newState = computeLearnNewWord(prev.wordStates, today, dailyNewLimit, now);
+    if (!newState) return; // daily cap reached
+    const oldState = prev.wordStates[en];
+    localMutationsRef.current.add(en);
+    setProgress({ ...prev, wordStates: { ...prev.wordStates, [en]: newState } });
+    syncProgressWithRollback(en, newState, oldState);
+  }, [dailyNewLimit, setProgress, syncProgressWithRollback]);
 
   const markKnown = useCallback((en: string) => {
-    setProgress((prev) => {
-      const oldState = prev.wordStates[en];
-      const ws = oldState ?? { level: 1, nextReview: Date.now() };
-      const newLevel = Math.min(ws.level + 1, MASTERED_LEVEL);
-      const newState: WordState = {
-        level: newLevel,
-        nextReview: newLevel >= MASTERED_LEVEL
-          ? Date.now() + 30 * 24 * 60 * 60 * 1000
-          : Date.now() + INTERVALS[newLevel] * 24 * 60 * 60 * 1000,
-        firstLearnedDate: ws.firstLearnedDate
-      };
-      localMutationsRef.current.add(en);
-      syncProgressWithRollback(en, newState, oldState);
-      return {
-        ...prev,
-        wordStates: { ...prev.wordStates, [en]: newState }
-      };
-    });
-  }, [userId, syncProgressWithRollback]);
+    const now = Date.now();
+    const prev = progressRef.current;
+    const oldState = prev.wordStates[en];
+    const newState = computeMarkKnown(oldState, now);
+    localMutationsRef.current.add(en);
+    setProgress({ ...prev, wordStates: { ...prev.wordStates, [en]: newState } });
+    syncProgressWithRollback(en, newState, oldState);
+  }, [setProgress, syncProgressWithRollback]);
 
   const markAgain = useCallback((en: string) => {
-    setProgress((prev) => {
-      const oldState = prev.wordStates[en];
-      const ws = oldState ?? { level: 1, nextReview: Date.now() };
-      const newState: WordState = {
-        level: 1,
-        nextReview: Date.now() + INTERVALS[1] * 24 * 60 * 60 * 1000,
-        firstLearnedDate: ws.firstLearnedDate
-      };
-      localMutationsRef.current.add(en);
-      syncProgressWithRollback(en, newState, oldState);
-      return {
-        ...prev,
-        wordStates: { ...prev.wordStates, [en]: newState }
-      };
-    });
-  }, [userId, syncProgressWithRollback]);
+    const now = Date.now();
+    const prev = progressRef.current;
+    const oldState = prev.wordStates[en];
+    const newState = computeMarkAgain(oldState, now);
+    localMutationsRef.current.add(en);
+    setProgress({ ...prev, wordStates: { ...prev.wordStates, [en]: newState } });
+    syncProgressWithRollback(en, newState, oldState);
+  }, [setProgress, syncProgressWithRollback]);
 
   const wrongQueue = progress.wrongQueue;
 
@@ -462,64 +387,81 @@ export function useVocabState(
   }, [progress.wrongQueue]);
 
   const addToWrongQueue = useCallback((en: string) => {
-    setProgress((prev) => {
-      if (prev.wrongQueue.some((i) => i.en === en)) return prev;
-      const newItem: WrongItem = { en, remaining: 3 };
-      localMutationsRef.current.add(en);
-      upsertWrongItem(createClient(), userId, newItem).catch((e) => {
-        console.error('DB sync failed, rolling back (addToWrongQueue):', en, e);
-        setProgress((p) => ({
-          ...p,
-          wrongQueue: p.wrongQueue.filter((i) => i.en !== en)
-        }));
-      });
-      return { ...prev, wrongQueue: [...prev.wrongQueue, newItem] };
+    const prev = progressRef.current;
+    const res = addToWrongQueuePure(prev.wrongQueue, en);
+    if (!res.changed || !res.item) return;
+    localMutationsRef.current.add(en);
+    setProgress({ ...prev, wrongQueue: res.queue });
+    upsertWrongItem(createClient(), userId, res.item).catch((e) => {
+      console.error('DB sync failed, rolling back (addToWrongQueue):', en, e);
+      // Revert to the previous queue.
+      setProgress({ ...progressRef.current, wrongQueue: prev.wrongQueue });
     });
-  }, [userId]);
+  }, [userId, setProgress]);
+
+  // #3: answering wrong during wrong-mode restarts the consecutive-correct
+  // streak (remaining → REQUIRED_CORRECT). Without this, "对-错-对-对" would
+  // clear the item even though the streak was broken.
+  const resetWrongRemaining = useCallback((en: string) => {
+    const prev = progressRef.current;
+    const res = resetWrongRemainingPure(prev.wrongQueue, en);
+    if (!res.changed || !res.item) return;
+    localMutationsRef.current.add(en);
+    setProgress({ ...prev, wrongQueue: res.queue });
+    upsertWrongItem(createClient(), userId, res.item).catch((e) => {
+      console.error('DB sync failed, rolling back (resetWrongRemaining):', en, e);
+      if (res.oldItem) {
+        const cur = progressRef.current;
+        const idx = cur.wrongQueue.findIndex((i) => i.en === en);
+        if (idx >= 0) {
+          const restored = [...cur.wrongQueue];
+          restored[idx] = res.oldItem;
+          setProgress({ ...cur, wrongQueue: restored });
+        }
+      }
+    });
+  }, [userId, setProgress]);
 
   const decrementWrongRemaining = useCallback((en: string): boolean => {
-    let reachedZero = false;
-    setProgress((prev) => {
-      const index = prev.wrongQueue.findIndex((i) => i.en === en);
-      if (index === -1) return prev;
-      const oldItem = prev.wrongQueue[index];
-      const newRemaining = oldItem.remaining - 1;
-      reachedZero = newRemaining <= 0;
-      const newQueue = [...prev.wrongQueue];
+    const prev = progressRef.current;
+    const res = decrementWrongRemainingPure(prev.wrongQueue, en);
+    if (res.reachedZero) {
       localMutationsRef.current.add(en);
-
-      if (reachedZero) {
-        newQueue.splice(index, 1);
-        deleteWrongItem(createClient(), userId, en).catch((e) => {
-          console.error('DB sync failed, rolling back (decrementWrongRemaining delete):', en, e);
-          setProgress((p) => ({
-            ...p,
-            wrongQueue: p.wrongQueue.some((i) => i.en === en)
-              ? p.wrongQueue
-              : [...p.wrongQueue, oldItem]
-          }));
-        });
-      } else {
-        const updatedItem = { ...oldItem, remaining: newRemaining };
-        newQueue[index] = updatedItem;
-        upsertWrongItem(createClient(), userId, updatedItem).catch((e) => {
-          console.error('DB sync failed, rolling back (decrementWrongRemaining):', en, e);
-          setProgress((p) => ({
-            ...p,
-            wrongQueue: p.wrongQueue.map((i) => (i.en === en ? oldItem : i))
-          }));
-        });
-      }
-      return { ...prev, wrongQueue: newQueue };
-    });
-    return reachedZero;
-  }, [userId]);
+      setProgress({ ...prev, wrongQueue: res.queue });
+      deleteWrongItem(createClient(), userId, en).catch((e) => {
+        console.error('DB sync failed, rolling back (decrementWrongRemaining delete):', en, e);
+        if (res.oldItem) {
+          setProgress({
+            ...progressRef.current,
+            wrongQueue: [...progressRef.current.wrongQueue, res.oldItem]
+          });
+        }
+      });
+      return true;
+    }
+    if (res.item) {
+      localMutationsRef.current.add(en);
+      setProgress({ ...prev, wrongQueue: res.queue });
+      upsertWrongItem(createClient(), userId, res.item).catch((e) => {
+        console.error('DB sync failed, rolling back (decrementWrongRemaining):', en, e);
+        if (res.oldItem) {
+          const cur = progressRef.current;
+          const idx = cur.wrongQueue.findIndex((i) => i.en === en);
+          if (idx >= 0) {
+            const restored = [...cur.wrongQueue];
+            restored[idx] = res.oldItem;
+            setProgress({ ...cur, wrongQueue: restored });
+          }
+        }
+      });
+    }
+    return false;
+  }, [userId, setProgress]);
 
   // ============================================================
-  // Word CRUD (add / edit / delete). These mutate the words array (and,
-  // for rename/delete, the progress state too). All three follow the
-  // established pattern: optimistic setWords/setProgress + localMutationsRef
-  // tracking + fire-and-forget DB sync with rollback on failure.
+  // Word CRUD (add / edit / delete). Dedup reads from wordsRef
+  // synchronously so batch loops (BankView batch-add) detect duplicates
+  // correctly instead of relying on React's eager-updater evaluation.
   // ============================================================
 
   /** Add a new word. Returns false if en is empty or already exists. */
@@ -527,29 +469,22 @@ export function useVocabState(
     const trimmedEn = en.trim();
     const trimmedCn = cn.trim();
     if (!trimmedEn) return false;
-    // Check for duplicates against the current words array.
-    let isDuplicate = false;
-    setWords((prev) => {
-      if (prev.some((w) => w.en === trimmedEn)) {
-        isDuplicate = true;
-        return prev;
-      }
-      return [...prev, { en: trimmedEn, cn: trimmedCn }];
-    });
-    if (isDuplicate) return false;
-
+    if (wordsRef.current.some((w) => w.en === trimmedEn)) return false;
+    const newWord: Word = { en: trimmedEn, cn: trimmedCn };
     localMutationsRef.current.add(trimmedEn);
-    upsertWord(createClient(), userId, { en: trimmedEn, cn: trimmedCn }).catch((e) => {
+    const next = [...wordsRef.current, newWord];
+    setWords(next);
+    upsertWord(createClient(), userId, newWord).catch((e) => {
       console.error('DB sync failed, rolling back addWord:', trimmedEn, e);
-      setWords((prev) => prev.filter((w) => w.en !== trimmedEn));
+      setWords(wordsRef.current.filter((w) => w.en !== trimmedEn));
     });
     return true;
-  }, [userId]);
+  }, [userId, setWords]);
 
   /**
    * Edit an existing word. If only `cn` changes, a simple upsert updates it.
-   * If `en` changes (rename), we must delete the old row, insert the new one,
-   * and migrate the progress + wrong-queue entries keyed by en so the user
+   * If `en` changes (rename), we delete the old row, insert the new one, and
+   * migrate the progress + wrong-queue entries keyed by en so the user
    * doesn't lose their learning history.
    */
   const updateWord = useCallback((oldEn: string, newEn: string, newCn: string): boolean => {
@@ -557,42 +492,35 @@ export function useVocabState(
     const trimmedNewCn = newCn.trim();
     if (!trimmedNewEn) return false;
 
-    // Reject if newEn collides with another existing word.
-    let collision = false;
-    setWords((prev) => {
-      if (trimmedNewEn !== oldEn && prev.some((w) => w.en === trimmedNewEn)) {
-        collision = true;
-        return prev;
-      }
-      return prev.map((w) => w.en === oldEn ? { en: trimmedNewEn, cn: trimmedNewCn } : w);
-    });
-    if (collision) return false;
+    const isRename = trimmedNewEn !== oldEn;
+    if (isRename && wordsRef.current.some((w) => w.en === trimmedNewEn)) return false;
 
     localMutationsRef.current.add(oldEn);
     localMutationsRef.current.add(trimmedNewEn);
 
-    const isRename = trimmedNewEn !== oldEn;
+    const nextWords = wordsRef.current.map((w) =>
+      w.en === oldEn ? { en: trimmedNewEn, cn: trimmedNewCn } : w
+    );
+    setWords(nextWords);
 
     if (isRename) {
       // Migrate progress + wrong-queue to the new key.
-      setProgress((prev) => {
-        const oldState = prev.wordStates[oldEn];
+      const prev = progressRef.current;
+      const oldState = prev.wordStates[oldEn];
+      if (oldState) {
         const nextStates = { ...prev.wordStates };
-        if (oldState) {
-          delete nextStates[oldEn];
-          nextStates[trimmedNewEn] = oldState;
-        }
+        delete nextStates[oldEn];
+        nextStates[trimmedNewEn] = oldState;
         const nextQueue = prev.wrongQueue.map((item) =>
           item.en === oldEn ? { ...item, en: trimmedNewEn } : item
         );
-        return { wordStates: nextStates, wrongQueue: nextQueue };
-      });
+        setProgress({ wordStates: nextStates, wrongQueue: nextQueue });
+      }
 
       // DB: delete the old word row, insert the new one. Progress row under
-      // the old en is left behind (harmless orphan; a future cleanup could
-      // deleteProgress(oldEn) + upsertProgress(newEn, state) but the local
-      // state already migrated optimistically, and a stale DB row doesn't
-      // affect UX since reads key off the current words array).
+      // the old en is left behind (harmless orphan; the local state already
+      // migrated optimistically, and a stale DB row doesn't affect UX since
+      // reads key off the current words array).
       const client = createClient();
       (async () => {
         await deleteWord(client, userId, oldEn);
@@ -602,15 +530,18 @@ export function useVocabState(
         // Rollback is complex for rename; on next DB pull the truth wins.
       });
     } else {
-      // Simple cn update.
       upsertWord(createClient(), userId, { en: trimmedNewEn, cn: trimmedNewCn }).catch((e) => {
         console.error('DB sync failed, rolling back updateWord:', trimmedNewEn, e);
-        // Rollback the cn change.
-        setWords((prev) => prev.map((w) => w.en === trimmedNewEn ? { ...w, cn: newCn } : w));
+        // Rollback the cn change for this word.
+        setWords(
+          wordsRef.current.map((w) =>
+            w.en === trimmedNewEn ? { ...w, cn: wordsRef.current.find((x) => x.en === oldEn)?.cn ?? w.cn } : w
+          )
+        );
       });
     }
     return true;
-  }, [userId]);
+  }, [userId, setWords, setProgress]);
 
   /**
    * Soft-delete a word: remove from the words array immediately, but keep
@@ -619,53 +550,39 @@ export function useVocabState(
    * Returns the deleted word + its progress so the caller can offer undo.
    */
   const removeWord = useCallback((en: string): { word: Word; state?: WordState } | null => {
-    let removed: { word: Word; state?: WordState } | null = null;
-    setWords((prev) => {
-      const word = prev.find((w) => w.en === en);
-      if (!word) return prev;
-      removed = { word, state: undefined };
-      return prev.filter((w) => w.en !== en);
-    });
-    if (!removed) return null;
-
-    // Capture the progress state for undo (read synchronously).
-    setProgress((prev) => {
-      removed = { ...removed!, state: prev.wordStates[en] };
-      // Don't delete from wordStates yet — keep for undo. The prune effect
-      // on wrongQueue will clean stale entries, but wordStates persist.
-      return prev;
-    });
-
+    const word = wordsRef.current.find((w) => w.en === en);
+    if (!word) return null;
+    const state = progressRef.current.wordStates[en];
     localMutationsRef.current.add(en);
+    setWords(wordsRef.current.filter((w) => w.en !== en));
     deleteWord(createClient(), userId, en).catch((e) => {
       console.error('DB sync failed, rolling back removeWord:', en, e);
-      // Rollback: re-add the word.
-      if (removed) {
-        setWords((prev) => {
-          if (prev.some((w) => w.en === en)) return prev;
-          return [...prev, removed!.word];
-        });
+      // Rollback: re-add the word if it's still gone.
+      if (!wordsRef.current.some((w) => w.en === en)) {
+        setWords([...wordsRef.current, word]);
       }
     });
-    return removed;
-  }, [userId]);
+    return { word, state };
+  }, [userId, setWords]);
 
   /**
    * Undo a deletion: restore the word (and its progress if we have it).
    * Called from the Toast "撤销" action within the undo window.
    */
   const undoRemoveWord = useCallback((word: Word, state?: WordState): void => {
-    setWords((prev) => {
-      if (prev.some((w) => w.en === word.en)) return prev;
-      return [...prev, word];
-    });
-    if (state) {
-      setProgress((prev) => ({
-        ...prev,
-        wordStates: { ...prev.wordStates, [word.en]: state }
-      }));
+    if (!wordsRef.current.some((w) => w.en === word.en)) {
+      localMutationsRef.current.add(word.en);
+      setWords([...wordsRef.current, word]);
     }
-    localMutationsRef.current.add(word.en);
+    if (state) {
+      const prev = progressRef.current;
+      if (!prev.wordStates[word.en]) {
+        setProgress({
+          ...prev,
+          wordStates: { ...prev.wordStates, [word.en]: state }
+        });
+      }
+    }
     upsertWord(createClient(), userId, word).catch((e) => {
       console.error('DB sync failed during undoRemoveWord:', word.en, e);
     });
@@ -674,38 +591,33 @@ export function useVocabState(
         console.error('DB progress sync failed during undo:', word.en, e);
       });
     }
-  }, [userId]);
+  }, [userId, setWords, setProgress]);
 
   const resetWrongQueue = useCallback(() => {
-    setProgress((prev) => {
-      const oldQueue = prev.wrongQueue;
-      if (oldQueue.length === 0) return prev;
-      clearWrongQueue(createClient(), userId).catch((e) => {
-        console.error('DB sync failed, rolling back (resetWrongQueue):', e);
-        setProgress((p) => ({ ...p, wrongQueue: oldQueue }));
-      });
-      return { ...prev, wrongQueue: [] };
+    const prev = progressRef.current;
+    if (prev.wrongQueue.length === 0) return;
+    const oldQueue = prev.wrongQueue;
+    setProgress({ ...prev, wrongQueue: [] });
+    clearWrongQueue(createClient(), userId).catch((e) => {
+      console.error('DB sync failed, rolling back (resetWrongQueue):', e);
+      setProgress({ ...progressRef.current, wrongQueue: oldQueue });
     });
-  }, [userId]);
+  }, [userId, setProgress]);
 
   const reset = useCallback(() => {
     if (confirm('确定要重置所有学习进度吗？')) {
-      setProgress((prev) => {
-        const oldProgress = prev;
-        dbResetProgress(createClient(), userId).catch((e) => {
-          console.error('DB sync failed, rolling back (reset):', e);
-          setProgress(oldProgress);
-        });
-        return { wordStates: {}, wrongQueue: [] };
+      const oldProgress = progressRef.current;
+      setProgress({ wordStates: {}, wrongQueue: [] });
+      dbResetProgress(createClient(), userId).catch((e) => {
+        console.error('DB sync failed, rolling back (reset):', e);
+        setProgress(oldProgress);
       });
     }
-  }, [userId]);
+  }, [userId, setProgress]);
 
   const updateSiteTitle = useCallback((title: string) => {
     const trimmed = title.trim();
     if (!trimmed) {
-      // Empty input = revert to the email-derived default and drop the DB row
-      // so future default-rule changes still apply to this user.
       setSiteTitle(deriveDefaultTitle(email));
       resetUserTitle(createClient(), userId).catch((e) =>
         console.error('DB sync failed (reset title):', e)
@@ -727,179 +639,52 @@ export function useVocabState(
   }, [userId]);
 
   const exportState = useCallback((): FlatWordEntry[] => {
-    return words.map((word) => {
-      const ws = progress.wordStates[word.en];
-      if (!ws) {
-        return {
-          wordInEnglish: word.en,
-          wordInChinese: word.cn,
-          level: 0,
-          'next date': null
-        };
-      }
-      return {
-        wordInEnglish: word.en,
-        wordInChinese: word.cn,
-        level: ws.level,
-        'next date': getDateStringFromTimestamp(ws.nextReview)
-      };
-    });
+    return exportToFlat(words, progress.wordStates);
   }, [words, progress.wordStates]);
 
-  const importState = useCallback((data: unknown, options?: { merge?: boolean }): boolean => {
-    const merge = options?.merge ?? false;
+  // Async: applies the import locally (optimistic) and awaits the cloud sync
+  // so the caller can report "本地已恢复但云端同步失败" instead of claiming
+  // success while the DB write silently failed (CODE_REVIEW #6).
+  const importState = useCallback(
+    async (data: unknown, options?: { merge?: boolean }): Promise<{ ok: boolean; cloudSynced: boolean }> => {
+      const merge = options?.merge ?? false;
+      const res = importToState(
+        data,
+        { words: wordsRef.current, wordStates: progressRef.current.wordStates, wrongQueue: progressRef.current.wrongQueue },
+        merge,
+        getTodayString(),
+        Date.now()
+      );
+      if (!res || !res.ok) return { ok: false, cloudSynced: false };
 
-    try {
-      if (!data || typeof data !== 'object') return false;
+      setWords(res.words);
+      setProgress({ wordStates: res.wordStates, wrongQueue: res.wrongQueue });
 
-      // New flat format: array of { wordInEnglish, wordInChinese, level, next date }
-      if (Array.isArray(data)) {
-        const mergedWords: Word[] = merge ? [...words] : [];
-        const mergedWordStates: Record<string, WordState> = merge ? { ...progress.wordStates } : {};
-
-        data.forEach((item) => {
-          if (!item || typeof item !== 'object') return;
-          const entry = item as Partial<FlatWordEntry>;
-          const en = entry.wordInEnglish?.trim();
-          const cn = entry.wordInChinese?.trim();
-          const level = typeof entry.level === 'number' ? entry.level : 0;
-          const nextDate = entry['next date'];
-
-          if (!en || !cn) return;
-
-          const existingIndex = mergedWords.findIndex((w) => w.en === en);
-          if (existingIndex >= 0) {
-            // Update Chinese meaning; keep the word in place
-            mergedWords[existingIndex] = { en, cn };
-          } else {
-            mergedWords.push({ en, cn });
-          }
-
-          if (level >= 1) {
-            // In merge mode, overwrite existing word state with the imported level/next date
-
-            let nextReview = Date.now();
-            let firstLearnedDate = getTodayString();
-            if (nextDate && typeof nextDate === 'string') {
-              const parsed = parseLocalDate(nextDate);
-              if (!isNaN(parsed.getTime())) {
-                nextReview = parsed.getTime();
-                // Assume learned one day before next review for level 1
-                const learned = new Date(parsed.getTime());
-                learned.setDate(learned.getDate() - 1);
-                firstLearnedDate = formatLocalDateString(learned);
-              }
-            }
-            mergedWordStates[en] = {
-              level: Math.min(level, MASTERED_LEVEL),
-              nextReview,
-              firstLearnedDate
-            };
-          }
-        });
-
-        if (mergedWords.length === 0) return false;
-
-        setWords(mergedWords);
-        setProgress({ wordStates: mergedWordStates, wrongQueue: merge ? progress.wrongQueue : [] });
-
-        // Sync the merged dataset to DB
-        const supabase = createClient();
-        syncWords(supabase, userId, mergedWords).catch((e) =>
-          console.error('DB sync failed (importState words):', e)
-        );
-        Object.entries(mergedWordStates).forEach(([en, ws]) => {
-          upsertProgress(supabase, userId, en, ws).catch((e) =>
-            console.error('DB sync failed (importState progress):', en, e)
-          );
-        });
-        if (!merge) {
-          clearWrongQueue(supabase, userId).catch((e) =>
-            console.error('DB sync failed (importState clear wrong queue):', e)
-          );
-        }
-        return true;
-      }
-
-      // Legacy internal format: { words, progress }
-      const imported = data as Partial<{ words: Word[]; progress: ProgressState }>;
-
-      const finalWords: Word[] = merge ? words : [];
-      const finalStates: Record<string, WordState> = merge ? { ...progress.wordStates } : {};
-
-      if (imported.words && Array.isArray(imported.words) && imported.words.length > 0) {
-        if (merge) {
-          const existingEns = new Set(words.map((w) => w.en));
-          const newWords = imported.words.filter((w) => !existingEns.has(w.en));
-          finalWords.push(...newWords);
-          setWords([...words, ...newWords]);
-        } else {
-          finalWords.push(...imported.words);
-          setWords(imported.words);
-        }
-      }
-
-      if (imported.progress && typeof imported.progress === 'object') {
-        if (merge) {
-          Object.entries(imported.progress.wordStates || {}).forEach(([key, value]) => {
-            if (
-              value &&
-              typeof value === 'object' &&
-              'level' in value &&
-              'nextReview' in value &&
-              typeof (value as WordState).level === 'number' &&
-              typeof (value as WordState).nextReview === 'number' &&
-              !finalStates[key]
-            ) {
-              finalStates[key] = value as WordState;
-            }
-          });
-          setProgress((prev) => ({ ...prev, wordStates: finalStates }));
-        } else {
-          Object.entries(imported.progress.wordStates || {}).forEach(([key, value]) => {
-            if (
-              value &&
-              typeof value === 'object' &&
-              'level' in value &&
-              'nextReview' in value &&
-              typeof (value as WordState).level === 'number' &&
-              typeof (value as WordState).nextReview === 'number'
-            ) {
-              finalStates[key] = value as WordState;
-            }
-          });
-          setProgress({ wordStates: finalStates, wrongQueue: [] });
-        }
-      }
-
-      // Sync legacy import to DB
       const supabase = createClient();
-      if (finalWords.length > 0) {
-        syncWords(supabase, userId, finalWords).catch((e) =>
-          console.error('DB sync failed (legacy import words):', e)
-        );
-      }
-      Object.entries(finalStates).forEach(([en, ws]) => {
-        upsertProgress(supabase, userId, en, ws).catch((e) =>
-          console.error('DB sync failed (legacy import progress):', en, e)
-        );
-      });
+      let cloudError = false;
+
+      const wordsErr = await syncWords(supabase, userId, res.words);
+      if (wordsErr) cloudError = true;
+
+      const progErrs = await Promise.all(
+        Object.entries(res.wordStates).map(([en, ws]) => upsertProgress(supabase, userId, en, ws))
+      );
+      if (progErrs.some(Boolean)) cloudError = true;
+
       if (!merge) {
-        clearWrongQueue(supabase, userId).catch((e) =>
-          console.error('DB sync failed (legacy import clear queue):', e)
-        );
+        const clearErr = await clearWrongQueue(supabase, userId);
+        if (clearErr) cloudError = true;
       }
-      return true;
-    } catch (e) {
-      console.error('Failed to import state', e);
-      return false;
-    }
-  }, [words, progress.wordStates, progress.wrongQueue, userId]);
+
+      return { ok: true, cloudSynced: !cloudError };
+    },
+    [userId, setWords, setProgress]
+  );
 
   return {
     isHydrated,
     words,
-    isWordLearned,
+    isWordLearned: isWordLearnedCb,
     getWordState,
     learnNewWord,
     getUnlearnedWords,
@@ -909,7 +694,7 @@ export function useVocabState(
     reset,
     getDueWords,
     getReviewStats,
-    getMasteredCount,
+    getMasteredCount: getMasteredCountCb,
     getStatus,
     exportState,
     importState,
@@ -920,6 +705,7 @@ export function useVocabState(
     wrongQueue,
     getWrongRemaining,
     addToWrongQueue,
+    resetWrongRemaining,
     decrementWrongRemaining,
     resetWrongQueue,
     siteTitle,

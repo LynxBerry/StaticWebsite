@@ -25,9 +25,9 @@ function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned', level: 
   // through greens as mastery grows. Unlearned slots stay dimmed.
   const base =
     'group relative flex flex-col items-center justify-center gap-1.5 p-3 px-1.5 rounded-[16px] ' +
-    'transition-all duration-200 cursor-default ' +
+    'transition-all duration-200 cursor-pointer ' +
     'border border-farm-border ' +
-    'hover:-translate-y-0.5';
+    'hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-farm-accent/60';
 
   if (status === 'unlearned') {
     return `${base} bg-white opacity-40`;
@@ -38,6 +38,7 @@ function tileClass(status: 'mastered' | 'due' | 'pending' | 'unlearned', level: 
 
 export default function FarmView({ words, getStatus, getWordState, onGoToBank, onGoToSettings }: FarmViewProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
   const hasOverflow = useOverflow(scrollRef);
   const [tooltip, setTooltip] = useState<{
     word: Word;
@@ -52,19 +53,38 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
     setMounted(true);
   }, []);
 
-  const showTooltip = (word: Word, status: 'mastered' | 'due' | 'pending' | 'unlearned', level: number) =>
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      setTooltip({
-        word,
-        status,
-        level,
-        left: rect.left + rect.width / 2,
-        top: rect.top - 8
-      });
+  // Close the tooltip when a press lands outside the grid (so tapping empty
+  // space, or scrolling elsewhere, dismisses it). Click-toggle below handles
+  // tile-to-tile switching and same-tile toggle-off.
+  useEffect(() => {
+    if (!tooltip) return;
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      if (gridRef.current && !gridRef.current.contains(e.target as Node)) {
+        setTooltip(null);
+      }
     };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [tooltip]);
 
-  const hideTooltip = () => setTooltip(null);
+  // #9: tap/click toggles the tooltip (touch + mouse), Enter/Space too via the
+  // native <button>. Replaces the previous hover-only handlers, which left
+  // touch devices and keyboard users unable to see a word's meaning.
+  const handleTileActivate = (
+    word: Word,
+    status: 'mastered' | 'due' | 'pending' | 'unlearned',
+    level: number
+  ) => (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setTooltip((prev) =>
+      prev?.word.en === word.en
+        ? null
+        : { word, status, level, left: rect.left + rect.width / 2, top: rect.top - 8 }
+    );
+  };
+
+  const tooltipLabel = (status: 'mastered' | 'due' | 'pending' | 'unlearned', level: number) =>
+    status === 'unlearned' ? '待播种' : status === 'due' ? `阶段 ${level} · 需要浇水` : `阶段 ${level}`;
 
   if (words.length === 0) {
     return (
@@ -92,16 +112,19 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
 
       <div className="flat-card p-3 relative">
         <div ref={scrollRef} className="max-h-[58vh] overflow-y-auto no-scrollbar">
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-2.5">
+          <div ref={gridRef} className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-2.5">
             {words.map((word) => {
               const status = getStatus(word.en);
               const ws = getWordState(word.en);
+              const isActive = tooltip?.word.en === word.en;
               return (
-                <div
+                <button
                   key={word.en}
+                  type="button"
                   className={tileClass(status, ws.level)}
-                  onMouseEnter={showTooltip(word, status, ws.level)}
-                  onMouseLeave={hideTooltip}
+                  onClick={handleTileActivate(word, status, ws.level)}
+                  aria-label={`${word.en}，${word.cn}，${tooltipLabel(status, ws.level)}`}
+                  aria-pressed={isActive}
                 >
                   {status === 'due' && (
                     <div className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center rounded-full bg-white/90 text-blue-500 shadow-sm border border-blue-100">
@@ -118,7 +141,7 @@ export default function FarmView({ words, getStatus, getWordState, onGoToBank, o
                       {word.en}
                     </span>
                   )}
-                </div>
+                </button>
               );
             })}
           </div>

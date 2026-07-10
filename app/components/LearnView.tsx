@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Word } from '../data/words';
 import { formatDate } from '../lib/utils';
 import EmptyState from './EmptyState';
@@ -28,43 +28,72 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
   const actualRemaining = Math.min(remaining, unlearnedWords.length);
   const displayTotal = Math.min(dailyNewLimit, unlearnedWords.length + todayCount);
   const availableWords = useMemo(() => unlearnedWords.slice(0, actualRemaining), [unlearnedWords, actualRemaining]);
-  const isDone = availableWords.length === 0 || actualRemaining === 0;
 
   useEffect(() => {
     setCurrentIndex(0);
     setFlipped(false);
-  }, [availableWords.length]);
+  }, [availableWords.length, availableWords[0]?.en]);
 
-  const currentWord = availableWords[currentIndex];
+  // Clamp the index against the current array length so a render that lands
+  // between a state shrink (learn/skip shrinks availableWords) and the reset
+  // effect above can never dereference an out-of-bounds element. Without this,
+  // skipping to the last word then learning it makes currentWord undefined for
+  // one render → TypeError on {currentWord.en}.
+  const safeIndex = Math.min(currentIndex, Math.max(0, availableWords.length - 1));
+  const currentWord = availableWords.length > 0 ? availableWords[safeIndex] : undefined;
+  const isDone = availableWords.length === 0 || actualRemaining === 0;
+
+  // #4 debounce: lock sow/skip while a transition is in flight so a double
+  // tap can't double-sow the same slot (and race the index clamp above).
+  const busyRef = useRef(false);
 
   const handleLearn = useCallback(() => {
-    if (isDone || !currentWord) return;
+    if (isDone || !currentWord || busyRef.current) return;
+    busyRef.current = true;
+    // Release on the next tick — by then availableWords has shrunk and the
+    // index-clamp effect has reset currentIndex, so a re-tap targets the new
+    // word (or hits the isDone guard).
+    window.setTimeout(() => { busyRef.current = false; }, 0);
     setFlipped(false);
     onLearn(currentWord.en);
   }, [isDone, currentWord, onLearn]);
 
   const handleSkip = useCallback(() => {
-    if (isDone || availableWords.length <= 1) return;
+    if (isDone || availableWords.length <= 1 || busyRef.current) return;
+    busyRef.current = true;
+    window.setTimeout(() => { busyRef.current = false; }, 0);
     setFlipped(false);
     setCurrentIndex((i) => (i + 1) % availableWords.length);
   }, [isDone, availableWords.length]);
 
   useEffect(() => {
+    const isInteractiveTarget = (target: EventTarget | null) => {
+      const el = target as HTMLElement | null;
+      if (!el) return false;
+      const tag = el.tagName;
+      return tag === 'BUTTON' || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'A' || el.isContentEditable;
+    };
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isDone) return;
       if (e.key === ' ' || e.key === 'Enter') {
+        // #10: don't steal Space/Enter from a focused button/input.
+        if (isInteractiveTarget(e.target)) return;
         e.preventDefault();
         setFlipped((f) => !f);
       } else if (e.key === 'ArrowRight' || e.key === 'k') {
-        handleLearn();
+        if (isInteractiveTarget(e.target)) return;
+        // Require seeing the meaning before sowing (don't score blind).
+        if (flipped) handleLearn();
       } else if (e.key === 'ArrowLeft' || e.key === 'a') {
+        if (isInteractiveTarget(e.target)) return;
         handleSkip();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isDone, handleLearn, handleSkip]);
+  }, [isDone, flipped, handleLearn, handleSkip]);
 
   // Empty library: no words at all
   if (totalWords === 0) {
@@ -90,7 +119,7 @@ export default function LearnView({ unlearnedWords, totalWords, todayCount, rema
         <ProgressBar value={todayCount} max={displayTotal} />
       </section>
 
-      {isDone ? (
+      {isDone || !currentWord ? (
         <div className="flat-card mb-6 p-1.5">
           <section className="card aspect-[3/2] cursor-default" aria-label="今日播种完成">
             <div className="card-inner relative w-full h-full transition-transform duration-500 rounded-[16px]">

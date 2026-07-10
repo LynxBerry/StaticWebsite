@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { FlatWordEntry } from '../hooks/useVocabState';
+import { localISODate } from '../lib/utils';
 import { Button } from './ui/Button';
 import { SettingsIcon } from './icons/SettingsIcon';
 import { TagIcon } from './icons/TagIcon';
@@ -16,7 +17,7 @@ import { DoorOpenIcon } from './icons/DoorOpenIcon';
 
 interface SettingsViewProps {
   exportState: () => FlatWordEntry[];
-  importState: (data: unknown, options?: { merge?: boolean }) => boolean;
+  importState: (data: unknown, options?: { merge?: boolean }) => Promise<{ ok: boolean; cloudSynced: boolean }>;
   onReset: () => void;
   siteTitle: string;
   onUpdateSiteTitle: (title: string) => void;
@@ -29,12 +30,25 @@ const sectionClass = 'text-left p-5 mb-4 flat-card';
 export default function SettingsView({ exportState, importState, onReset, siteTitle, onUpdateSiteTitle, dailyNewLimit, onUpdateDailyNewLimit }: SettingsViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importMessage, setImportMessage] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
   const [mergeImport, setMergeImport] = useState(true);
   const [titleDraft, setTitleDraft] = useState(siteTitle);
   const [titleSaved, setTitleSaved] = useState(false);
   const [limitDraft, setLimitDraft] = useState(String(dailyNewLimit));
   const [limitSaved, setLimitSaved] = useState(false);
   const router = useRouter();
+
+  // Track pending feedback timers so switching tabs (unmount) can't leave
+  // them firing against a gone component / stale state.
+  const timersRef = useRef<Set<number>>(new Set());
+  const safeTimeout = (fn: () => void, ms: number) => {
+    const id = window.setTimeout(() => {
+      fn();
+      timersRef.current.delete(id);
+    }, ms);
+    timersRef.current.add(id);
+  };
+  useEffect(() => () => { timersRef.current.forEach((id) => window.clearTimeout(id)); }, []);
 
   // Keep the draft in sync when the loaded title changes (e.g. after DB pull).
   useEffect(() => {
@@ -49,17 +63,36 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
   const commitTitle = () => {
     const trimmed = titleDraft.trim();
     if (trimmed === siteTitle) return;
+    // Empty input = revert to the email-derived default (the hook handles
+    // the reset); surface that to the user instead of silently "saving".
+    if (!trimmed) {
+      onUpdateSiteTitle('');
+      setTitleSaved(true);
+      safeTimeout(() => setTitleSaved(false), 2000);
+      return;
+    }
     onUpdateSiteTitle(trimmed);
     setTitleSaved(true);
-    window.setTimeout(() => setTitleSaved(false), 2000);
+    safeTimeout(() => setTitleSaved(false), 2000);
   };
 
   const commitLimit = () => {
     const parsed = parseInt(limitDraft, 10);
-    if (Number.isNaN(parsed) || parsed === dailyNewLimit) return;
-    onUpdateDailyNewLimit(parsed);
+    // Non-numeric input (e.g. "abc"): revert the draft to the real value,
+    // don't claim a save happened.
+    if (Number.isNaN(parsed)) {
+      setLimitDraft(String(dailyNewLimit));
+      return;
+    }
+    // Clamp locally so the displayed value matches what actually persists
+    // (the hook also clamps, but previously the UI showed "已保存" while the
+    // real value differed for out-of-range inputs like 0 or 999).
+    const clamped = Math.max(1, Math.min(100, parsed));
+    setLimitDraft(String(clamped));
+    if (clamped === dailyNewLimit) return;
+    onUpdateDailyNewLimit(clamped);
     setLimitSaved(true);
-    window.setTimeout(() => setLimitSaved(false), 2000);
+    safeTimeout(() => setLimitSaved(false), 2000);
   };
 
   const handleSignOut = async () => {
@@ -129,8 +162,9 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
     const state = exportState();
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const date = new Date().toISOString().split('T')[0];
-    const filename = `zeno-vocab-backup-${date}.json`;
+    // Local date (not UTC) so an evening export in non-UTC timezones doesn't
+    // land on yesterday's date in the filename.
+    const filename = `zeno-vocab-backup-${localISODate()}.json`;
 
     const a = document.createElement('a');
     a.href = url;
@@ -145,20 +179,41 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // #6: non-merge restore wholesale-replaces the word library AND all
+    // learning progress — guard it with a confirm (the reset-progress action
+    // already has one; this didn't).
+    if (!mergeImport) {
+      if (!confirm('恢复备份将整体替换当前的词库和学习进度，此操作不可撤销。确定继续吗？')) {
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+    }
+
+    setImporting(true);
     try {
       const text = await file.text();
       const data = JSON.parse(text);
-      const success = importState(data, { merge: mergeImport });
-      setImportMessage(success ? (mergeImport ? '增量导入成功！' : '恢复成功！') : '备份文件格式不正确。');
+      const result = await importState(data, { merge: mergeImport });
+      if (!result.ok) {
+        setImportMessage('备份文件格式不正确。');
+      } else if (!result.cloudSynced) {
+        // Local applied but the cloud write failed — tell the user so a
+        // device switch later doesn't silently revert.
+        setImportMessage(mergeImport ? '本地已导入，但云端同步失败，换设备后可能需要重试。' : '本地已恢复，但云端同步失败，换设备后可能需要重试。');
+      } else {
+        setImportMessage(mergeImport ? '增量导入成功！' : '恢复成功！');
+      }
     } catch (err) {
       setImportMessage('无法读取文件，请检查是否为有效的 JSON。');
+    } finally {
+      setImporting(false);
     }
 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
 
-    setTimeout(() => setImportMessage(null), 3000);
+    safeTimeout(() => setImportMessage(null), 4000);
   };
 
   return (
@@ -190,7 +245,7 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
           }}
           placeholder="Sprout · 单词农场"
           maxLength={30}
-          className="w-full px-4 py-2.5 rounded-lg bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
+          className="w-full px-4 py-2.5 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
         />
         {titleSaved && (
           <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-farm-bg text-sprout-600 border border-farm-border">
@@ -219,7 +274,7 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
               (e.target as HTMLInputElement).blur();
             }
           }}
-          className="w-full px-4 py-2.5 rounded-lg bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
+          className="w-full px-4 py-2.5 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
         />
         {limitSaved && (
           <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-farm-bg text-sprout-600 border border-farm-border">
@@ -277,10 +332,10 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
           className="hidden"
           onChange={handleFileChange}
         />
-        <Button variant="secondary" className="flex-none min-w-[140px]" onClick={() => fileInputRef.current?.click()}>
-          选择备份文件
+        <Button variant="secondary" className="flex-none min-w-[140px]" onClick={() => fileInputRef.current?.click()} disabled={importing}>
+          {importing ? '恢复中...' : '选择备份文件'}
         </Button>
-        {importMessage && <p className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-farm-bg text-sprout-600 border border-farm-border">{importMessage}</p>}
+        {importMessage && <p role="status" aria-live="polite" className="mt-3 px-4 py-1.5 rounded-full text-sm text-center bg-farm-bg text-sprout-600 border border-farm-border">{importMessage}</p>}
       </div>
 
       <div className={sectionClass}>
@@ -300,44 +355,50 @@ export default function SettingsView({ exportState, importState, onReset, siteTi
         <p className="text-sm text-farm-muted mb-4 leading-relaxed">
           修改你的登录密码。需要先验证旧密码。
         </p>
-        <div className="space-y-3">
+        <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }}>
+          <label className="sr-only" htmlFor="pw-old">旧密码</label>
           <input
+            id="pw-old"
             type="password"
             value={oldPassword}
             onChange={(e) => setOldPassword(e.target.value)}
             placeholder="旧密码"
             autoComplete="current-password"
-            className="w-full px-4 py-2.5 rounded-lg bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
+            className="w-full px-4 py-2.5 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
           />
+          <label className="sr-only" htmlFor="pw-new">新密码（至少 6 位）</label>
           <input
+            id="pw-new"
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="新密码（至少 6 位）"
             autoComplete="new-password"
-            className="w-full px-4 py-2.5 rounded-lg bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
+            className="w-full px-4 py-2.5 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
           />
+          <label className="sr-only" htmlFor="pw-confirm">确认新密码</label>
           <input
+            id="pw-confirm"
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="确认新密码"
             autoComplete="new-password"
-            className="w-full px-4 py-2.5 rounded-lg bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
+            className="w-full px-4 py-2.5 rounded-2xl bg-white border border-farm-borderSecondary text-farm-text text-[0.9375rem] outline-none transition-all duration-200 placeholder:text-farm-textSecondary focus:border-farm-accent focus:ring-2 focus:ring-farm-accent/20"
           />
           {passwordMessage && (
-            <p className={`text-sm ${passwordMessage.type === 'success' ? 'text-sprout-600' : 'text-red-500'}`}>
+            <p role="status" aria-live="polite" className={`text-sm ${passwordMessage.type === 'success' ? 'text-sprout-600' : 'text-red-500'}`}>
               {passwordMessage.text}
             </p>
           )}
           <Button
+            type="submit"
             className="flex-none min-w-[140px]"
-            onClick={handleChangePassword}
             disabled={passwordSubmitting || !oldPassword || !newPassword || !confirmPassword}
           >
             {passwordSubmitting ? '更新中...' : '更新密码'}
           </Button>
-        </div>
+        </form>
       </div>
 
       <div className={sectionClass}>

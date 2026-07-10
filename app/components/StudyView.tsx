@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import WordCard from './WordCard';
 import EmptyState from './EmptyState';
-import ComboBadge from './ComboBadge';
 import Confetti from './Confetti';
 import { QuestionMarkIcon } from './icons/QuestionMarkIcon';
 import { ThumbsUpIcon } from './icons/ThumbsUpIcon';
@@ -12,8 +11,6 @@ import { Button } from './ui/Button';
 import ProgressBar from './ui/ProgressBar';
 import { Word } from '../data/words';
 import { getAudioContext, playSuccessSound, playWrongSound } from '../lib/sound';
-
-const REQUIRED_CORRECT = 3;
 
 interface WrongItem {
   en: string;
@@ -30,6 +27,8 @@ interface StudyViewProps {
   onKnown: (en: string) => void;
   onAgain: (en: string) => void;
   onAddToWrongQueue: (en: string) => void;
+  /** Wrong-mode: restart the consecutive-correct streak on a wrong answer. */
+  onResetWrongRemaining: (en: string) => void;
   onDecrementWrongRemaining: (en: string) => boolean;
   onResetWrongQueue: () => void;
   onGoToBank: () => void;
@@ -46,6 +45,7 @@ export default function StudyView({
   onKnown,
   onAgain,
   onAddToWrongQueue,
+  onResetWrongRemaining,
   onDecrementWrongRemaining,
   onResetWrongQueue,
   onGoToBank,
@@ -57,9 +57,36 @@ export default function StudyView({
   const [reviewedCount, setReviewedCount] = useState(0);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
+  // #4 debounce: lock answers while feedback is showing so a rapid double-tap
+  // (or double keypress) can't promote the same word two levels at once. The
+  // ref is the source of truth inside async callbacks; `answering` mirrors it
+  // to drive button disabled state.
+  const answeringRef = useRef(false);
+  const [answering, setAnswering] = useState(false);
+  const feedbackTimerRef = useRef<number | null>(null);
+
   const triggerFeedback = useCallback((type: 'correct' | 'wrong') => {
+    // Replace any in-flight feedback timer so a fast follow-up answer doesn't
+    // get its feedback cleared early by the previous answer's timeout.
+    if (feedbackTimerRef.current !== null) {
+      window.clearTimeout(feedbackTimerRef.current);
+    }
     setFeedback(type);
-    window.setTimeout(() => setFeedback(null), 450);
+    feedbackTimerRef.current = window.setTimeout(() => {
+      setFeedback(null);
+      answeringRef.current = false;
+      setAnswering(false);
+      feedbackTimerRef.current = null;
+    }, 450);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current !== null) window.clearTimeout(feedbackTimerRef.current);
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        audioCtxRef.current.close().catch(() => {});
+      }
+    };
   }, []);
 
   const currentWord = useMemo(() => {
@@ -95,7 +122,9 @@ export default function StudyView({
   }, []);
 
   const handleKnown = useCallback(() => {
-    if (!currentWord) return;
+    if (!currentWord || answeringRef.current) return;
+    answeringRef.current = true;
+    setAnswering(true);
     setFlipped(false);
     playSound('success');
     triggerFeedback('correct');
@@ -113,7 +142,9 @@ export default function StudyView({
   }, [currentWord, isWrongMode, onKnown, onDecrementWrongRemaining, playSound, triggerFeedback]);
 
   const handleAgain = useCallback(() => {
-    if (!currentWord) return;
+    if (!currentWord || answeringRef.current) return;
+    answeringRef.current = true;
+    setAnswering(true);
     setFlipped(false);
     playSound('wrong');
     triggerFeedback('wrong');
@@ -121,39 +152,50 @@ export default function StudyView({
     setReviewedCount((c) => c + 1);
     onAgain(currentWord.en);
 
-    if (!isWrongMode) {
+    if (isWrongMode) {
+      // #3: a wrong answer during wrong-mode restarts the consecutive-correct
+      // streak (remaining → REQUIRED_CORRECT). Previously the existing entry
+      // was left untouched, so "对-错-对-对" could clear it non-consecutively.
+      onResetWrongRemaining(currentWord.en);
+    } else {
       onAddToWrongQueue(currentWord.en);
     }
-  }, [currentWord, isWrongMode, onAgain, onAddToWrongQueue, playSound]);
+  }, [currentWord, isWrongMode, onAgain, onAddToWrongQueue, onResetWrongRemaining, playSound, triggerFeedback]);
 
   const handleFlip = useCallback(() => {
     if (!isDone) setFlipped((f) => !f);
   }, [isDone]);
 
+  // #10 keyboard: don't hijack Space/Enter when the user is focused on a
+  // button/input (let it activate normally), and only allow the "认识/不认识"
+  // shortcuts AFTER the card is flipped — otherwise kids can score without
+  // ever looking at the answer.
   useEffect(() => {
+    const isInteractiveTarget = (target: EventTarget | null) => {
+      const el = target as HTMLElement | null;
+      if (!el) return false;
+      const tag = el.tagName;
+      return tag === 'BUTTON' || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'A' || el.isContentEditable;
+    };
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isDone) return;
       if (e.key === ' ' || e.key === 'Enter') {
+        if (isInteractiveTarget(e.target)) return; // let the focused control handle it
         e.preventDefault();
         handleFlip();
       } else if (e.key === 'ArrowRight' || e.key === 'k') {
-        handleKnown();
+        if (isInteractiveTarget(e.target)) return;
+        if (flipped) handleKnown();
       } else if (e.key === 'ArrowLeft' || e.key === 'a') {
-        handleAgain();
+        if (isInteractiveTarget(e.target)) return;
+        if (flipped) handleAgain();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isDone, handleFlip, handleKnown, handleAgain]);
-
-  useEffect(() => {
-    return () => {
-      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
-        audioCtxRef.current.close().catch(() => {});
-      }
-    };
-  }, []);
+  }, [isDone, flipped, handleFlip, handleKnown, handleAgain]);
 
   // Empty library: no words to review
   if (total === 0) {
@@ -219,7 +261,6 @@ export default function StudyView({
 
   return (
     <section className="flex-1 flex flex-col min-h-[60vh]" id="study-view">
-      <ComboBadge count={combo} />
         <section className="mb-6">
           <span className="block text-sm text-farm-muted mb-2">{reviewedCount} / {totalReviewTarget} 已复习</span>
           <ProgressBar value={reviewedCount} max={totalReviewTarget} />
@@ -236,7 +277,8 @@ export default function StudyView({
           onAgain={handleAgain}
           isWrongMode={isWrongMode}
           remaining={currentRemaining ?? undefined}
-          disabled={false}
+          disabled={answering || isDone}
+          combo={combo}
         />
       )}
 

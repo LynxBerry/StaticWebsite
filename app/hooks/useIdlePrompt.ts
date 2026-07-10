@@ -29,7 +29,11 @@ export function useIdlePrompt(timeoutMs: number) {
     lastActivityRef.current = Date.now();
 
     ACTIVITY_EVENTS.forEach((evt) => {
-      window.addEventListener(evt, recordActivity, { passive: true });
+      // capture: true so we catch scroll events from overflow containers
+      // (scroll doesn't bubble, and this app scrolls inside list/grid
+      // containers, not the document — without capture the user could be
+      // actively scrolling the word bank and still get flagged idle).
+      window.addEventListener(evt, recordActivity, { passive: true, capture: true });
     });
 
     const interval = window.setInterval(() => {
@@ -40,7 +44,7 @@ export function useIdlePrompt(timeoutMs: number) {
 
     return () => {
       ACTIVITY_EVENTS.forEach((evt) => {
-        window.removeEventListener(evt, recordActivity);
+        window.removeEventListener(evt, recordActivity, { capture: true });
       });
       window.clearInterval(interval);
     };

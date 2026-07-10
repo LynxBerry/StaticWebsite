@@ -112,6 +112,7 @@ export default function HomeClient({
     undoRemoveWord,
     wrongQueue,
     addToWrongQueue,
+    resetWrongRemaining,
     decrementWrongRemaining,
     resetWrongQueue,
     siteTitle,
@@ -248,6 +249,7 @@ export default function HomeClient({
           onKnown={markKnown}
           onAgain={markAgain}
           onAddToWrongQueue={addToWrongQueue}
+          onResetWrongRemaining={resetWrongRemaining}
           onDecrementWrongRemaining={decrementWrongRemaining}
           onResetWrongQueue={resetWrongQueue}
           onGoToBank={() => setCurrentView('bank')}

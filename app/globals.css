@@ -11,24 +11,12 @@
   display: none; /* Chrome/Safari */
 }
 
-body {
-  /* items-start (not center) so tall pages don't get pushed up by the
-     vertical centering when switching tabs of different heights.
-     Padding grows on bigger screens so content isn't crammed to the edge
-     of a desktop browser. */
-  @apply min-h-screen flex items-start justify-center relative p-4 sm:p-6 lg:p-10 pt-20 sm:pt-24 lg:pt-28 font-sans antialiased;
-  /* Flat light theme: solid warm light-gray background with dark text. */
-  background-color: #efefeb;
-  color: #3D2F1F;
-}
-
-/* Short viewports (phone landscape, ~≤500px tall): shrink the top padding
-   so the header doesn't eat half the screen and content can breathe. */
-@media (max-height: 500px) {
-  body {
-    @apply pt-12 p-3;
-  }
-}
+/* Body layout/padding/color live in app/layout.tsx via Tailwind classes on
+   <body>. Previously this `body { @apply ... }` block duplicated those and
+   lost the cascade fight (class specificity > element), so the landscape
+   short-viewport media query below was dead code. Both removed in favour of
+   the single source of truth in layout.tsx (which ports the landscape tweak
+   via a Tailwind arbitrary variant). */
 
 /* White text on dark/colored surfaces (card backs, primary buttons,
    combo badges): keep the color bright but remove the engraved shadow

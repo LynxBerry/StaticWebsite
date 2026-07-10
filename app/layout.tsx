@@ -61,7 +61,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN" className={`${nunito.variable} ${quicksand.variable} ${fredoka.variable} ${zcool.variable}`}>
-      <body className="min-h-screen flex items-start justify-center relative p-4 sm:p-6 lg:p-10 pt-6 sm:pt-8 lg:pt-10 font-sans antialiased bg-farm-bg text-farm-text">
+      <body className="min-h-screen flex items-start justify-center relative p-4 sm:p-6 lg:p-10 pt-6 sm:pt-8 lg:pt-10 font-sans antialiased bg-farm-bg text-farm-text [@media(max-height:500px)]:p-3 [@media(max-height:500px)]:pt-12">
         {children}
       </body>
     </html>
